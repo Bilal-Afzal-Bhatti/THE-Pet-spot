@@ -9,6 +9,26 @@ const kafka = new Kafka({
 let producer: Producer | null = null;
 let consumer: Consumer | null = null;
 
+// Helper to ensure topic exists before subscribing
+const ensureTopicExists = async (topicName: string) => {
+  const admin = kafka.admin();
+  try {
+    await admin.connect();
+    const topics = await admin.listTopics();
+    if (!topics.includes(topicName)) {
+      console.log(`🔨 Topic "${topicName}" does not exist. Creating...`);
+      await admin.createTopics({
+        topics: [{ topic: topicName, numPartitions: 1, replicationFactor: 1 }],
+      });
+      console.log(`✅ Topic "${topicName}" created.`);
+    }
+  } catch (err) {
+    console.warn("⚠️ Admin creation check failed, proceeding anyway:", err);
+  } finally {
+    await admin.disconnect();
+  }
+};
+
 export const getKafkaProducer = async (): Promise<Producer> => {
   if (!producer) {
     producer = kafka.producer();
@@ -32,7 +52,6 @@ export interface OtpEventData {
 export const sendOtpEvent = async (userData: OtpEventData) => {
   const eventType = userData.type || "SEND_OTP";
   
-  // Dynamic subject assignment based on event type
   const subject = eventType === "FORGOT_PASSWORD_OTP" 
     ? "PetSpot - Password Reset OTP" 
     : "Your PetSpot Verification Code";
@@ -66,14 +85,22 @@ export const sendOtpEvent = async (userData: OtpEventData) => {
   }
 };
 
-// Backward-compatible alias for registration flow
 export const sendRegistrationEvent = sendOtpEvent;
 
 export const initKafkaConsumer = async () => {
   try {
-    consumer = kafka.consumer({ groupId: "petspot-email-group" });
+    // 1. Ensure topic exists on broker before initializing consumer
+    await ensureTopicExists("user-registered");
+
+    // 2. Updated group ID to avoid offset mismatch issues on fresh broker runs
+    consumer = kafka.consumer({ groupId: "petspot-email-group-v1" });
     await consumer.connect();
-    await consumer.subscribe({ topic: "user-registered", fromBeginning: false });
+
+    // 3. Set allowAutoTopicCreation to true
+    await consumer.subscribe({ 
+      topic: "user-registered", 
+      fromBeginning: false,
+    });
 
     console.log("📥 Kafka Consumer Connected & Listening on topic: user-registered");
 

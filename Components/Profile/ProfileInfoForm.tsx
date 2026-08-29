@@ -72,10 +72,9 @@ export default function ProfileInfoForm({ onSuccess }: ProfileInfoFormProps) {
     submitData.append('name', formData.name.trim());
     submitData.append('email', formData.email.trim());
 
-    // Replace line 67:
-if (selectedImage) {
-  submitData.append('avatar', selectedImage); // Change 'profileImage' to 'avatar'
-}
+    if (selectedImage) {
+      submitData.append('avatar', selectedImage);
+    }
 
     if (removeImage) {
       submitData.append('removeProfileImage', 'true');
@@ -101,9 +100,17 @@ if (selectedImage) {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Profile Picture Upload */}
       <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">
+          Profile Picture
+        </label>
         <ProfilePictureUpload
           currentImage={authUser?.avatar}
-          onImageChange={setSelectedImage}
+          onImageChange={(file) => {
+            setSelectedImage(file);
+            if (errors.image) {
+              setErrors(prev => ({ ...prev, image: '' }));
+            }
+          }}
           onImageRemove={() => setRemoveImage(true)}
         />
         {errors.image && (
@@ -156,8 +163,8 @@ if (selectedImage) {
         <button
           type="submit"
           disabled={isUpdatingProfile}
-          className="px-8 py-3 bg-gradient-to-r from-[#028d8f] to-[#008080] hover:from-[#00595F] hover:to-[#004d4f] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-          style={{background: "var(--gradient-hero)"}}
+          className="px-8 py-3 bg-linear-to-r from-[#028d8f] to-[#008080] hover:from-[#00595F] hover:to-[#004d4f] text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          style={{ background: "var(--gradient-hero)" }}
         >
           {isUpdatingProfile ? (
             <div className="flex items-center">

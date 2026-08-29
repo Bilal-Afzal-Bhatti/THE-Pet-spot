@@ -36,22 +36,22 @@ interface AuthStore {
 
 export interface Ad {
   _id: string;
-  title: string;
-  description: string;
-  price: string;
-  category: string;
-  location: string;
-  breed: string;
-  age: string;
-  gender: string;
-  weight: string;
-  height: string;
-  maxLife: string;
-  contactNumber: string;
-  vaccinated: boolean;
-  kcpRegistered: boolean;
-  suitableFor: string;
-  images: string[];
+  title?: string;
+  description?: string;
+  price?: string;
+  category?: string;
+  location?: string;
+  breed?: string;
+  age?: string;
+  gender?: string;
+  weight?: string;
+  height?: string;
+  maxLife?: string;
+  contactNumber?: string;
+  vaccinated?: boolean;
+  kcpRegistered?: boolean;
+  suitableFor?: string;
+  images?: string[];
   isApproved: 'pending' | 'approved' | 'rejected';
 }
 
@@ -179,114 +179,95 @@ export default function Dashboard() {
           {/* <p className="text-lg opacity-90">Manage your pet advertisements</p> */}
         </div>
       </section>
+{/* Main Layout Container */}
+<div className="flex flex-1">
+  {/* Fixed Sidebar */}
+  <aside className="w-64 bg-white shrink-0">
+    <div className="p-6 h-full">
+      <div className="mb-6">
+        <button
+          onClick={() => router.push("/")}
+          className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 group"
+          title="Back to Home"
+        >
+          <svg
+            className="w-4 h-4 text-gray-600 transition-colors duration-200 group-hover:text-indigo-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M10 19l-7-7m0 0l7-7m-7 7h18"
+            />
+          </svg>
+          <span className="text-sm font-medium text-gray-600 transition-colors duration-200 group-hover:text-indigo-600">
+            Back to home
+          </span>
+        </button>
+      </div>
 
-      {/* Main Layout Container */}
-      <div className="flex flex-1">
-        {/* Fixed Sidebar */}
-        <aside className="w-64 bg-white shrink-0">
-          <div className="p-6 h-full">
-            <div className="mb-6">
-              <button
-                onClick={() => router.push("/")}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 group"
-                title="Back to Home"
-              >
-                <svg
-                  className="w-4 h-4 text-gray-600 transition-colors duration-200"
-                  style={
-                    (e => e.matches(':hover'))(document.querySelector(':hover'))
-                      ? { background: 'var(--gradient-hero)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }
-                      : {}
-                  }
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'var(--gradient-hero)';
-                    (e.currentTarget.style as any).webkitBackgroundClip = 'text';
-                    (e.currentTarget.style as any).webkitTextFillColor = 'transparent';
-                  }}
-                  onMouseLeave={(e) => e.currentTarget.style.color = '#4b5563'}
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
-                  />
-                </svg>
-                <span 
-                  className="text-sm font-medium text-gray-600 transition-colors duration-200"
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'var(--gradient-hero)';
-                    (e.currentTarget.style as any).webkitBackgroundClip = 'text';
-                    (e.currentTarget.style as any).webkitTextFillColor = 'transparent';
-                  }}
-                  onMouseLeave={(e) => e.currentTarget.style.color = '#4b5563'}
-                >
-                  Back to home
-                </span>
-              </button>
-            </div>
-            <nav className="space-y-2">
-              <button
-                onClick={() => setActiveMenu('overview')}
-                className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
-                  activeMenu === 'overview'
-                    ? 'text-white shadow-md'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                style={activeMenu === 'overview' ? { background: 'var(--gradient-hero)' } : {}}
-              >
-                📊 Overview
-              </button>
-              <button
-                onClick={() => setActiveMenu('create-ad')}
-                className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
-                  activeMenu === 'create-ad'
-                    ? 'text-white shadow-md'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                style={activeMenu === 'create-ad' ? { background: 'var(--gradient-hero)' } : {}}
-              >
-                ➕ Create Ad
-              </button>
-              <button
-                onClick={() => setActiveMenu('ads')}
-                className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
-                  activeMenu === 'ads'
-                    ? 'text-white shadow-md'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                style={activeMenu === 'ads' ? { background: 'var(--gradient-hero)' } : {}}
-              >
-                🐾 My Ads
-              </button>
-              <button
-                onClick={() => setActiveMenu('profile')}
-                className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
-                  activeMenu === 'profile'
-                    ? 'text-white shadow-md'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                style={activeMenu === 'profile' ? { background: 'var(--gradient-hero)' } : {}}
-              >
-                👤 Profile
-              </button>
-              <button
-                onClick={() => setActiveMenu('change-password')}
-                className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
-                  activeMenu === 'change-password'
-                    ? 'text-white shadow-md'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                style={activeMenu === 'change-password' ? { background: 'var(--gradient-hero)' } : {}}
-              >
-                🔒 Change Password
-              </button>
-            </nav>
-          </div>
-        </aside>
+      <nav className="space-y-2">
+        <button
+          onClick={() => setActiveMenu('overview')}
+          className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
+            activeMenu === 'overview'
+              ? 'text-white shadow-md'
+              : 'text-gray-700 hover:bg-gray-100'
+          }`}
+          style={activeMenu === 'overview' ? { background: 'var(--gradient-hero)' } : {}}
+        >
+          📊 Overview
+        </button>
+        <button
+          onClick={() => setActiveMenu('create-ad')}
+          className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
+            activeMenu === 'create-ad'
+              ? 'text-white shadow-md'
+              : 'text-gray-700 hover:bg-gray-100'
+          }`}
+          style={activeMenu === 'create-ad' ? { background: 'var(--gradient-hero)' } : {}}
+        >
+          ➕ Create Ad
+        </button>
+        <button
+          onClick={() => setActiveMenu('ads')}
+          className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
+            activeMenu === 'ads'
+              ? 'text-white shadow-md'
+              : 'text-gray-700 hover:bg-gray-100'
+          }`}
+          style={activeMenu === 'ads' ? { background: 'var(--gradient-hero)' } : {}}
+        >
+          🐾 My Ads
+        </button>
+        <button
+          onClick={() => setActiveMenu('profile')}
+          className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
+            activeMenu === 'profile'
+              ? 'text-white shadow-md'
+              : 'text-gray-700 hover:bg-gray-100'
+          }`}
+          style={activeMenu === 'profile' ? { background: 'var(--gradient-hero)' } : {}}
+        >
+          👤 Profile
+        </button>
+        <button
+          onClick={() => setActiveMenu('change-password')}
+          className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
+            activeMenu === 'change-password'
+              ? 'text-white shadow-md'
+              : 'text-gray-700 hover:bg-gray-100'
+          }`}
+          style={activeMenu === 'change-password' ? { background: 'var(--gradient-hero)' } : {}}
+        >
+          🔒 Change Password
+        </button>
+      </nav>
+    </div>
+  </aside>
 
         {/* Scrollable Main Content */}
         <main className="flex-1 bg-linear-to-br from-teal-50 to-cyan-50 overflow-y-auto">
@@ -307,7 +288,26 @@ export default function Dashboard() {
               <div className="space-y-6">
                 {ads.length > 0 ? (
                   <AdsGrid
-                    ads={ads}
+                    ads={ads.map(ad => ({
+                      ...ad,
+                      description: ad.description || '',
+                      price: ad.price || '',
+                      title: ad.title || '',
+                      category: ad.category || '',
+                      location: ad.location || '',
+                      breed: ad.breed || '',
+                      age: ad.age || '',
+                      gender: ad.gender || '',
+                      weight: ad.weight || '',
+                      height: ad.height || '',
+                      maxLife: ad.maxLife || '',
+                      contactNumber: ad.contactNumber || '',
+                      suitableFor: ad.suitableFor || '',
+                      vaccinated: ad.vaccinated ?? false,
+                      kcpRegistered: ad.kcpRegistered ?? false,
+                      images: ad.images || [],
+                      isApproved: ad.isApproved || 'pending'
+                    }))}
                     onDeleteAd={handleDeleteAd}
                     onEditAd={handleEditAd}
                   />

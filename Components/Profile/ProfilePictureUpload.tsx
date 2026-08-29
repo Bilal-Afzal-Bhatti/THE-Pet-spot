@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface ProfilePictureUploadProps {
   currentImage?: string;
@@ -8,9 +8,28 @@ interface ProfilePictureUploadProps {
 }
 
 export default function ProfilePictureUpload({ currentImage, onImageChange, onImageRemove }: ProfilePictureUploadProps) {
-  const [previewImage, setPreviewImage] = useState<string | null>(currentImage || null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Helper to append backend URL to relative paths
+  const getImageUrl = (path?: string) => {
+    if (!path) return null;
+    if (path.startsWith('http') || path.startsWith('data:') || path.startsWith('blob:')) {
+      return path;
+    }
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    return `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}`;
+  };
+
+  // Sync state when currentImage changes or after async fetch
+  useEffect(() => {
+    if (currentImage) {
+      setPreviewImage(getImageUrl(currentImage));
+    } else {
+      setPreviewImage(null);
+    }
+  }, [currentImage]);
 
   const handleFileSelect = (file: File) => {
     if (file && file.type.startsWith('image/')) {
@@ -65,9 +84,7 @@ export default function ProfilePictureUpload({ currentImage, onImageChange, onIm
 
   return (
     <div className="space-y-4">
-      <label className="block text-sm font-semibold text-gray-700">
-        Profile Picture
-      </label>
+     
 
       <div
         onDrop={handleDrop}
@@ -87,6 +104,10 @@ export default function ProfilePictureUpload({ currentImage, onImageChange, onIm
                 src={previewImage}
                 alt="Profile preview"
                 className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg mx-auto"
+                onError={(e) => {
+                  // Fallback if the image URL fails to load over HTTP
+                  (e.currentTarget as HTMLImageElement).src = '/default-avatar.png';
+                }}
               />
               <button
                 type="button"

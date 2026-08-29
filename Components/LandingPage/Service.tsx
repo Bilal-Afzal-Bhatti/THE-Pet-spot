@@ -27,45 +27,49 @@ export default function ServicesSection() {
   ];
 
   return (
-    <section className="py-16 bg-white px-44">
-      <h2 className="text-2xl md:text-3xl font-semibold text-center mb-10">
-        Exciting Services
-        <span style={{color: 'var(--color-primary)'}} className="font-bold"> For Your Pets</span>
+    <section className="py-12 sm:py-16 bg-white px-4 sm:px-8 lg:px-16 xl:px-24 w-full">
+      {/* Section Header */}
+      <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold text-center mb-8 sm:mb-12">
+        Exciting Services{" "}
+        <span style={{ color: "var(--color-primary)" }} className="font-bold">
+          For Your Pets
+        </span>
       </h2>
 
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-[16rem]">
+      {/* Grid Container */}
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 auto-rows-[14rem] sm:auto-rows-[16rem]">
           {services.map((service, index) => (
             <div
               key={index}
-              className={`relative group rounded-lg overflow-hidden shadow-md hover:shadow-xl transition
-                ${
-                  index === 1
-                    ? "lg:col-span-2 lg:row-span-1" // 2nd image spans 2 columns
-                    : ""
-                }
-                ${
-                  index === 3 || index === 4
-                    ? "lg:col-span-2 lg:row-start-2" // 4th and 5th image span 2 columns
-                    : ""
-                }
-              `}
+              className={`relative group rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 ${
+                index === 1
+                  ? "lg:col-span-2"
+                  : index === 3 || index === 4
+                  ? "lg:col-span-2"
+                  : "col-span-1"
+              }`}
             >
-              <Image
-                src={service.image}
-                alt={service.title}
-                width={600}
-                height={400}
-                className="w-full h-full object-cover"
-              />
+              {/* Image */}
+              <div className="relative w-full h-full">
+                <Image
+                  src={service.image}
+                  alt={service.title}
+                  fill
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                />
+              </div>
 
-              {/* Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 group-hover:to-black/90 transition flex flex-col justify-end items-center text-white text-center p-4">
-                <h3 className="text-2xl font-semibold mb-3">{service.title}</h3>
+              {/* Gradient Overlay & Content */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/90 group-hover:via-black/50 transition-all duration-300 flex flex-col justify-end items-center text-white text-center p-4 sm:p-6">
+                <h3 className="text-xl sm:text-2xl font-semibold mb-3 transform group-hover:-translate-y-1 transition-transform duration-300">
+                  {service.title}
+                </h3>
 
-                {/* Hide button for last item */}
+                {/* Book Now Button */}
                 {index !== 4 && (
-                  <button className="border border-white px-4 py-2 rounded text-xs font-bold  transition">
+                  <button className="border border-white/80 hover:border-white bg-white/10 hover:bg-white hover:text-black px-5 py-2 rounded-md text-xs sm:text-sm font-bold tracking-wide transition-all duration-300 cursor-pointer backdrop-blur-xs">
                     Book Now
                   </button>
                 )}

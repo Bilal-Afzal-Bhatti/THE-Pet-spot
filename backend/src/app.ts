@@ -7,6 +7,7 @@ import rateLimit from "express-rate-limit";
 import { AppError } from "./utils/AppError.js";
 import { errorHandler } from "./middlewares/errorMiddleware.js";
 import userRoutes from "./routes/userRoutes.js";
+import adminAdRoutes from './routes/adminAd.routes.js';
 import path from "path";
 const app: Application = express();
 
@@ -50,9 +51,14 @@ app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(cookieParser());
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
+
 // 5. API Routes (MUST use app.use)
+
 app.use("/api/users", userRoutes);
 
+// Register route path matching your Zustand store configuration
+app.use('/api/ads', adminAdRoutes);
 // 6. Health Check Route
 app.get("/health", (_req: Request, res: Response) => {
   res.status(200).json({ status: "OK", message: "Server is healthy" });

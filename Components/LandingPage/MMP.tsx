@@ -53,84 +53,96 @@ export default function WhyMMP() {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
   return (
-    <section className="py-16 bg-[var(--gradient-hero)] px-44" style={{ background: 'var(--gradient-hero)' }}>
-      {/* Heading */}
-      <div className="text-center mb-10">
-        <h2 className="text-3xl md:text-4xl font-bold text-white mb-2">
-          Why <span style={{color: 'var(--color-primary)'}}> Pets Corner? </span>
-        </h2>
-        <p className="text-white font-medium text-sm">
-          Looking for a furry companion? Know why Pets Corner is the perfect option for
-          you.
-        </p>
-      </div>
+    <section
+      className="py-12 sm:py-16 px-4 sm:px-8 lg:px-16 xl:px-24 w-full"
+      style={{ background: "var(--gradient-hero)" }}
+    >
+      <div className="max-w-7xl mx-auto">
+        {/* Heading */}
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-2">
+            Why{" "}
+            <span style={{ color: "var(--color-primary)" }}>Pets Corner?</span>
+          </h2>
+          <p className="text-white/90 font-medium text-xs sm:text-sm max-w-lg mx-auto">
+            Looking for a furry companion? Know why Pets Corner is the perfect
+            option for you.
+          </p>
+        </div>
 
-      {/* Cards */}
-      <div className=" grid gap-8 md:grid-cols-3 sm:grid-cols-2 ">
-        {features.map((item, idx) => {
-          const isExpanded = expandedIndex === idx;
+        {/* Cards Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+          {features.map((item, idx) => {
+            const isExpanded = expandedIndex === idx;
 
-          return (
-            <div
-              key={idx}
-              className="relative bg-white rounded-2xl shadow-md border border-gray-100 py-8 px-6 hover:shadow-lg transition-all duration-300 overflow-hidden"
-            >
-              {/* Decorative Paw */}
-              <div className="absolute top-0 -right-10 z-30 opacity-80 w-32 h-32 pointer-events-none">
-                <Image
-                  src={item.paws}
-                  alt="paws"
-                  width={120}
-                  height={120}
-                  className="object-contain"
-                />
-              </div>
-
-              {/* Icon */}
-              <div className="mb-5">
-                <Image
-                  src={item.image}
-                  alt={item.title}
-                  width={60}
-                  height={60}
-                  className="object-contain"
-                />
-              </div>
-
-              {/* Title */}
-              <h3 className="font-semibold text-xl text-gray-900 mb-2">
-                {item.title}
-              </h3>
-
-              {/* Description with 3.5 lines when collapsed */}
-              <p
-                className={`text-xs text-gray-600 leading-relaxed transition-all duration-300 ${
-                  isExpanded ? "line-clamp-none" : "line-clamp-3"
-                }`}
-                style={
-                  !isExpanded
-                    ? {
-                        display: "-webkit-box",
-                        WebkitLineClamp: "3",
-                        WebkitBoxOrient: "vertical",
-                        overflow: "hidden",
-                      }
-                    : {}
-                }
+            return (
+              <div
+                key={idx}
+                className="relative bg-white rounded-2xl shadow-md border border-gray-100 py-6 sm:py-8 px-5 sm:px-6 hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between"
               >
-                {item.description}
-              </p>
+                {/* Decorative Paw */}
+                <div className="absolute top-0 -right-6 sm:-right-8 z-10 opacity-70 w-24 h-24 sm:w-28 sm:h-28 pointer-events-none">
+                  <Image
+                    src={item.paws}
+                    alt="paws"
+                    width={110}
+                    height={110}
+                    className="object-contain"
+                  />
+                </div>
 
-              {/* Toggle Button */}
-              <button
-                onClick={() => setExpandedIndex(isExpanded ? null : idx)}
-                className="text-[#1E7E8F] text-xs inline  font-medium hover:underline mt-2"
-              >
-                {isExpanded ? "View Less" : "View More"}
-              </button>
-            </div>
-          );
-        })}
+                <div>
+                  {/* Icon */}
+                  <div className="mb-4 sm:mb-5">
+                    <Image
+                      src={item.image}
+                      alt={item.title}
+                      width={56}
+                      height={56}
+                      className="object-contain w-12 h-12 sm:w-14 sm:h-14"
+                    />
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="font-semibold text-lg sm:text-xl text-gray-900 mb-2">
+                    {item.title}
+                  </h3>
+
+                  {/* Description */}
+                  <p
+                    className={`text-xs sm:text-sm text-gray-600 leading-relaxed transition-all duration-300 ${
+                      isExpanded ? "line-clamp-none" : "line-clamp-3"
+                    }`}
+                    style={
+                      !isExpanded
+                        ? {
+                            display: "-webkit-box",
+                            WebkitLineClamp: "3",
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                          }
+                        : {}
+                    }
+                  >
+                    {item.description}
+                  </p>
+                </div>
+
+                {/* Toggle Button */}
+                <div className="mt-3 pt-1">
+                  <button
+                    onClick={() =>
+                      setExpandedIndex(isExpanded ? null : idx)
+                    }
+                    className="text-[#1E7E8F] text-xs sm:text-sm font-semibold hover:underline inline-block cursor-pointer"
+                  >
+                    {isExpanded ? "View Less" : "View More"}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

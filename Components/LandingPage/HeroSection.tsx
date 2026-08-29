@@ -1,4 +1,5 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -19,7 +20,7 @@ export default function HeroSection() {
     "/pets/image2.webp",
     "/pets/image3.avif",
     "/pets/image4.webp",
-    "/pets/image5.jpg"
+    "/pets/image5.jpg",
   ];
 
   // Auto-play carousel with smooth transitions
@@ -79,6 +80,7 @@ export default function HeroSection() {
   const handleSearch = () => {
     if (
       !selectedPet ||
+      selectedPet === "Select Pet Type" ||
       selectedPet === "Please Select The Pet You Are Looking For..."
     ) {
       alert("Please select a pet type first!");
@@ -99,49 +101,55 @@ export default function HeroSection() {
 
   return (
     <>
-      {/* Hero Section with Modern Design */}
-      <section className="relative min-h-[85vh] w-full overflow-hidden px-16" style={{ background: 'var(--gradient-hero)' }}>
+      {/* Hero Section */}
+      <section
+        className="relative min-h-[85vh] w-full overflow-hidden px-4 sm:px-8 lg:px-12 xl:px-24"
+        style={{ background: "var(--gradient-hero)" }}
+      >
         {/* Animated Background Elements */}
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-64 h-64 bg-white rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-white rounded-full blur-3xl animate-pulse delay-700"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-white rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute inset-0 opacity-10 pointer-events-none">
+          <div className="absolute top-20 left-10 w-48 sm:w-64 h-48 sm:h-64 bg-white rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-10 w-64 sm:w-96 h-64 sm:h-96 bg-white rounded-full blur-3xl animate-pulse delay-700"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-white rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
-        <div className="relative z-10 container mx-auto px-6 pt-20 pb-32">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="relative z-10 max-w-7xl mx-auto pt-10 sm:pt-16 lg:pt-20 pb-16 sm:pb-24 lg:pb-32">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left Content */}
-            <div className="text-white space-y-8 mt-10">
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <FaPaw className="text-4xl text-white animate-bounce" />
-                  <span className="text-sm font-semibold tracking-widest uppercase bg-white/20 px-4 py-2 rounded-full backdrop-blur-sm">
+            <div className="text-white space-y-6 sm:space-y-8 mt-12 lg:mt-10">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="flex items-center gap-2 mb-2 sm:mb-4 flex-wrap">
+                  <FaPaw className="text-2xl sm:text-3xl text-white animate-bounce shrink-0" />
+                  <span className="text-xs sm:text-sm font-semibold tracking-widest uppercase bg-white/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full backdrop-blur-sm">
                     Welcome to Pets Corner
                   </span>
                 </div>
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
-                  Find Your
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">
+                  Find Your{" "}
                   <span className="block bg-gradient-to-r from-white to-yellow-200 bg-clip-text text-transparent">
                     Perfect Companion
                   </span>
                 </h1>
-                <p className="text-xl md:text-xl text-white/90 font-light leading-relaxed">
-                  Connecting loving families with adorable pets. Your journey to unconditional love starts here.
+                <p className="text-base sm:text-lg md:text-xl text-white/90 font-light leading-relaxed max-w-xl">
+                  Connecting loving families with adorable pets. Your journey to
+                  unconditional love starts here.
                 </p>
               </div>
 
-              {/* Search Box - Modern Card Style */}
-              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl p-6 space-y-4">
-                <div className="flex items-center gap-2 text-white mb-2">
-                  <FaSearch className="text-[var(--color-primary)]" />
-                  <h3 className="font-semibold text-lg">Search for Your Pet</h3>
+              {/* Search Box */}
+              <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl p-4 sm:p-6 space-y-4">
+                <div className="flex items-center gap-2 text-white mb-1">
+                  <FaSearch className="text-[var(--color-primary)] text-lg" />
+                  <h3 className="font-semibold text-base sm:text-lg">
+                    Search for Your Pet
+                  </h3>
                 </div>
-                
-                <div className="flex w-full space-x-4">
+
+                <div className="flex flex-col sm:flex-row w-full gap-3 sm:gap-4">
                   <select
                     value={selectedPet}
                     onChange={(e) => setSelectedPet(e.target.value)}
-                    className="w-2/3 p-4 border-2 border-white/30 rounded-xl outline-none font-medium text-gray-900 bg-white/90 backdrop-blur-sm hover:border-[var(--color-primary)] focus:border-[var(--color-primary)] focus:bg-white transition-all cursor-pointer"
+                    className="w-full sm:w-2/3 p-3.5 sm:p-4 border-2 border-white/30 rounded-xl outline-none font-medium text-gray-900 bg-white/90 backdrop-blur-sm hover:border-[var(--color-primary)] focus:border-[var(--color-primary)] focus:bg-white transition-all cursor-pointer text-sm sm:text-base"
                   >
                     <option>Select Pet Type</option>
                     <option>Dogs</option>
@@ -151,34 +159,41 @@ export default function HeroSection() {
 
                   <button
                     onClick={handleSearch}
-                    className="w-1/3 text-black font-bold py-4 rounded-xl hover:shadow-xl hover:scale-[1.02] transition-all duration-300 flex items-center justify-center gap-2"
-                    style={{ background: 'var(--color-primary)' }}
+                    className="w-full sm:w-1/3 text-black font-bold py-3.5 sm:py-4 rounded-xl hover:shadow-xl hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 text-sm sm:text-base shrink-0 cursor-pointer"
+                    style={{ background: "var(--color-primary)" }}
                   >
                     <FaSearch />
-                    Search Pets
+                    <span>Search</span>
                   </button>
                 </div>
               </div>
 
               {/* Quick Stats */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4">
                 {[
                   { label: "Happy Families", value: "10K+" },
                   { label: "Pets Listed", value: "5K+" },
-                  { label: "Breeders", value: "500+" }
+                  { label: "Breeders", value: "500+" },
                 ].map((stat, i) => (
-                  <div key={i} className="bg-white/20 backdrop-blur-md rounded-xl p-4 text-center">
-                    <div className="text-2xl font-bold text-white">{stat.value}</div>
-                    <div className="text-sm text-white/80">{stat.label}</div>
+                  <div
+                    key={i}
+                    className="bg-white/20 backdrop-blur-md rounded-xl p-3 sm:p-4 text-center"
+                  >
+                    <div className="text-xl sm:text-2xl font-bold text-white">
+                      {stat.value}
+                    </div>
+                    <div className="text-xs sm:text-sm text-white/80 font-medium">
+                      {stat.label}
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Right Content - Smooth Sliding Carousel */}
-            <div className="relative hidden lg:block">
-              <div className="relative w-full h-[500px] rounded-3xl overflow-hidden shadow-2xl">
-                {/* Sliding Images Container */}
+            {/* Right Content - Smooth Carousel */}
+            <div className="relative w-full">
+              <div className="relative w-full h-[280px] sm:h-[380px] lg:h-[500px] rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl">
+                {/* Image Track */}
                 <div
                   className="flex h-full transition-transform duration-700 ease-out"
                   style={{
@@ -186,58 +201,68 @@ export default function HeroSection() {
                   }}
                 >
                   {petImages.map((image, index) => (
-                    <div key={index} className="relative w-full h-full flex-shrink-0">
+                    <div
+                      key={index}
+                      className="relative w-full h-full flex-shrink-0"
+                    >
                       <Image
                         src={image}
                         alt={`Pet ${index + 1}`}
                         fill
+                        sizes="(max-width: 1024px) 100vw, 50vw"
                         className="object-cover transition-all duration-1000 ease-out"
                         style={{
-                          transform: isTransitioning ? 'scale(1.05)' : 'scale(1)',
+                          transform: isTransitioning
+                            ? "scale(1.05)"
+                            : "scale(1)",
                         }}
                         priority={index === 0}
                       />
 
-                      {/* Dynamic Gradient Overlay */}
+                      {/* Overlay */}
                       <div
                         className="absolute inset-0 transition-all duration-1000 ease-out"
                         style={{
-                          background: `linear-gradient(to top, rgba(0,0,0,${0.6 + (index * 0.1)}) 0%, transparent 60%)`,
+                          background: `linear-gradient(to top, rgba(0,0,0,${
+                            0.5 + index * 0.08
+                          }) 0%, transparent 60%)`,
                         }}
                       ></div>
-
                     </div>
                   ))}
                 </div>
 
-                {/* Enhanced Navigation Arrows */}
+                {/* Arrows */}
                 <button
                   onClick={prevImage}
                   disabled={isTransitioning}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 w-14 h-14 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                  aria-label="Previous Image"
+                  className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-10 sm:w-12 h-10 sm:h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg cursor-pointer z-10"
                 >
-                  <FaChevronLeft className="text-xl" />
+                  <FaChevronLeft className="text-base sm:text-xl" />
                 </button>
 
                 <button
                   onClick={nextImage}
                   disabled={isTransitioning}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 w-14 h-14 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                  aria-label="Next Image"
+                  className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 w-10 sm:w-12 h-10 sm:h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300 hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg cursor-pointer z-10"
                 >
-                  <FaChevronRight className="text-xl" />
+                  <FaChevronRight className="text-base sm:text-xl" />
                 </button>
 
-                {/* Enhanced Image Indicators */}
-                <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-3">
+                {/* Indicators */}
+                <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex space-x-2 sm:space-x-3 z-10">
                   {petImages.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => goToImage(index)}
                       disabled={isTransitioning}
-                      className={`relative transition-all duration-500 ${
+                      aria-label={`Go to slide ${index + 1}`}
+                      className={`relative transition-all duration-500 cursor-pointer ${
                         index === currentImageIndex
-                          ? 'w-8 h-3 bg-white shadow-lg'
-                          : 'w-3 h-3 bg-white/50 hover:bg-white/75'
+                          ? "w-6 sm:w-8 h-2.5 sm:h-3 bg-white shadow-lg"
+                          : "w-2.5 sm:w-3 h-2.5 sm:h-3 bg-white/50 hover:bg-white/75"
                       } rounded-full disabled:cursor-not-allowed`}
                     >
                       {index === currentImageIndex && (
@@ -248,11 +273,13 @@ export default function HeroSection() {
                 </div>
 
                 {/* Progress Bar */}
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20">
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20 z-10">
                   <div
                     className="h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] transition-all duration-700 ease-out rounded-r-full"
                     style={{
-                      width: `${((currentImageIndex + 1) / petImages.length) * 100}%`,
+                      width: `${
+                        ((currentImageIndex + 1) / petImages.length) * 100
+                      }%`,
                     }}
                   ></div>
                 </div>

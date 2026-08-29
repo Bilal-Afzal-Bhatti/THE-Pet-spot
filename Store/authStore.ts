@@ -183,26 +183,24 @@ export const authStore = create(
         }
       },
 
-      // ✅ Update user profile
-      updateUser: async (formData: FormData) => {
-        set({ isUpdatingProfile: true });
-        try {
-          const res = await axios.patch(`${Base_URL}/api/users/profile`, formData, {
-            withCredentials: true,
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-          });
-          set({ authUser: res.data.user });
-          toast.success(res.data.message || "Profile updated successfully");
-          return true;
-        } catch (error: any) {
-          toast.error(error.response?.data?.message || "Profile update failed");
-          return false;
-        } finally {
-          set({ isUpdatingProfile: false });
-        }
-      },
+    // ✅ Update user profile
+updateUser: async (formData: FormData) => {
+  set({ isUpdatingProfile: true });
+  try {
+    const res = await axios.patch(`${Base_URL}/api/users/profile`, formData, {
+      withCredentials: true,
+      // Removed manual Content-Type header so the browser sets the boundary correctly
+    });
+    set({ authUser: res.data.user });
+    toast.success(res.data.message || "Profile updated successfully");
+    return true;
+  } catch (error: any) {
+    toast.error(error.response?.data?.message || "Profile update failed");
+    return false;
+  } finally {
+    set({ isUpdatingProfile: false });
+  }
+},
 
       // ✅ Change password
       changePassword: async (data: { oldPassword: string; newPassword: string }) => {
