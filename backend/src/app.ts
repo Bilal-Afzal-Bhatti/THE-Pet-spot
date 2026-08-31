@@ -9,7 +9,9 @@ import { AppError } from "./utils/AppError.js";
 import { errorHandler } from "./middlewares/errorMiddleware.js";
 import userRoutes from "./routes/userRoutes.js";
 import userAdsRoutes from "./routes/userAdsRoutes.js";
-
+import orderRoutes from "./routes/orderRoutes.js";
+import { handleStripeWebhook } from "./controllers/webhookController.js";
+import petSlugRoutes from "./routes/petSlugRoutes.js";
 const app: Application = express();
 
 // 1. Security HTTP Headers (Configured to allow local uploads serving)
@@ -45,7 +47,7 @@ app.use(
     origin: CLIENT_URL,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+  allowedHeaders: ["Content-Type", "Authorization", "Idempotency-Key"]
   })
 );
 
@@ -59,7 +61,14 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 // 5. API Routes
 app.use("/api/users", userRoutes);
 app.use("/api/ads", userAdsRoutes);
+app.use("/api/orders", orderRoutes);
 
+app.post(
+  "/api/webhooks/stripe",
+  express.raw({ type: "application/json" }),
+  handleStripeWebhook
+);
+app.use("/api/pets", petSlugRoutes);
 // 6. Health Check Route
 app.get("/health", (_req: Request, res: Response) => {
   res.status(200).json({ status: "OK", message: "Server is healthy" });
