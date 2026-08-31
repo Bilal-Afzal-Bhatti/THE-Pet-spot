@@ -32,7 +32,7 @@ export default function HappyCustomers() {
         {/* Image + Text Wrapper */}
         <div className="flex flex-col lg:flex-row items-center lg:items-start justify-center gap-8 w-full">
           {/* Image Container with Nav Overlay */}
-          <div className="relative w-full max-w-[500px] h-[260px] sm:h-[320px] md:h-[350px] overflow-hidden rounded-md shadow shrink-0">
+          <div className="relative w-full max-w-[500px] h-[260px] sm:h-80 md:h-[350px] overflow-hidden rounded-md shadow shrink-0">
             <button
               onClick={prevSlide}
               aria-label="Previous"

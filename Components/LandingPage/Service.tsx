@@ -62,7 +62,7 @@ export default function ServicesSection() {
               </div>
 
               {/* Gradient Overlay & Content */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/90 group-hover:via-black/50 transition-all duration-300 flex flex-col justify-end items-center text-white text-center p-4 sm:p-6">
+              <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/40 to-transparent group-hover:from-black/90 group-hover:via-black/50 transition-all duration-300 flex flex-col justify-end items-center text-white text-center p-4 sm:p-6">
                 <h3 className="text-xl sm:text-2xl font-semibold mb-3 transform group-hover:-translate-y-1 transition-transform duration-300">
                   {service.title}
                 </h3>

@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import AdminAd from '../models/adminAd.model.js';
+import UserAd from '../models/userAdsModel.js';
 
 // Helper to safely extend Express Request with user property
 interface AuthenticatedRequest extends Request {
@@ -17,7 +17,7 @@ const normalizeParam = (value: string | string[] | undefined): string | undefine
 };
 
 // Create new pet ad
-export const createAdminAd = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const createUserAd = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?._id;
     if (!userId) {
@@ -40,7 +40,7 @@ export const createAdminAd = async (req: AuthenticatedRequest, res: Response): P
       suitableForArr = body.suitableFor;
     }
 
-    const newAd = new AdminAd({
+    const newAd = new UserAd({
       user: userId,
       name: body.name || body.title,
       category: body.category || body.type,
@@ -69,7 +69,7 @@ export const createAdminAd = async (req: AuthenticatedRequest, res: Response): P
 };
 
 // Update existing ad
-export const updateAdminAd = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const updateUserAd = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const id = normalizeParam(req.params.id);
     const userId = req.user?._id;
@@ -79,7 +79,7 @@ export const updateAdminAd = async (req: AuthenticatedRequest, res: Response): P
       return;
     }
 
-    const ad = await AdminAd.findOne({ _id: new mongoose.Types.ObjectId(id), user: userId });
+    const ad = await UserAd.findOne({ _id: new mongoose.Types.ObjectId(id), user: userId });
     if (!ad) {
       res.status(404).json({ message: 'Ad not found or unauthorized' });
       return;
@@ -132,7 +132,7 @@ export const updateAdminAd = async (req: AuthenticatedRequest, res: Response): P
 };
 
 // Delete ad
-export const deleteAdminAd = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const deleteUserAd = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const id = normalizeParam(req.params.id);
     const userId = req.user?._id;
@@ -142,7 +142,7 @@ export const deleteAdminAd = async (req: AuthenticatedRequest, res: Response): P
       return;
     }
 
-    const ad = await AdminAd.findOneAndDelete({ _id: new mongoose.Types.ObjectId(id), user: userId });
+    const ad = await UserAd.findOneAndDelete({ _id: new mongoose.Types.ObjectId(id), user: userId });
     if (!ad) {
       res.status(404).json({ message: 'Ad not found or unauthorized' });
       return;
@@ -155,7 +155,7 @@ export const deleteAdminAd = async (req: AuthenticatedRequest, res: Response): P
 };
 
 // Get user-owned ads
-export const getUserAdminAds = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+export const getUserUserAds = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const userId = req.user?._id;
     if (!userId) {
@@ -163,7 +163,7 @@ export const getUserAdminAds = async (req: AuthenticatedRequest, res: Response):
       return;
     }
 
-    const ads = await AdminAd.find({ user: userId }).sort({ createdAt: -1 });
+    const ads = await UserAd.find({ user: userId }).sort({ createdAt: -1 });
     res.status(200).json({ ads });
   } catch (error: any) {
     res.status(500).json({ message: error.message || 'Failed to fetch user ads' });
@@ -171,7 +171,7 @@ export const getUserAdminAds = async (req: AuthenticatedRequest, res: Response):
 };
 
 // Get approved ads by category with pagination
-export const getApprovedAdminAdsByCategory = async (req: Request, res: Response): Promise<void> => {
+export const getApprovedUserAdsByCategory = async (req: Request, res: Response): Promise<void> => {
   try {
     const categoryParam = req.params.category;
     if (!categoryParam || typeof categoryParam !== 'string') {
@@ -183,13 +183,17 @@ export const getApprovedAdminAdsByCategory = async (req: Request, res: Response)
     const limit = parseInt(req.query.limit as string) || 12;
     const skip = (page - 1) * limit;
 
+    // Normalize category: strip trailing 's' if present (e.g., "cats" -> "cat")
+    const cleanCategory = categoryParam.replace(/s$/i, '');
+
+    // Pattern matches both "cat" and "cats" case-insensitively
     const filter = {
-      category: { $regex: new RegExp(`^${categoryParam}$`, 'i') },
+      category: { $regex: new RegExp(`^${cleanCategory}s?$`, 'i') },
       isApproved: 'approved' as const,
     };
 
-    const totalAds = await AdminAd.countDocuments(filter);
-    const ads = await AdminAd.find(filter)
+    const totalAds = await UserAd.countDocuments(filter);
+    const ads = await UserAd.find(filter)
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
@@ -206,9 +210,8 @@ export const getApprovedAdminAdsByCategory = async (req: Request, res: Response)
     res.status(500).json({ message: error.message || 'Failed to fetch approved ads' });
   }
 };
-
 // Get single approved ad by ID
-export const getApprovedAdminAdById = async (req: Request, res: Response): Promise<void> => {
+export const getApprovedUserAdById = async (req: Request, res: Response): Promise<void> => {
   try {
     const idParam = req.params.id;
 
@@ -217,7 +220,7 @@ export const getApprovedAdminAdById = async (req: Request, res: Response): Promi
       return;
     }
 
-    const ad = await AdminAd.findOne({
+    const ad = await UserAd.findOne({
       _id: new mongoose.Types.ObjectId(idParam),
       isApproved: 'approved',
     });

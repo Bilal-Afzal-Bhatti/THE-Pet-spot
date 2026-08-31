@@ -126,7 +126,7 @@ export default function HeroSection() {
                 </div>
                 <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">
                   Find Your{" "}
-                  <span className="block bg-gradient-to-r from-white to-yellow-200 bg-clip-text text-transparent">
+                  <span className="block bg-linear-to-r from-white to-yellow-200 bg-clip-text text-transparent">
                     Perfect Companion
                   </span>
                 </h1>
@@ -139,7 +139,7 @@ export default function HeroSection() {
               {/* Search Box */}
               <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl p-4 sm:p-6 space-y-4">
                 <div className="flex items-center gap-2 text-white mb-1">
-                  <FaSearch className="text-[var(--color-primary)] text-lg" />
+                  <FaSearch className="text-(--color-primary) text-lg" />
                   <h3 className="font-semibold text-base sm:text-lg">
                     Search for Your Pet
                   </h3>
@@ -149,7 +149,7 @@ export default function HeroSection() {
                   <select
                     value={selectedPet}
                     onChange={(e) => setSelectedPet(e.target.value)}
-                    className="w-full sm:w-2/3 p-3.5 sm:p-4 border-2 border-white/30 rounded-xl outline-none font-medium text-gray-900 bg-white/90 backdrop-blur-sm hover:border-[var(--color-primary)] focus:border-[var(--color-primary)] focus:bg-white transition-all cursor-pointer text-sm sm:text-base"
+                    className="w-full sm:w-2/3 p-3.5 sm:p-4 border-2 border-white/30 rounded-xl outline-none font-medium text-gray-900 bg-white/90 backdrop-blur-sm hover:border-(--color-primary) focus:border-(--color-primary) focus:bg-white transition-all cursor-pointer text-sm sm:text-base"
                   >
                     <option>Select Pet Type</option>
                     <option>Dogs</option>
@@ -203,7 +203,7 @@ export default function HeroSection() {
                   {petImages.map((image, index) => (
                     <div
                       key={index}
-                      className="relative w-full h-full flex-shrink-0"
+                      className="relative w-full h-full shrink-0"
                     >
                       <Image
                         src={image}
@@ -275,7 +275,7 @@ export default function HeroSection() {
                 {/* Progress Bar */}
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/20 z-10">
                   <div
-                    className="h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] transition-all duration-700 ease-out rounded-r-full"
+                    className="h-full bg-linear-to-r from-(--color-primary) to-(--color-secondary) transition-all duration-700 ease-out rounded-r-full"
                     style={{
                       width: `${
                         ((currentImageIndex + 1) / petImages.length) * 100

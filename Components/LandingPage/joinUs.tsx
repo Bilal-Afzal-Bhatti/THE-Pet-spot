@@ -113,7 +113,7 @@ export default function HomePage() {
             />
 
             {card.button ? (
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/80 flex flex-col justify-end mb-3 items-center text-center text-white transition-all duration-300">
+              <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/80 flex flex-col justify-end mb-3 items-center text-center text-white transition-all duration-300">
                 <h4 className="text-2xl font-semibold mb-1">{card.title}</h4>
                 <p className="text-sm mb-3 opacity-90">{card.subtitle}</p>
                 <button className="border border-white px-4 py-1 text-sm rounded hover:bg-white hover:text-black transition">
@@ -121,7 +121,7 @@ export default function HomePage() {
                 </button>
               </div>
             ) : (
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 flex items-end p-3">
+              <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/60 flex items-end p-3">
                 <div className="text-white font-semibold text-lg drop-shadow-md">
                   {card.title}
                 </div>

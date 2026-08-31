@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IAdminAd extends Document {
+export interface IUserAd extends Document {
   user: mongoose.Types.ObjectId;
   name: string;
   category: string;
@@ -24,7 +24,7 @@ export interface IAdminAd extends Document {
   updatedAt: Date;
 }
 
-const adminAdSchema = new Schema<IAdminAd>(
+const userAdSchema = new Schema<IUserAd>(
   {
     user: {
       type: Schema.Types.ObjectId,
@@ -42,7 +42,7 @@ const adminAdSchema = new Schema<IAdminAd>(
     vaccinated: { type: Boolean, default: false },
     kcpRegistered: { type: Boolean, default: false },
     description: { type: String, required: true },
- 
+
     city: { type: String, required: true },
     price: { type: Number, required: true },
     contactNumber: { type: String, required: true },
@@ -57,4 +57,4 @@ const adminAdSchema = new Schema<IAdminAd>(
   { timestamps: true }
 );
 
-export default mongoose.model<IAdminAd>('AdminAd', adminAdSchema);
+export default mongoose.model<IUserAd>('UserAd', userAdSchema);
