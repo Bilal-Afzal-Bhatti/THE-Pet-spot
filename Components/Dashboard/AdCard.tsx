@@ -87,7 +87,7 @@ const getImageUrl = (imagePath?: string) => {
                 (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x300?text=Image+Not+Found';
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
             {/* Multiple Images Selector Dots */}
             {ad.images && ad.images.length > 1 && (
@@ -145,7 +145,7 @@ const getImageUrl = (imagePath?: string) => {
             </div>
           </div>
         ) : (
-          <div className="h-64 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative">
+          <div className="h-64 bg-linear-to-br from-gray-100 to-gray-200 flex items-center justify-center relative">
             <div className="text-center">
               <svg className="w-16 h-16 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -206,7 +206,7 @@ const getImageUrl = (imagePath?: string) => {
         <div className="flex space-x-3 pt-2">
           <button
             onClick={handleEdit}
-            className="flex-1 bg-gradient-to-r from-[#028d8f] to-[#008080] hover:from-[#00595F] hover:to-[#004d4f] text-white py-2.5 px-4 rounded-xl font-semibold transition-all duration-200 transform hover:scale-[1.02] active:scale-95 flex items-center justify-center shadow-md hover:shadow-lg"
+            className="flex-1 bg-linear-to-r from-[#028d8f] to-[#008080] hover:from-[#00595F] hover:to-[#004d4f] text-white py-2.5 px-4 rounded-xl font-semibold transition-all duration-200 transform hover:scale-[1.02] active:scale-95 flex items-center justify-center shadow-md hover:shadow-lg"
             disabled={isDeletingThis}
           >
             <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

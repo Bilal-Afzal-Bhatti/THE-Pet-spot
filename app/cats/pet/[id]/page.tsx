@@ -53,7 +53,7 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
   if (error || !pet) {
     return (
       <div className="min-h-screen font-raleway">
-        <div className="bg-gradient-to-r from-orange-500 to-orange-600 h-32"></div>
+        <div className="bg-linear-to-r from-orange-500 to-orange-600 h-32"></div>
         <div className="p-6 px-44 -mt-16 relative z-10 flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="text-6xl mb-4">🐱</div>
@@ -194,7 +194,7 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
             <div className="grid grid-cols-2 gap-3">
               <a
                 href={`tel:${pet.contactNumber}`}
-                className="px-4 py-3 rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors text-sm font-medium text-center block text-white"
+                className="px-4 py-3 rounded-lg hover:bg-(--color-primary-hover) transition-colors text-sm font-medium text-center block text-white"
                 style={{background: "var(--gradient-hero)"}}
               >
                 <FiPhone className="inline mr-2" />
@@ -204,7 +204,7 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
                 href={`https://wa.me/${pet.contactNumber}?text=${encodeURIComponent('Hi, I saw your ad, I am interested')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-3 rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors text-sm font-medium text-center block text-white"
+                className="px-4 py-3 rounded-lg hover:bg-(--color-primary-hover) transition-colors text-sm font-medium text-center block text-white"
                 style={{background: "var(--gradient-hero)"}}
               >
                 Chat

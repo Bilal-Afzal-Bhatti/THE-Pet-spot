@@ -122,7 +122,7 @@ export default function AdsGrid({ ads, onDeleteAd, onEditAd }: AdsGridProps) {
                   <tr key={ad._id} className="hover:bg-gray-50/80 transition-colors duration-200">
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-4">
-                        <div className="flex-shrink-0">
+                        <div className="shrink-0">
                           <img
                             src={getImageUrl(ad.images?.[0])}
                             alt={titleText}

@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import { Raleway } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
-import LayoutContent from "./components/LayoutContent"; // Move pathname logic here
+import LayoutContent from "./components/LayoutContent";
 
 const raleway = Raleway({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-raleway",
+  display: "swap", // Prevents layout shifts during font loading
 });
 
 export const metadata: Metadata = {
@@ -81,8 +82,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body className={`${raleway.variable} antialiased`} suppressHydrationWarning>
-        <Toaster position="top-center" reverseOrder={false} />
-        <LayoutContent>{children}</LayoutContent>
+        {/* Single root container reduces direct body children to 2 */}
+        <div id="app-root" className="min-h-screen flex flex-col">
+          <Toaster position="top-center" reverseOrder={false} />
+          <LayoutContent>{children}</LayoutContent>
+        </div>
       </body>
     </html>
   );

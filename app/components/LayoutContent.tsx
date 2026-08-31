@@ -8,15 +8,24 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
   const pathname = usePathname();
 
   const isDashboard = pathname === "/dashboard";
-  const hideNavbar = ["/login", "/sign-up", "/forgot-password", "/reset-password"].includes(
-    pathname
-  );
+  const hideNavbar = [
+    "/login",
+    "/sign-up",
+    "/forgot-password",
+    "/reset-password",
+  ].includes(pathname);
 
   return (
-    <>
-      {!hideNavbar && <Navbar />}
-      {children}
+    <div className="flex min-h-screen flex-col">
+      {!hideNavbar && (
+        <header>
+          <Navbar />
+        </header>
+      )}
+
+      <main className="flex-1">{children}</main>
+
       {!isDashboard && <Footer />}
-    </>
+    </div>
   );
 }

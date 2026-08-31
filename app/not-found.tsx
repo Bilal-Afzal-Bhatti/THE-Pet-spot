@@ -5,7 +5,7 @@ import Image from "next/image";
 
 export default function NotFoundPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-[#037273] to-white px-4 text-center">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-b from-[#037273] to-white px-4 text-center">
       {/* Illustration */}
       {/* <div className="relative w-full max-w-lg h-80 mb-8">
         <Image
