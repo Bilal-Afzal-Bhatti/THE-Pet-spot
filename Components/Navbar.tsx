@@ -45,7 +45,7 @@ export default function Navbar() {
   const dropdownLinkClasses =
     "block px-6 py-3 w-full border-b text-[#202020] border-transparent transition-colors hover:bg-[#FFAC0D] hover:border-gray-300 border-b-gray-300";
   const dropdownLinkClassesLogin =
-    "block px-3 py-1.5 border-b text-[#202020] border-transparent transition-colors hover:bg-[var(--color-primary)] border-gray-300 border-r-gray-300";
+    "block px-3 py-1.5 border-b text-[#202020] border-transparent transition-colors hover:bg-(--color-primary) border-gray-300 border-r-gray-300";
 
   const handleLogout = async () => {
     await logout();

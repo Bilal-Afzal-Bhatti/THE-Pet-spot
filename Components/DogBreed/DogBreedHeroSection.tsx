@@ -97,7 +97,7 @@ export default function DogBreedHeroSection() {
           {/* Search Button */}
           <button
             onClick={handleSearch}
-            className="bg-[var(--color-primary)] rounded-sm px-10 py-2 font-medium text-black hover:bg-[var(--color-primary-hover)] w-full md:w-auto"
+            className="bg-(--color-primary) rounded-sm px-10 py-2 font-medium text-black hover:bg-(--color-primary-hover) w-full md:w-auto"
           >
             Search
           </button>

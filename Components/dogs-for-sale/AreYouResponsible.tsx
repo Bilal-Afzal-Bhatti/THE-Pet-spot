@@ -20,7 +20,7 @@ export default function AreYouResponsible() {
 
         {/* BUTTON */}
         <button
-          className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium
+          className="bg-(--color-primary) hover:bg-(--color-primary-hover) text-white font-medium
                      w-28 h-12 rounded flex items-center justify-center
                      gap-2 transition-all duration-200 shrink-0"
         >

@@ -39,6 +39,7 @@ export const sendTokenResponse = (
   });
 };
 
+// Remove the explicit : RequestHandler type and cast the export at the end instead
 export const protect = asyncHandler(
   async (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
     let token = req.cookies?.jwt;
@@ -65,7 +66,7 @@ export const protect = asyncHandler(
     req.user = user;
     next();
   }
-);
+) as unknown as RequestHandler;
 
 // Alias export to satisfy routes importing authMiddleware
 export const authMiddleware = protect;

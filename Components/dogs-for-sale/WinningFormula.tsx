@@ -59,7 +59,7 @@ const WinningFormula = () => {
               key={item.id}
               className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 flex items-start gap-4"
             >
-              <div className="bg-[var(--color-primary)] text-white font-bold w-8 h-8 flex items-center justify-center rounded-full text-sm shrink-0">
+              <div className="bg-(--color-primary) text-white font-bold w-8 h-8 flex items-center justify-center rounded-full text-sm shrink-0">
                 {item.id}
               </div>
               <div>
@@ -92,7 +92,7 @@ const WinningFormula = () => {
               key={item.id}
               className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 flex items-start gap-4"
             >
-              <div className="bg-[var(--color-primary)] text-white font-bold w-8 h-8 flex items-center justify-center rounded-full text-sm shrink-0">
+              <div className="bg-(--color-primary) text-white font-bold w-8 h-8 flex items-center justify-center rounded-full text-sm shrink-0">
                 {item.id}
               </div>
               <div>

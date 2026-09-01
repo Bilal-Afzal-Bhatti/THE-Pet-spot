@@ -137,14 +137,14 @@ const handleBuyNow = () => {
           <div className="flex flex-col justify-between space-y-6">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="bg-[var(--color-primary)]/20 text-black px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                <span className="bg-(--color-primary)/20 text-black px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
                   {pet.category || pet.type || "Pet"}
                 </span>
                 <span className="text-gray-400 text-sm">• {pet.breed || "Pure Breed"}</span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">{petName}</h1>
-              <p className="text-2xl font-black text-[var(--color-primary)] mt-2">₹{petPrice}</p>
+              <p className="text-2xl font-black text-(--color-primary) mt-2">₹{petPrice}</p>
 
               <div className="grid grid-cols-2 gap-4 my-6 p-4 bg-gray-50 rounded-xl border border-gray-100 text-sm">
                 <div>
@@ -165,7 +165,7 @@ const handleBuyNow = () => {
               <button
                 onClick={handleBuyNow}
                 disabled={checkoutLoading}
-                className="w-full py-4 bg-[var(--color-primary)] text-black font-extrabold rounded-2xl shadow-lg hover:scale-102 transition-transform text-base cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-4 bg-(--color-primary) text-black font-extrabold rounded-2xl shadow-lg hover:scale-102 transition-transform text-base cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <FaPaw /> {checkoutLoading ? "PROCESSING..." : `BUY NOW — ₹{petPrice}`}
               </button>

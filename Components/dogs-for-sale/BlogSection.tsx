@@ -53,7 +53,7 @@ export default function NewsBlog() {
                 className="object-cover rounded"
               />
             </div>
-            <div className=" flex flex-col flex-grow">
+            <div className=" flex flex-col grow">
               <h3 className="text-xl font-medium text-black leading-snug line-clamp-2">
                 {blog.title}
               </h3>

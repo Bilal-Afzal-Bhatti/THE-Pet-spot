@@ -69,7 +69,7 @@ export default function Footer() {
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="hover:text-[var(--color-primary)] transition-colors cursor-pointer inline-block py-0.5"
+                    className="hover:text-(--color-primary) transition-colors cursor-pointer inline-block py-0.5"
                   >
                     {item.name}
                   </Link>
@@ -95,7 +95,7 @@ export default function Footer() {
               ].map((item) => (
                 <li
                   key={item}
-                  className="hover:text-[var(--color-primary)] transition-colors cursor-pointer py-0.5"
+                  className="hover:text-(--color-primary) transition-colors cursor-pointer py-0.5"
                 >
                   {item}
                 </li>
@@ -123,7 +123,7 @@ export default function Footer() {
               />
               <button
                 type="submit"
-                className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-black px-4 sm:px-5 py-2 rounded-r-md text-sm font-semibold transition-colors shrink-0"
+                className="bg-(--color-primary) hover:bg-(--color-primary-hover) text-black px-4 sm:px-5 py-2 rounded-r-md text-sm font-semibold transition-colors shrink-0"
               >
                 Go
               </button>
@@ -138,7 +138,7 @@ export default function Footer() {
               ].map((Icon, i) => (
                 <div
                   key={i}
-                  className="w-9 h-9 rounded-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-black flex items-center justify-center text-base sm:text-lg cursor-pointer transition-transform hover:scale-105"
+                  className="w-9 h-9 rounded-full bg-(--color-primary) hover:bg-(--color-primary-hover) text-black flex items-center justify-center text-base sm:text-lg cursor-pointer transition-transform hover:scale-105"
                 >
                   {Icon}
                 </div>

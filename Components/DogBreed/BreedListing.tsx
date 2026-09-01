@@ -85,7 +85,7 @@ export default function BreedListing() {
         <div className="w-80 bg-white rounded-lg shadow-sm p-6 h-fit sticky top-6">
           {/* Choose Pet Type */}
           <div className="mb-8">
-            <h3 className="text-[var(--color-primary)] font-semibold text-lg mb-4">
+            <h3 className="text-(--color-primary) font-semibold text-lg mb-4">
               Choose Pet Type
             </h3>
             <div className="space-y-2">
@@ -105,7 +105,7 @@ export default function BreedListing() {
 
           {/* Choose Your Breed */}
           <div>
-            <h3 className="text-[var(--color-primary)] font-semibold text-lg mb-4">
+            <h3 className="text-(--color-primary) font-semibold text-lg mb-4">
               Choose Your Breed
             </h3>
             <input
@@ -147,7 +147,7 @@ export default function BreedListing() {
                 className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow"
               >
                 {/* Image */}
-                <div className="relative h-56 bg-gradient-to-br from-pink-100 to-blue-100">
+                <div className="relative h-56 bg-linear-to-br from-pink-100 to-blue-100">
                   <img
                     src={breed.image}
                     alt={breed.name}
@@ -166,7 +166,7 @@ export default function BreedListing() {
                   <div className="grid grid-cols-3 gap-3 mb-4">
                     {/* Weight */}
                     <div className="flex items-start gap-2">
-                      <div className="w-6 h-6 bg-cyan-500 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <div className="w-6 h-6 bg-cyan-500 rounded flex items-center justify-center shrink-0 mt-0.5">
                         <FaWeight className="text-white text-xs" />
                       </div>
                       <div className="text-xs">
@@ -179,7 +179,7 @@ export default function BreedListing() {
 
                     {/* Height */}
                     <div className="flex items-start gap-2">
-                      <div className="w-6 h-6 bg-cyan-500 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <div className="w-6 h-6 bg-cyan-500 rounded flex items-center justify-center shrink-0 mt-0.5">
                         <FaRulerVertical className="text-white text-xs" />
                       </div>
                       <div className="text-xs">
@@ -192,7 +192,7 @@ export default function BreedListing() {
 
                     {/* Life */}
                     <div className="flex items-start gap-2">
-                      <div className="w-6 h-6 bg-cyan-500 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <div className="w-6 h-6 bg-cyan-500 rounded flex items-center justify-center shrink-0 mt-0.5">
                         <FaClock className="text-white text-xs" />
                       </div>
                       <div className="text-xs">

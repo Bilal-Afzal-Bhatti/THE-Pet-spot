@@ -139,7 +139,7 @@ export default function AllPetsPage() {
           {/* Header */}
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <FaPaw className="text-2xl text-[var(--color-primary)]" />
+              <FaPaw className="text-2xl text-(--color-primary)" />
               <span className="text-sm font-semibold tracking-widest uppercase text-gray-500">
                 Our Marketplace
               </span>
@@ -151,7 +151,7 @@ export default function AllPetsPage() {
 
           {loading ? (
             <div className="flex flex-col items-center justify-center min-h-[400px] w-full">
-              <FaSpinner className="animate-spin text-4xl text-[var(--color-primary)] mb-4" />
+              <FaSpinner className="animate-spin text-4xl text-(--color-primary) mb-4" />
               <p className="text-gray-500 font-medium">Processing via Web Worker...</p>
             </div>
           ) : pets.length === 0 ? (
@@ -185,7 +185,7 @@ export default function AllPetsPage() {
                         unoptimized={true}
                         className="object-contain w-full opacity-90 bg-black/40 backdrop-blur-xs"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+                      <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
 
                       <div className="absolute bottom-8 left-6 sm:left-10 right-6 text-white max-w-xl z-25">
                         <div className="flex items-center gap-2 mb-2">
@@ -201,7 +201,7 @@ export default function AllPetsPage() {
                         </p>
                         <Link
                           href={isDog ? `/dogs/${petId}` : `/cats/${petId}`}
-                          className="inline-block mt-4 px-6 py-2.5 bg-[var(--color-primary)] text-black font-bold rounded-xl hover:scale-105 transition-transform text-sm"
+                          className="inline-block mt-4 px-6 py-2.5 bg-(--color-primary) text-black font-bold rounded-xl hover:scale-105 transition-transform text-sm"
                         >
                           View Details
                         </Link>
@@ -268,7 +268,7 @@ export default function AllPetsPage() {
 
                         <div className="p-4 flex-1 flex flex-col justify-between">
                           <div>
-                            <h2 className="text-base font-bold text-gray-900 group-hover:text-[var(--color-primary)] transition-colors">
+                            <h2 className="text-base font-bold text-gray-900 group-hover:text-(--color-primary) transition-colors">
                               {petName}
                             </h2>
                             {pet.breed && (
@@ -282,7 +282,7 @@ export default function AllPetsPage() {
                             </span>
                             <Link
                               href={isDog ? `/dogs/${petId}` : `/cats/${petId}`}
-                              className="text-xs font-semibold text-[var(--color-primary)] group-hover:translate-x-1 transition-transform"
+                              className="text-xs font-semibold text-(--color-primary) group-hover:translate-x-1 transition-transform"
                             >
                               View Details &rarr;
                             </Link>
@@ -310,7 +310,7 @@ export default function AllPetsPage() {
                         onClick={() => handlePageChange(page)}
                         className={`w-10 h-10 rounded-xl text-sm font-bold transition-all cursor-pointer ${
                           currentPage === page
-                            ? "bg-[var(--color-primary)] text-black shadow-md"
+                            ? "bg-(--color-primary) text-black shadow-md"
                             : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-100"
                         }`}
                       >

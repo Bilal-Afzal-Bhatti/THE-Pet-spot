@@ -17,7 +17,7 @@ export default function BreedNavbar() {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         visible
-          ? "bg-[var(--bg-dark)] text-white shadow-md translate-y-0"
+          ? "bg-(--bg-dark) text-white shadow-md translate-y-0"
           : "-translate-y-full"
       }`}
     >

@@ -361,7 +361,7 @@ const handleViewPet = (pet: any) => {
                       setSelectedBreed(breed);
                       setShowBreeds(false);
                     }}
-                    className="px-3 py-2 hover:bg-[var(--color-primary)] hover:text-white cursor-pointer text-gray-800 transition-colors"
+                    className="px-3 py-2 hover:bg-(--color-primary) hover:text-white cursor-pointer text-gray-800 transition-colors"
                   >
                     {breed}
                   </li>
@@ -399,7 +399,7 @@ const handleViewPet = (pet: any) => {
                     setSelectedCity("");
                     setShowStates(false);
                   }}
-                  className="px-3 py-2 hover:bg-[var(--color-primary)] hover:text-white cursor-pointer text-gray-800 transition-colors"
+                  className="px-3 py-2 hover:bg-(--color-primary) hover:text-white cursor-pointer text-gray-800 transition-colors"
                 >
                   {state}
                 </li>
@@ -438,7 +438,7 @@ const handleViewPet = (pet: any) => {
                     setSelectedCity(city);
                     setShowCities(false);
                   }}
-                  className="px-3 py-2 hover:bg-[var(--color-primary)] hover:text-white cursor-pointer text-gray-800 transition-colors"
+                  className="px-3 py-2 hover:bg-(--color-primary) hover:text-white cursor-pointer text-gray-800 transition-colors"
                 >
                   {city}
                 </li>
@@ -450,7 +450,7 @@ const handleViewPet = (pet: any) => {
         {/* 🔍 Search Button */}
         <button
           onClick={() => applyFilters()}
-          className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium 
+          className="bg-(--color-primary) hover:bg-(--color-primary-hover) text-white font-medium 
                   rounded-md px-18 py-2 flex items-center justify-center gap-2 
                   transition-all duration-200"
         >
@@ -474,7 +474,7 @@ const handleViewPet = (pet: any) => {
                 setSortBy("");
                 setBudget(500000);
               }}
-              className="w-full text-white text-sm font-semibold hover:bg-white hover:text-[var(--color-primary)] transition-all duration-200 py-1.5 rounded-md"
+              className="w-full text-white text-sm font-semibold hover:bg-white hover:text-(--color-primary) transition-all duration-200 py-1.5 rounded-md"
             >
               Clear All Filters
             </button>
@@ -486,11 +486,11 @@ const handleViewPet = (pet: any) => {
               <h3 className="text-gray-700 font-semibold text-sm mb-2">Active Filters:</h3>
               <div className="flex flex-wrap gap-2">
                 {selectedBreed && (
-                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-[var(--color-primary)] text-white text-xs rounded-full">
+                  <span className="inline-flex items-center gap-1 px-2 py-1 bg-(--color-primary) text-white text-xs rounded-full">
                     {selectedBreed}
                     <button
                       onClick={() => setSelectedBreed("")}
-                      className="ml-1 hover:bg-white hover:text-[var(--color-primary)] rounded-full w-4 h-4 flex items-center justify-center"
+                      className="ml-1 hover:bg-white hover:text-(--color-primary) rounded-full w-4 h-4 flex items-center justify-center"
                     >
                       ×
                     </button>
@@ -557,7 +557,7 @@ const handleViewPet = (pet: any) => {
 
           {/* Sorted By */}
           <div className="px-5 py-5 shadow rounded-lg my-3" style={{ background: 'var(--gradient-hero)' }}>
-            <div className="text-[var(--color-primary)] flex items-center justify-between">
+            <div className="text-(--color-primary) flex items-center justify-between">
               <h3 className="font-semibold text-base flex items-center gap-2 text-white">
                 Sort By
               </h3>
@@ -579,7 +579,7 @@ const handleViewPet = (pet: any) => {
                   type="radio"
                   name="sortBy"
                   value="priceLowHigh"
-                  className="accent-[var(--color-primary)] w-4 h-4"
+                  className="accent-(--color-primary) w-4 h-4"
                   checked={sortBy === "priceLowHigh"}
                   onChange={() => setSortBy("priceLowHigh")}
                 />
@@ -591,7 +591,7 @@ const handleViewPet = (pet: any) => {
                   type="radio"
                   name="sortBy"
                   value="priceHighLow"
-                  className="accent-[var(--color-primary)] w-4 h-4"
+                  className="accent-(--color-primary) w-4 h-4"
                   checked={sortBy === "priceHighLow"}
                   onChange={() => setSortBy("priceHighLow")}
                 />
@@ -603,7 +603,7 @@ const handleViewPet = (pet: any) => {
                   type="radio"
                   name="sortBy"
                   value="ageLowHigh"
-                  className="accent-[var(--color-primary)] w-4 h-4"
+                  className="accent-(--color-primary) w-4 h-4"
                   checked={sortBy === "ageLowHigh"}
                   onChange={() => setSortBy("ageLowHigh")}
                 />
@@ -615,7 +615,7 @@ const handleViewPet = (pet: any) => {
                   type="radio"
                   name="sortBy"
                   value="ageHighLow"
-                  className="accent-[var(--color-primary)] w-4 h-4"
+                  className="accent-(--color-primary) w-4 h-4"
                   checked={sortBy === "ageHighLow"}
                   onChange={() => setSortBy("ageHighLow")}
                 />
@@ -627,7 +627,7 @@ const handleViewPet = (pet: any) => {
                   type="radio"
                   name="sortBy"
                   value="newest"
-                  className="accent-[var(--color-primary)] w-4 h-4"
+                  className="accent-(--color-primary) w-4 h-4"
                   checked={sortBy === "newest"}
                   onChange={() => setSortBy("newest")}
                 />
@@ -636,7 +636,7 @@ const handleViewPet = (pet: any) => {
             </div>
           </div>
           <div className="px-5 py-5 shadow rounded-lg my-3" style={{ background: 'var(--gradient-hero)' }}>
-            <div className="text-[var(--color-primary)] flex items-center justify-between">
+            <div className="text-(--color-primary) flex items-center justify-between">
               <h3 className="font-semibold text-base flex items-center gap-2 text-white">
                 Gender
               </h3>
@@ -653,12 +653,12 @@ const handleViewPet = (pet: any) => {
             <div className="space-y-3 text-white text-sm">
               {genderOptions.map((opt, idx) => (
                 <div key={opt}>
-                  <label className="flex items-center gap-2 font-semibold cursor-pointer active:text-[var(--color-primary)]">
+                  <label className="flex items-center gap-2 font-semibold cursor-pointer active:text-(--color-primary)">
                     <input
                       type="radio"
                       name="gender"
                       value={opt}
-                      className="accent-[var(--color-primary)] w-4 h-4 mb-2 "
+                      className="accent-(--color-primary) w-4 h-4 mb-2 "
                       checked={selectedGender === opt}
                       onChange={() => setSelectedGender(opt)}
                     />
@@ -674,7 +674,7 @@ const handleViewPet = (pet: any) => {
 
           {/* Pet Features Section */}
           <div className="px-5 py-5 shadow rounded-lg my-3" style={{ background: 'var(--gradient-hero)' }}>
-            <div className="text-[var(--color-primary)] flex items-center justify-between">
+            <div className="text-(--color-primary) flex items-center justify-between">
               <h3 className="font-semibold text-base flex items-center gap-2 text-white">
                 Pet Features
               </h3>
@@ -696,7 +696,7 @@ const handleViewPet = (pet: any) => {
                       type="radio"
                       name="feature"
                       value={opt}
-                      className="accent-[var(--color-primary)] w-4 h-4"
+                      className="accent-(--color-primary) w-4 h-4"
                       checked={selectedFeature === opt}
                       onChange={() => setSelectedFeature(opt)}
                     />
@@ -712,7 +712,7 @@ const handleViewPet = (pet: any) => {
           {/* 💰 Budget Range */}
           <div className="mb-5 px-5 py-5 shadow rounded-lg" style={{ background: 'var(--gradient-hero)' }}>
             <h3 className="text-white font-semibold flex items-center gap-2 mb-3">
-              <FiDollarSign className="text-[var(--color-primary)]" /> Budget
+              <FiDollarSign className="text-(--color-primary)" /> Budget
             </h3>
             <input
               type="range"
@@ -720,7 +720,7 @@ const handleViewPet = (pet: any) => {
               max="1000000"
               value={budget}
               onChange={(e) => setBudget(Number(e.target.value))}
-              className="w-full appearance-none h-2 bg-gray-600 rounded-lg accent-[var(--color-primary)] cursor-pointer outline-none"
+              className="w-full appearance-none h-2 bg-gray-600 rounded-lg accent-(--color-primary) cursor-pointer outline-none"
             />
             <div className="flex justify-between font-semibold text-white mt-2">
               <p>0</p>
@@ -734,7 +734,7 @@ const handleViewPet = (pet: any) => {
           {/* 🔥 Popular Breeds */}
           <div className="px-5 py-5 shadow rounded-lg my-3" style={{ background: 'var(--gradient-hero)' }}>
             <h3 className="text-white font-semibold flex items-center gap-2 mb-3">
-              <FaFire className="text-[var(--color-primary)]" /> Popular Breeds
+              <FaFire className="text-(--color-primary)" /> Popular Breeds
             </h3>
             <div className="space-y-2">
               {popularBreeds.map((breed, i) => {
@@ -743,7 +743,7 @@ const handleViewPet = (pet: any) => {
                   <div
                     key={i}
                     onClick={() => setSelectedBreed(breed)}
-                    className="hover:text-[var(--color-primary)] cursor-pointer text-sm flex gap-2 text-white transition-colors"
+                    className="hover:text-(--color-primary) cursor-pointer text-sm flex gap-2 text-white transition-colors"
                   >
                     <span>{breed}</span>
                     <span className="text-gray-300">({breedCount})</span>
@@ -758,15 +758,15 @@ const handleViewPet = (pet: any) => {
         <div className="flex-1">
           <div className="mb-8">
             <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-              <span className="hover:text-[var(--color-primary)] cursor-pointer transition-colors">
+              <span className="hover:text-(--color-primary) cursor-pointer transition-colors">
                 Home
               </span>
               <span>→</span>
-              <span className="hover:text-[var(--color-primary)] cursor-pointer transition-colors">
+              <span className="hover:text-(--color-primary) cursor-pointer transition-colors">
                 Dogs
               </span>
               <span>→</span>
-              <span className="text-[var(--color-primary)] font-medium">
+              <span className="text-(--color-primary) font-medium">
                 {selectedBreed
                   ? `${selectedBreed} for Sale`
                   : "All Dogs for Sale"}
@@ -835,7 +835,7 @@ const handleViewPet = (pet: any) => {
                       src={pet.img || pet.images?.[0] || '/default-pet.jpg'}
                       alt={pet.name}
                       className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                    />                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />                    {/* <div className="absolute top-3 left-3">
+                    />                    <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />                    {/* <div className="absolute top-3 left-3">
                       <span className="px-3 py-1.5 bg-white/95 backdrop-blur-sm text-purple-600 text-xs font-semibold rounded-full shadow-lg">
                         :star: Premium
                       </span>
@@ -915,7 +915,7 @@ const handleViewPet = (pet: any) => {
                 disabled={currentPage === 1}
                 className={`px-6 py-2.5 rounded-full font-medium transition-all duration-200 ${currentPage === 1
                     ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                    : "text-white hover:bg-[var(--color-primary-hover)] shadow-sm hover:shadow-md hover:scale-105"
+                    : "text-white hover:bg-(--color-primary-hover) shadow-sm hover:shadow-md hover:scale-105"
                   }`}
                 style={currentPage !== 1 ? { background: 'var(--bg-dark-accent)' } : {}}
               >
@@ -929,8 +929,8 @@ const handleViewPet = (pet: any) => {
                       key={page}
                       onClick={() => setCurrentPage(page)}
                       className={`w-10 h-10 rounded-full font-semibold transition-all duration-200 ${currentPage === page
-                          ? "bg-[var(--color-primary)] text-white shadow-lg scale-110"
-                          : "text-white hover:bg-[var(--color-primary-hover)] hover:text-white"
+                          ? "bg-(--color-primary) text-white shadow-lg scale-110"
+                          : "text-white hover:bg-(--color-primary-hover) hover:text-white"
                         }`}
                       style={currentPage !== page ? { background: 'var(--bg-dark-accent)' } : {}}
                     >
@@ -947,7 +947,7 @@ const handleViewPet = (pet: any) => {
                 disabled={currentPage >= totalPages}
                 className={`px-6 py-2.5 rounded-full font-medium transition-all duration-200 ${currentPage >= totalPages
                     ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                    : "text-white hover:bg-[var(--color-primary-hover)] shadow-sm hover:shadow-md hover:scale-105"
+                    : "text-white hover:bg-(--color-primary-hover) shadow-sm hover:shadow-md hover:scale-105"
                   }`}
                 style={currentPage < totalPages ? { background: 'var(--bg-dark-accent)' } : {}}
               >

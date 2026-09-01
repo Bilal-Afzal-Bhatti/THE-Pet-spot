@@ -117,7 +117,7 @@ export default function ResetPasswordPage() {
             fill
             className="object-cover z-0"
           />
-          <div className="absolute inset-0 bg-[var(--bg-dark-accent)]/70 z-10" />
+          <div className="absolute inset-0 bg-(--bg-dark-accent)/70 z-10" />
           <div className="relative z-20 text-center max-w-sm">
             <Image
               src="/petLogoAuth.png"
@@ -126,7 +126,7 @@ export default function ResetPasswordPage() {
               height={180}
               className="mx-auto mb-6"
             />
-            <h2 className="text-3xl font-semibold leading-snug mb-2 text-[var(--color-primary)]">
+            <h2 className="text-3xl font-semibold leading-snug mb-2 text-(--color-primary)">
               Reset Your Password
             </h2>
             <p className="text-lg leading-snug font-medium">
@@ -144,7 +144,7 @@ export default function ResetPasswordPage() {
 
         {/* Right Section */}
         <div className="flex flex-col justify-center px-20 py-14">
-          <h2 className="text-2xl font-semibold text-center mb-2 text-[var(--color-primary)]">
+          <h2 className="text-2xl font-semibold text-center mb-2 text-(--color-primary)">
             Create New Password
           </h2>
           <p className="text-center text-sm text-gray-600 mb-8">
@@ -161,7 +161,7 @@ export default function ResetPasswordPage() {
                 placeholder="Enter 6-digit OTP"
                 value={otp}
                 onChange={(e) => handleInputChange('otp', e.target.value)}
-                className={`w-full p-3 bg-[#F1F1F1] rounded-md text-sm focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] text-center tracking-widest ${
+                className={`w-full p-3 bg-[#F1F1F1] rounded-md text-sm focus:outline-none focus:border-(--color-primary) focus:ring-1 focus:ring-(--color-primary) text-center tracking-widest ${
                   errors.otp ? 'border-red-300' : ''
                 }`}
                 maxLength={6}
@@ -178,7 +178,7 @@ export default function ResetPasswordPage() {
                 placeholder="New Password"
                 value={newPassword}
                 onChange={(e) => handleInputChange('newPassword', e.target.value)}
-                className={`w-full p-3 bg-[#F1F1F1] rounded-md text-sm focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] ${
+                className={`w-full p-3 bg-[#F1F1F1] rounded-md text-sm focus:outline-none focus:border-(--color-primary) focus:ring-1 focus:ring-(--color-primary) ${
                   errors.newPassword ? 'border-red-300' : ''
                 }`}
                 required
@@ -200,7 +200,7 @@ export default function ResetPasswordPage() {
                 placeholder="Confirm New Password"
                 value={confirmPassword}
                 onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                className={`w-full p-3 bg-[#F1F1F1] rounded-md text-sm focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)] ${
+                className={`w-full p-3 bg-[#F1F1F1] rounded-md text-sm focus:outline-none focus:border-(--color-primary) focus:ring-1 focus:ring-(--color-primary) ${
                   errors.confirmPassword ? 'border-red-300' : ''
                 }`}
                 required
@@ -222,7 +222,7 @@ export default function ResetPasswordPage() {
               className={`w-full py-2 rounded-md font-medium text-white transition ${
                 isResetPassword
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)]"
+                  : "bg-(--color-primary) hover:bg-(--color-primary-hover)"
               }`}
             >
               {isResetPassword ? "Resetting Password..." : "Reset Password"}
@@ -235,7 +235,7 @@ export default function ResetPasswordPage() {
               Remember your password?
               <a
                 href="/login"
-                className="text-[var(--color-secondary)] ml-1 font-medium hover:underline"
+                className="text-(--color-secondary) ml-1 font-medium hover:underline"
               >
                 Back to Login
               </a>

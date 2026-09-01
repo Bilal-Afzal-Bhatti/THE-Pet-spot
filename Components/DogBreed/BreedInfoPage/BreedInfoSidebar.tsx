@@ -47,7 +47,7 @@ export default function BreedInfoSidebar() {
 
   return (
     <aside className="w-full px-4">
-      <h3 className="font-semibold mb-3 text-[var(--color-primary-hover)]">Choose Your Breed</h3>
+      <h3 className="font-semibold mb-3 text-(--color-primary-hover)">Choose Your Breed</h3>
 
       <select
         value={selectedBreed}
@@ -70,7 +70,7 @@ export default function BreedInfoSidebar() {
         View {breed ? `${breed} Puppies` : "All Dogs"}
       </div>
 
-      <h3 className="text-2xl font-semibold mb-3 text-[var(--color-primary-hover)]">
+      <h3 className="text-2xl font-semibold mb-3 text-(--color-primary-hover)">
         Why Choose Pets Corner?
       </h3>
 

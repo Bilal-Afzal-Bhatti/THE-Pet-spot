@@ -64,7 +64,7 @@ export default function ForgotPasswordPage() {
             fill
             className="object-cover z-0"
           />
-          <div className="absolute inset-0 bg-[var(--bg-dark-accent)]/70 z-10" />
+          <div className="absolute inset-0 bg-(--bg-dark-accent)/70 z-10" />
           <div className="relative z-20 text-center max-w-sm">
             <Image
               src="/petLogoAuth.png"
@@ -91,7 +91,7 @@ export default function ForgotPasswordPage() {
 
         {/* Right Section */}
         <div className="flex flex-col justify-center px-20 py-14">
-          <h2 className="text-2xl font-semibold text-center mb-2 text-[var(--color-primary)]">
+          <h2 className="text-2xl font-semibold text-center mb-2 text-(--color-primary)">
             Reset Your Password
           </h2>
           <p className="text-center text-sm text-gray-600 mb-8">
@@ -108,7 +108,7 @@ export default function ForgotPasswordPage() {
                 placeholder="Enter Your Email Address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-3 bg-[#F1F1F1] rounded-md text-sm focus:outline-none focus:border-[var(--color-primary)] focus:ring-1 focus:ring-[var(--color-primary)]"
+                className="w-full p-3 bg-[#F1F1F1] rounded-md text-sm focus:outline-none focus:border-(--color-primary) focus:ring-1 focus:ring-(--color-primary)"
                 required
                 disabled={otpSent}
               />
@@ -120,7 +120,7 @@ export default function ForgotPasswordPage() {
               className={`w-full py-2 rounded-md font-medium text-white transition ${
                 isForgotPassword || otpSent
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)]"
+                  : "bg-(--color-primary) hover:bg-(--color-primary-hover)"
               }`}
             >
               {isForgotPassword
@@ -138,7 +138,7 @@ export default function ForgotPasswordPage() {
               Remember your password?
               <a
                 href="/login"
-                className="text-[var(--color-secondary)] ml-1 font-medium hover:underline"
+                className="text-(--color-secondary) ml-1 font-medium hover:underline"
               >
                 Back to Login
               </a>

@@ -45,7 +45,7 @@ export default function LoginPage() {
     return (
       <div className="min-h-screen flex justify-center items-center" style={{background: 'var(--gradient-hero)'}}>
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-[var(--color-primary)] border-t-transparent mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-(--color-primary) border-t-transparent mx-auto mb-4"></div>
           <p className="text-white text-lg">Loading...</p>
         </div>
       </div>
@@ -85,7 +85,7 @@ export default function LoginPage() {
             fill
             className="object-cover z-0"
           />
-          <div className="absolute inset-0 bg-[var(--bg-dark-accent)]/70 z-10" />
+          <div className="absolute inset-0 bg-(--bg-dark-accent)/70 z-10" />
           <div className="relative z-20 text-center max-w-sm">
             <Image
               src="/petLogoAuth.png"
@@ -113,19 +113,19 @@ export default function LoginPage() {
         {/* Right Section */}
         <div className="flex flex-col px-10 py-10">
           <div className="text-left mb-4">
-            <Link href="/" className="text-[var(--color-secondary)] font-medium hover:underline">
+            <Link href="/" className="text-(--color-secondary) font-medium hover:underline">
               ← Back to Home
             </Link>
           </div>
           <div className="flex-grow flex flex-col justify-center">
-            <h2 className="text-2xl font-semibold text-center mb-2 text-[var(--color-primary)]">
+            <h2 className="text-2xl font-semibold text-center mb-2 text-(--color-primary)">
               Login to Continue
             </h2>
             <p className="text-center text-sm text-gray-600 mb-8">
               Don't have an account with us?
               <a
                 href="/sign-up"
-                className="text-[var(--color-secondary)] ml-1 font-medium hover:underline"
+                className="text-(--color-secondary) ml-1 font-medium hover:underline"
               >
                 Click here to Register
               </a>
@@ -175,7 +175,7 @@ export default function LoginPage() {
                       placeholder="Password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full p-3 bg-[#F1F1F1] rounded-md text-sm focus:outline-none focus:border-[var(--color-primary)]"
+                      className="w-full p-3 bg-[#F1F1F1] rounded-md text-sm focus:outline-none focus:border-(--color-primary)"
                       required
                     />
                     <span
@@ -191,7 +191,7 @@ export default function LoginPage() {
                   <div className="text-right">
                     <a
                       href="/forgot-password"
-                      className="text-sm text-[var(--color-secondary)] font-medium hover:underline"
+                      className="text-sm text-(--color-secondary) font-medium hover:underline"
                     >
                       Forgot Password?
                     </a>
@@ -214,7 +214,7 @@ export default function LoginPage() {
                 className={`w-full py-2 rounded-md font-medium text-white transition ${
                   isLoggingIn
                     ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)]"
+                    : "bg-(--color-primary) hover:bg-(--color-primary-hover)"
                 }`}
               >
                 {isLoggingIn ? "Logging in..." : "Log in"}
