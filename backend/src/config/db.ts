@@ -1,11 +1,5 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/PetSpot";
-
-if (!MONGODB_URI) {
-  throw new Error("Please define the MONGO_URI environment variable");
-}
-
 // Global variable to cache the connection across Vercel serverless warm starts
 let cached = (global as any).mongoose;
 
@@ -14,13 +8,20 @@ if (!cached) {
 }
 
 export const connectDB = async () => {
+  // Read process.env inside the function so dotenv has time to load first
+  const MONGODB_URI = process.env.MONGO_URI || "mongodb://127.0.0.1:27017/PetSpot";
+
+  if (!MONGODB_URI) {
+    throw new Error("Please define the MONGO_URI environment variable");
+  }
+
   if (cached.conn) {
     return cached.conn;
   }
 
   if (!cached.promise) {
     const opts = {
-      serverSelectionTimeoutMS: 5000, // Fail fast if connection drops
+      serverSelectionTimeoutMS: 5000,
       bufferCommands: false,
     };
 
@@ -37,7 +38,7 @@ export const connectDB = async () => {
   } catch (error) {
     cached.promise = null;
     console.error("❌ MongoDB connection error:", error);
-    throw error; // Throw instead of process.exit(1) so the individual request fails gracefully without killing the serverless container
+    throw error;
   }
 
   return cached.conn;
