@@ -40,7 +40,7 @@ const limiter = rateLimit({
 app.use("/api", limiter);
 
 // 4. CORS & Cookie Parsing
-const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3000";
+const CLIENT_URL = process.env.CLIENT_URL || "https://the-pet-spot-pink.vercel.app/";
 
 app.use(
   cors({
