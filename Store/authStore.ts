@@ -3,7 +3,7 @@ import { persist } from "zustand/middleware";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-const Base_URL = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:5000";
+const Base_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
 
 const jsonHeaders = { "Content-Type": "application/json" };
 
