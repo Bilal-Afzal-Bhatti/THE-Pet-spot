@@ -40,7 +40,7 @@ const limiter = rateLimit({
 app.use("/api", limiter);
 
 // 4. CORS & Cookie Parsing
-const CLIENT_URL = process.env.CLIENT_URL || "localhost:3000"; // Default to localhost if not set
+const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:3000"; // Default to localhost if not set
 
 app.use(
   cors({
