@@ -39,12 +39,15 @@ export const sendTokenResponse = (
   });
 };
 
-export const protect = asyncHandler(
-  async (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
-    let token = req.cookies?.jwt;
+export const protect: RequestHandler = asyncHandler(
+  async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+    // Cast to AuthenticatedRequest inside the function body
+    const authReq = req as AuthenticatedRequest;
+    
+    let token = authReq.cookies?.jwt;
 
-    if (!token && req.headers.authorization?.startsWith("Bearer")) {
-      token = req.headers.authorization.split(" ")[1];
+    if (!token && authReq.headers.authorization?.startsWith("Bearer")) {
+      token = authReq.headers.authorization.split(" ")[1];
     }
 
     if (!token) {
@@ -62,10 +65,10 @@ export const protect = asyncHandler(
       throw new AppError("The user belonging to this token no longer exists", 401);
     }
 
-    req.user = user;
+    authReq.user = user;
     next();
   }
-) as unknown as RequestHandler;
+);
 
 // Alias export to satisfy routes importing authMiddleware
 export const authMiddleware = protect;
