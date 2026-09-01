@@ -7,12 +7,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 // Single unified request interface
 export interface AuthenticatedRequest extends Request {
   user?: IUser;
-  file?: {
-    filename: string;
-    path: string;
-    mimetype: string;
-    size: number;
-  };
+  file?: Express.Multer.File;
+  files?: Express.Multer.File[];
 }
 
 export const sendTokenResponse = (
