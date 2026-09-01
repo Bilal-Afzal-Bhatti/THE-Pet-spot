@@ -1,5 +1,6 @@
 "use client";
 
+// @ts-ignore
 import { useSearchParams, useRouter } from "next/navigation";
 import { FaCheckCircle, FaHome } from "react-icons/fa";
 import { useEffect } from "react";
