@@ -4,11 +4,9 @@ import { User, type IUser } from "../models/userModel.js";
 import { AppError } from "../utils/AppError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-// Single unified request interface
+// Clean interface extension that doesn't conflict with Express/Multer types
 export interface AuthenticatedRequest extends Request {
-  user?: IUser | undefined;
-  file?: Express.Multer.File | undefined;
-  files?: any;
+  user?: IUser;
 }
 
 export const sendTokenResponse = (
@@ -41,7 +39,7 @@ export const sendTokenResponse = (
 
 export const protect: RequestHandler = asyncHandler(
   async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
-    // Cast to AuthenticatedRequest inside the function body
+    // Cast to AuthenticatedRequest to safely attach user data
     const authReq = req as AuthenticatedRequest;
     
     let token = authReq.cookies?.jwt;
