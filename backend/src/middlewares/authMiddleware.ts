@@ -6,9 +6,9 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
 // Single unified request interface
 export interface AuthenticatedRequest extends Request {
-  user?: IUser;
+  user?: IUser | undefined;
   file?: Express.Multer.File | undefined;
-  files?: Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] } | undefined;
+  files?: any;
 }
 
 export const sendTokenResponse = (
@@ -39,7 +39,6 @@ export const sendTokenResponse = (
   });
 };
 
-// Remove the explicit : RequestHandler type and cast the export at the end instead
 export const protect = asyncHandler(
   async (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
     let token = req.cookies?.jwt;
