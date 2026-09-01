@@ -189,10 +189,23 @@ export const useAdStore = create<AdState>((set, get) => ({
       set({ isLoading: false });
     }
   },
-
-  getApprovedDogAdById: async (id: string) => {
+getApprovedDogAdById: async (slugOrId: string) => {
     try {
-      const res = await axios.get(`${Base_URL}/api/ads/approved/dogs/${id}`, {
+      // 1. Check if we have the real ID saved in sessionStorage first
+      let targetId = slugOrId;
+      if (typeof window !== "undefined") {
+        const savedData = sessionStorage.getItem("selectedPetData");
+        if (savedData) {
+          const parsed = JSON.parse(savedData);
+          // If the stored pet matches this slug, use its real MongoDB ID!
+          if (parsed._id || parsed.id) {
+            targetId = parsed._id || parsed.id;
+          }
+        }
+      }
+
+      // 2. Make the API call using the real database ID
+      const res = await axios.get(`${Base_URL}/api/ads/approved/dogs/${targetId}`, {
         withCredentials: true,
       });
 
@@ -218,6 +231,15 @@ export const useAdStore = create<AdState>((set, get) => ({
           ? ad.suitableFor.split(", ")
           : [],
         isApproved: ad.isApproved || "pending",
+        user: ad.user ? {
+          name: ad.user.name,
+          email: ad.user.email,
+          avatar: ad.user.avatar 
+            ? (ad.user.avatar.startsWith("http") 
+                ? ad.user.avatar 
+                : `${Base_URL}${ad.user.avatar.startsWith("/") ? "" : "/"}${ad.user.avatar}`) 
+            : null
+        } : null,
       };
 
       return mappedAd;
@@ -230,7 +252,6 @@ export const useAdStore = create<AdState>((set, get) => ({
       return null;
     }
   },
-
   getApprovedCatAds: async (page = 1, limit = 12) => {
     set({ isLoading: true });
     try {
@@ -285,44 +306,66 @@ export const useAdStore = create<AdState>((set, get) => ({
     }
   },
 
-  getApprovedCatAdById: async (id: string) => {
-    try {
-      const res = await axios.get(`${Base_URL}/api/ads/approved/cats/${id}`, {
-        withCredentials: true,
-      });
+getApprovedCatAdById: async (slugOrId: string) => {
+  try {
+    // Check if the parameter is a slug or if we have an ID stored in sessionStorage
+    let idToFetch = slugOrId;
+    
+    if (typeof window !== "undefined") {
+      const storedId = sessionStorage.getItem("currentPetId");
+      // If the passed argument looks like a slug (has dashes or isn't a 24-char mongo id), use the stored ID
+      if (storedId && (slugOrId.includes("-") || slugOrId.length !== 24)) {
+        idToFetch = storedId;
+      }
+    }
 
-      const ad = res.data;
-      const mappedAd = {
-        ...ad,
-        id: ad._id,
-        name: ad.name || ad.title,
-        title: ad.name || ad.title,
-        location: ad.city || ad.location,
-        category: ad.type || ad.category,
-        img: getImageUrl(ad.images?.[0]),
-        breed: ad.breed || "",
-        age: ad.age?.toString() || "",
-        gender: ad.gender || "",
-        price: ad.price || 0,
-        city: ad.city || "",
-        vaccinated: ad.vaccinated || false,
-        kcpRegistered: ad.kcpRegistered || false,
-        suitableFor: Array.isArray(ad.suitableFor)
-          ? ad.suitableFor
-          : ad.suitableFor
-          ? ad.suitableFor.split(", ")
-          : [],
-        isApproved: ad.isApproved || "pending",
+    const res = await axios.get(`${Base_URL}/api/ads/approved/cats/${idToFetch}`, {
+      withCredentials: true,
+    });
+
+    const ad = res.data;
+    const mappedAd = {
+      ...ad,
+      id: ad._id,
+      name: ad.name || ad.title,
+      title: ad.name || ad.title,
+      location: ad.city || ad.location,
+      category: ad.type || ad.category,
+      img: getImageUrl(ad.images?.[0]),
+      breed: ad.breed || "",
+      age: ad.age?.toString() || "",
+      gender: ad.gender || "",
+      price: ad.price || 0,
+      city: ad.city || "",
+      vaccinated: ad.vaccinated || false,
+      kcpRegistered: ad.kcpRegistered || false,
+      suitableFor: Array.isArray(ad.suitableFor)
+        ? ad.suitableFor
+        : ad.suitableFor
+        ? ad.suitableFor.split(", ")
+        : [],
+      isApproved: ad.isApproved || "pending",
+    
+        user: ad.user ? {
+          name: ad.user.name,
+          email: ad.user.email,
+          avatar: ad.user.avatar 
+            ? (ad.user.avatar.startsWith("http") 
+                ? ad.user.avatar 
+                : `${Base_URL}${ad.user.avatar.startsWith("/") ? "" : "/"}${ad.user.avatar}`) 
+            : null
+        } : null,
       };
 
-      return mappedAd;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        toast.error(error.response?.data?.message || "Failed to fetch cat ad");
-      } else {
-        toast.error("Failed to fetch cat ad");
-      }
-      return null;
+
+    return mappedAd;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      toast.error(error.response?.data?.message || "Failed to fetch cat ad");
+    } else {
+      toast.error("Failed to fetch cat ad");
     }
-  },
+    return null;
+  }
+}
 }));

@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { FiMapPin, FiPlus, FiDollarSign, FiPhone, FiInfo } from "react-icons/fi";
 import { FaDog, FaFire } from "react-icons/fa";
 import { SiWhatsapp } from "react-icons/si";
@@ -7,7 +8,9 @@ import { useAdStore } from "@/Store/AdsStore";
 import { pets, breeds, popularBreeds, statesWithCities } from "./data"; // adjust path if needed
 import { dogBreeds } from "@/utils/breeds";
 
+
 export default function DogsPage() {
+  const router = useRouter();
   // Core states
   const [budget, setBudget] = useState<number>(500000);
   const [selectedBreed, setSelectedBreed] = useState<string>("");
@@ -37,6 +40,7 @@ export default function DogsPage() {
 
   // Store
   const { getApprovedDogAds } = useAdStore();
+  
 
   const genderOptions = ["Male", "Female", "Other"];
   const featureOptions = [
@@ -80,7 +84,23 @@ export default function DogsPage() {
       return s.replace(/-/g, " ");
     }
   };
+const handleViewPet = (pet: any) => {
+  const petName = pet.name || pet.title || "Pet";
+  const petBreed = pet.breed || "dog";
+  const petSlug = `${slugify(petName)}-${slugify(petBreed)}`;
+  
+  // Get the exact ID
+  const petId = pet._id || pet.id;
+ console.log("Navigating to pet details for:", petName, "with ID:", petId);
+  // Store both the full pet object AND the explicit ID in sessionStorage
+  if (typeof window !== "undefined") {
+    sessionStorage.setItem("selectedPetData", JSON.stringify(pet));
+    sessionStorage.setItem("currentPetId", petId);
+  }
 
+  // Push to the slug route, while your app logic can grab the ID from storage when making API calls
+  router.push(`/dogs/pet/${petSlug}`);
+};
   const findStateForCity = (cityName: string) => {
     if (!cityName) return "";
     for (const [state, cities] of Object.entries(statesWithCities)) {
@@ -198,7 +218,7 @@ export default function DogsPage() {
   ]);
 
   const dropdownClass = `absolute z-20 left-0 w-full bg-white border border-gray-300 rounded-md max-h-48 overflow-y-auto shadow-lg`;
-  const dropdownStyle = {background: 'white'};
+  const dropdownStyle = { background: 'white' };
 
   // ---------- URL push (client-side only) ----------
   const pushUrlClientSide = () => {
@@ -222,9 +242,8 @@ export default function DogsPage() {
 
       // optional: change title to something helpful
       const prettyTitle = selectedBreed
-        ? `${selectedBreed} for sale${
-            selectedCity ? " in " + selectedCity : ""
-          }`
+        ? `${selectedBreed} for sale${selectedCity ? " in " + selectedCity : ""
+        }`
         : "Dogs for sale";
       document.title = prettyTitle;
     }
@@ -305,149 +324,146 @@ export default function DogsPage() {
     <div className="min-h-screen font-raleway p-6 px-44 bg-orange-50">
       {/* 🔍 Integrated Search Bar */}
       <div
-              ref={searchRef}
-              className="w-full max-w-6xl mx-auto bg-white border border-gray-200 
+        ref={searchRef}
+        className="w-full max-w-6xl mx-auto bg-white border border-gray-200 
               rounded-xl flex items-center justify-between gap-3 
               px-4 sm:px-6 lg:px-8 py-4 mb-10"
+      >
+        {/* 🐶 Breed Input */}
+        <div className="relative flex items-center bg-white border border-gray-200 rounded-md px-3 py-2 w-full">
+          <FaDog className="text-gray-400 text-lg mr-2" />
+          <input
+            type="text"
+            placeholder="Breed"
+            value={selectedBreed}
+            onFocus={() => {
+              setShowBreeds(true);
+              setShowStates(false);
+              setShowCities(false);
+            }}
+            onChange={(e) => setSelectedBreed(e.target.value)}
+            className="w-full outline-none active:outline-[#BFDEFF] text-sm text-gray-700 placeholder:text-gray-400"
+          />
+          {showBreeds && (
+            <ul
+              className={`${dropdownClass} ${openUp ? "bottom-full mb-1" : "top-full mt-1"
+                }`}
+              style={dropdownStyle}
             >
-              {/* 🐶 Breed Input */}
-              <div className="relative flex items-center bg-white border border-gray-200 rounded-md px-3 py-2 w-full">
-                <FaDog className="text-gray-400 text-lg mr-2" />
-                <input
-                  type="text"
-                  placeholder="Breed"
-                  value={selectedBreed}
-                  onFocus={() => {
-                    setShowBreeds(true);
-                    setShowStates(false);
-                    setShowCities(false);
-                  }}
-                  onChange={(e) => setSelectedBreed(e.target.value)}
-                  className="w-full outline-none active:outline-[#BFDEFF] text-sm text-gray-700 placeholder:text-gray-400"
-                />
-                {showBreeds && (
-                  <ul
-                    className={`${dropdownClass} ${
-                      openUp ? "bottom-full mb-1" : "top-full mt-1"
-                    }`}
-                    style={dropdownStyle}
-                  >
-                    {dogBreeds
-                      .filter((b) =>
-                        b.toLowerCase().includes(selectedBreed.toLowerCase())
-                      )
-                      .map((breed) => (
-                        <li
-                          key={breed}
-                          onClick={() => {
-                            setSelectedBreed(breed);
-                            setShowBreeds(false);
-                          }}
-                          className="px-3 py-2 hover:bg-[var(--color-primary)] hover:text-white cursor-pointer text-gray-800 transition-colors"
-                        >
-                          {breed}
-                        </li>
-                      ))}
-                  </ul>
-                )}
-              </div>
-      
-              {/* 📍 State Input */}
-              <div className="relative flex items-center bg-white border border-gray-200 rounded-md px-3 py-2 w-full">
-                <FiMapPin className="text-gray-400 text-lg mr-2" />
-                <input
-                  type="text"
-                  placeholder="State"
-                  value={selectedState}
-                  readOnly
-                  onFocus={() => {
-                    setShowStates(!showStates);
-                    setShowBreeds(false);
-                    setShowCities(false);
-                  }}
-                  className="w-full outline-none text-sm text-gray-700 placeholder:text-gray-400 cursor-pointer"
-                />
-                {showStates && (
-                  <ul
-                    className={`${dropdownClass} ${
-                      openUp ? "bottom-full mb-1" : "top-full mt-1"
-                    }`}
-                    style={dropdownStyle}
-                  >
-                    {Object.keys(statesWithCities).map((state) => (
-                      <li
-                        key={state}
-                        onClick={() => {
-                          setSelectedState(state);
-                          setSelectedCity("");
-                          setShowStates(false);
-                        }}
-                        className="px-3 py-2 hover:bg-[var(--color-primary)] hover:text-white cursor-pointer text-gray-800 transition-colors"
-                      >
-                        {state}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-      
-              {/* 🏙️ City Input */}
-              <div className="relative flex items-center bg-white border border-gray-200 rounded-md px-3 py-2 w-full">
-                <FiMapPin className="text-gray-400 text-lg mr-2" />
-                <input
-                  type="text"
-                  placeholder="City"
-                  value={selectedCity}
-                  readOnly
-                  onFocus={() => {
-                    if (selectedState) {
-                      setShowCities(!showCities);
+              {dogBreeds
+                .filter((b) =>
+                  b.toLowerCase().includes(selectedBreed.toLowerCase())
+                )
+                .map((breed) => (
+                  <li
+                    key={breed}
+                    onClick={() => {
+                      setSelectedBreed(breed);
                       setShowBreeds(false);
-                      setShowStates(false);
-                    }
-                  }}
-                  className="w-full outline-none text-sm text-gray-700 placeholder:text-gray-400 cursor-pointer"
-                />
-                {showCities && selectedState && (
-                  <ul
-                    className={`${dropdownClass} ${
-                      openUp ? "bottom-full mb-1" : "top-full mt-1"
-                    }`}
-                    style={dropdownStyle}
+                    }}
+                    className="px-3 py-2 hover:bg-[var(--color-primary)] hover:text-white cursor-pointer text-gray-800 transition-colors"
                   >
-                    {statesWithCities[selectedState].map((city) => (
-                      <li
-                        key={city}
-                        onClick={() => {
-                          setSelectedCity(city);
-                          setShowCities(false);
-                        }}
-                        className="px-3 py-2 hover:bg-[var(--color-primary)] hover:text-white cursor-pointer text-gray-800 transition-colors"
-                      >
-                        {city}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-      
-              {/* 🔍 Search Button */}
-              <button
-                onClick={() => applyFilters()}
-                className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium 
+                    {breed}
+                  </li>
+                ))}
+            </ul>
+          )}
+        </div>
+
+        {/* 📍 State Input */}
+        <div className="relative flex items-center bg-white border border-gray-200 rounded-md px-3 py-2 w-full">
+          <FiMapPin className="text-gray-400 text-lg mr-2" />
+          <input
+            type="text"
+            placeholder="State"
+            value={selectedState}
+            readOnly
+            onFocus={() => {
+              setShowStates(!showStates);
+              setShowBreeds(false);
+              setShowCities(false);
+            }}
+            className="w-full outline-none text-sm text-gray-700 placeholder:text-gray-400 cursor-pointer"
+          />
+          {showStates && (
+            <ul
+              className={`${dropdownClass} ${openUp ? "bottom-full mb-1" : "top-full mt-1"
+                }`}
+              style={dropdownStyle}
+            >
+              {Object.keys(statesWithCities).map((state) => (
+                <li
+                  key={state}
+                  onClick={() => {
+                    setSelectedState(state);
+                    setSelectedCity("");
+                    setShowStates(false);
+                  }}
+                  className="px-3 py-2 hover:bg-[var(--color-primary)] hover:text-white cursor-pointer text-gray-800 transition-colors"
+                >
+                  {state}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* 🏙️ City Input */}
+        <div className="relative flex items-center bg-white border border-gray-200 rounded-md px-3 py-2 w-full">
+          <FiMapPin className="text-gray-400 text-lg mr-2" />
+          <input
+            type="text"
+            placeholder="City"
+            value={selectedCity}
+            readOnly
+            onFocus={() => {
+              if (selectedState) {
+                setShowCities(!showCities);
+                setShowBreeds(false);
+                setShowStates(false);
+              }
+            }}
+            className="w-full outline-none text-sm text-gray-700 placeholder:text-gray-400 cursor-pointer"
+          />
+          {showCities && selectedState && (
+            <ul
+              className={`${dropdownClass} ${openUp ? "bottom-full mb-1" : "top-full mt-1"
+                }`}
+              style={dropdownStyle}
+            >
+              {statesWithCities[selectedState].map((city) => (
+                <li
+                  key={city}
+                  onClick={() => {
+                    setSelectedCity(city);
+                    setShowCities(false);
+                  }}
+                  className="px-3 py-2 hover:bg-[var(--color-primary)] hover:text-white cursor-pointer text-gray-800 transition-colors"
+                >
+                  {city}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {/* 🔍 Search Button */}
+        <button
+          onClick={() => applyFilters()}
+          className="bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium 
                   rounded-md px-18 py-2 flex items-center justify-center gap-2 
                   transition-all duration-200"
-              >
-                Search
-              </button>
-            </div>
+        >
+          Search
+        </button>
+      </div>
 
       {/* 🔽 Main Layout (Sidebar + Content) */}
       <div className="max-w-7xl mx-auto flex gap-4">
         {/* 🧭 Sidebar */}
         <div className="w-60 ">
           {/* Clear All Filters */}
-          <div className="px-3 py-2 shadow rounded-lg mb-3" style={{background: 'var(--color-primary)'}}>
+          <div className="px-3 py-2 shadow rounded-lg mb-3" style={{ background: 'var(--color-primary)' }}>
             <button
               onClick={() => {
                 setSelectedBreed("");
@@ -472,8 +488,8 @@ export default function DogsPage() {
                 {selectedBreed && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 bg-[var(--color-primary)] text-white text-xs rounded-full">
                     {selectedBreed}
-                    <button 
-                      onClick={() => setSelectedBreed("")} 
+                    <button
+                      onClick={() => setSelectedBreed("")}
                       className="ml-1 hover:bg-white hover:text-[var(--color-primary)] rounded-full w-4 h-4 flex items-center justify-center"
                     >
                       ×
@@ -483,8 +499,8 @@ export default function DogsPage() {
                 {selectedState && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
                     {selectedState}
-                    <button 
-                      onClick={() => {setSelectedState(""); setSelectedCity("");}} 
+                    <button
+                      onClick={() => { setSelectedState(""); setSelectedCity(""); }}
                       className="ml-1 hover:bg-white hover:text-blue-500 rounded-full w-4 h-4 flex items-center justify-center"
                     >
                       ×
@@ -494,8 +510,8 @@ export default function DogsPage() {
                 {selectedCity && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-500 text-white text-xs rounded-full">
                     {selectedCity}
-                    <button 
-                      onClick={() => setSelectedCity("")} 
+                    <button
+                      onClick={() => setSelectedCity("")}
                       className="ml-1 hover:bg-white hover:text-green-500 rounded-full w-4 h-4 flex items-center justify-center"
                     >
                       ×
@@ -505,8 +521,8 @@ export default function DogsPage() {
                 {selectedGender && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-500 text-white text-xs rounded-full">
                     {selectedGender}
-                    <button 
-                      onClick={() => setSelectedGender("")} 
+                    <button
+                      onClick={() => setSelectedGender("")}
                       className="ml-1 hover:bg-white hover:text-purple-500 rounded-full w-4 h-4 flex items-center justify-center"
                     >
                       ×
@@ -516,8 +532,8 @@ export default function DogsPage() {
                 {selectedFeature && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 bg-indigo-500 text-white text-xs rounded-full">
                     {selectedFeature}
-                    <button 
-                      onClick={() => setSelectedFeature("")} 
+                    <button
+                      onClick={() => setSelectedFeature("")}
                       className="ml-1 hover:bg-white hover:text-indigo-500 rounded-full w-4 h-4 flex items-center justify-center"
                     >
                       ×
@@ -527,8 +543,8 @@ export default function DogsPage() {
                 {sortBy && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-500 text-white text-xs rounded-full">
                     Sort: {sortBy === 'priceLowHigh' ? 'Price ↑' : sortBy === 'priceHighLow' ? 'Price ↓' : sortBy === 'ageLowHigh' ? 'Age ↑' : sortBy === 'ageHighLow' ? 'Age ↓' : 'Newest'}
-                    <button 
-                      onClick={() => setSortBy("")} 
+                    <button
+                      onClick={() => setSortBy("")}
                       className="ml-1 hover:bg-white hover:text-gray-500 rounded-full w-4 h-4 flex items-center justify-center"
                     >
                       ×
@@ -540,14 +556,14 @@ export default function DogsPage() {
           )}
 
           {/* Sorted By */}
-          <div className="px-5 py-5 shadow rounded-lg my-3" style={{background: 'var(--gradient-hero)'}}>
+          <div className="px-5 py-5 shadow rounded-lg my-3" style={{ background: 'var(--gradient-hero)' }}>
             <div className="text-[var(--color-primary)] flex items-center justify-between">
               <h3 className="font-semibold text-base flex items-center gap-2 text-white">
                 Sort By
               </h3>
               {sortBy && (
-                <button 
-                  onClick={() => setSortBy("")} 
+                <button
+                  onClick={() => setSortBy("")}
                   className="text-xs text-gray-300 hover:text-white transition-colors"
                 >
                   Clear
@@ -619,14 +635,14 @@ export default function DogsPage() {
               </label>
             </div>
           </div>
-          <div className="px-5 py-5 shadow rounded-lg my-3" style={{background: 'var(--gradient-hero)'}}>
+          <div className="px-5 py-5 shadow rounded-lg my-3" style={{ background: 'var(--gradient-hero)' }}>
             <div className="text-[var(--color-primary)] flex items-center justify-between">
               <h3 className="font-semibold text-base flex items-center gap-2 text-white">
                 Gender
               </h3>
               {selectedGender && (
-                <button 
-                  onClick={() => setSelectedGender("")} 
+                <button
+                  onClick={() => setSelectedGender("")}
                   className="text-xs text-gray-300 hover:text-white transition-colors"
                 >
                   Clear
@@ -657,14 +673,14 @@ export default function DogsPage() {
           </div>
 
           {/* Pet Features Section */}
-          <div className="px-5 py-5 shadow rounded-lg my-3" style={{background: 'var(--gradient-hero)'}}>
+          <div className="px-5 py-5 shadow rounded-lg my-3" style={{ background: 'var(--gradient-hero)' }}>
             <div className="text-[var(--color-primary)] flex items-center justify-between">
               <h3 className="font-semibold text-base flex items-center gap-2 text-white">
                 Pet Features
               </h3>
               {selectedFeature && (
-                <button 
-                  onClick={() => setSelectedFeature("")} 
+                <button
+                  onClick={() => setSelectedFeature("")}
                   className="text-xs text-gray-300 hover:text-white transition-colors"
                 >
                   Clear
@@ -694,7 +710,7 @@ export default function DogsPage() {
             </div>
           </div>
           {/* 💰 Budget Range */}
-          <div className="mb-5 px-5 py-5 shadow rounded-lg" style={{background: 'var(--gradient-hero)'}}>
+          <div className="mb-5 px-5 py-5 shadow rounded-lg" style={{ background: 'var(--gradient-hero)' }}>
             <h3 className="text-white font-semibold flex items-center gap-2 mb-3">
               <FiDollarSign className="text-[var(--color-primary)]" /> Budget
             </h3>
@@ -716,7 +732,7 @@ export default function DogsPage() {
           </div>
 
           {/* 🔥 Popular Breeds */}
-          <div className="px-5 py-5 shadow rounded-lg my-3" style={{background: 'var(--gradient-hero)'}}>
+          <div className="px-5 py-5 shadow rounded-lg my-3" style={{ background: 'var(--gradient-hero)' }}>
             <h3 className="text-white font-semibold flex items-center gap-2 mb-3">
               <FaFire className="text-[var(--color-primary)]" /> Popular Breeds
             </h3>
@@ -759,7 +775,7 @@ export default function DogsPage() {
 
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <div>
-                <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent mb-2" style={{color: "var(--gradient-hero)"}}>
+                <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent mb-2" style={{ color: "var(--gradient-hero)" }}>
                   {selectedBreed
                     ? `${selectedBreed} For Sale`
                     : "Dogs For Sale"}
@@ -778,7 +794,7 @@ export default function DogsPage() {
             {loading ? (
               // Loading state
               Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="rounded-2xl overflow-hidden shadow-sm animate-pulse" style={{background: 'var(--gradient-hero)'}}>
+                <div key={index} className="rounded-2xl overflow-hidden shadow-sm animate-pulse" style={{ background: 'var(--gradient-hero)' }}>
                   <div className="h-64 bg-gray-600"></div>
                   <div className="p-5">
                     <div className="h-6 bg-gray-600 rounded mb-3"></div>
@@ -809,12 +825,12 @@ export default function DogsPage() {
                 <p className="text-gray-500">Try adjusting your filters</p>
               </div>
             ) : (
- filteredPetsList.map((pet) => (
+              filteredPetsList.map((pet) => (
                 <div
                   key={pet.id || pet._id}
                   className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                 >
-                  <div className="relative overflow-hidden">
+                 <div className="relative overflow-hidden">
                     <img
                       src={pet.img || pet.images?.[0] || '/default-pet.jpg'}
                       alt={pet.name}
@@ -824,7 +840,10 @@ export default function DogsPage() {
                         :star: Premium
                       </span>
                     </div> */}
-                  </div>                  <div className="p-5">
+                  </div>           
+                  
+                  
+                  <div className="p-5">
                     <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-purple-600 transition-colors">
                       {pet.name}
                     </h3>                    <div className="space-y-2.5 mb-4">
@@ -854,24 +873,32 @@ export default function DogsPage() {
                         <FiPhone className="text-sm" />
                         Call
                       </a>
-                        <a
-                          href={`https://wa.me/${pet.contactNumber}?text=${encodeURIComponent('Hi, I saw your ad, I am interested')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-3 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1"
-                        >
-                          <SiWhatsapp className="text-sm" />
-                          Chat
-                        </a>
                       <a
+                        href={`https://wa.me/${pet.contactNumber}?text=${encodeURIComponent('Hi, I saw your ad, I am interested')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1"
+                      >
+                        <SiWhatsapp className="text-sm" />
+                        Chat
+                      </a>
+                      {/* <a
                         href={`/dogs/pet/${pet._id || pet.id}`}
                         className="px-3 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1"
                       >
                         <FiInfo className="text-sm" />
                         Info
-                      </a>
-                    </div>                    
-                    <button className="w-full py-3 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 hover:scale-[1.02]" style={{background: "var(--gradient-hero"}}>
+                      </a> */}
+
+<button
+  type="button"
+  onClick={() => handleViewPet(pet)}
+  className="px-3 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1 cursor-pointer"
+>
+  <FiInfo className="text-sm" />
+  Info
+</button>         </div>
+                    <button className="w-full py-3 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 hover:scale-[1.02]" style={{ background: "var(--gradient-hero" }}>
                       {pet.price?.toLocaleString() || 'N/A'} PKR
                     </button>
                   </div>
@@ -886,12 +913,11 @@ export default function DogsPage() {
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className={`px-6 py-2.5 rounded-full font-medium transition-all duration-200 ${
-                  currentPage === 1
+                className={`px-6 py-2.5 rounded-full font-medium transition-all duration-200 ${currentPage === 1
                     ? "bg-gray-700 text-gray-400 cursor-not-allowed"
                     : "text-white hover:bg-[var(--color-primary-hover)] shadow-sm hover:shadow-md hover:scale-105"
-                }`}
-                style={currentPage !== 1 ? {background: 'var(--bg-dark-accent)'} : {}}
+                  }`}
+                style={currentPage !== 1 ? { background: 'var(--bg-dark-accent)' } : {}}
               >
                 Previous
               </button>
@@ -902,12 +928,11 @@ export default function DogsPage() {
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`w-10 h-10 rounded-full font-semibold transition-all duration-200 ${
-                        currentPage === page
+                      className={`w-10 h-10 rounded-full font-semibold transition-all duration-200 ${currentPage === page
                           ? "bg-[var(--color-primary)] text-white shadow-lg scale-110"
                           : "text-white hover:bg-[var(--color-primary-hover)] hover:text-white"
-                      }`}
-                      style={currentPage !== page ? {background: 'var(--bg-dark-accent)'} : {}}
+                        }`}
+                      style={currentPage !== page ? { background: 'var(--bg-dark-accent)' } : {}}
                     >
                       {page}
                     </button>
@@ -920,12 +945,11 @@ export default function DogsPage() {
                   setCurrentPage((p) => Math.min(totalPages, p + 1))
                 }
                 disabled={currentPage >= totalPages}
-                className={`px-6 py-2.5 rounded-full font-medium transition-all duration-200 ${
-                  currentPage >= totalPages
+                className={`px-6 py-2.5 rounded-full font-medium transition-all duration-200 ${currentPage >= totalPages
                     ? "bg-gray-700 text-gray-400 cursor-not-allowed"
                     : "text-white hover:bg-[var(--color-primary-hover)] shadow-sm hover:shadow-md hover:scale-105"
-                }`}
-                style={currentPage < totalPages ? {background: 'var(--bg-dark-accent)'} : {}}
+                  }`}
+                style={currentPage < totalPages ? { background: 'var(--bg-dark-accent)' } : {}}
               >
                 Next
               </button>

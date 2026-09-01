@@ -1,17 +1,43 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { FaShieldAlt, FaCreditCard, FaMoneyBillWave, FaArrowLeft, FaSpinner } from "react-icons/fa";
 import { useBuyStore } from "@/Store/buyStore";
 
-export default function CheckoutPage() {
+// 1. Separate component that uses useSearchParams
+function CheckoutContent() {
   const router = useRouter();
-  const { selectedPet, checkoutDetails, setCheckoutDetails, processCheckout, loading, error } =
+  const searchParams = useSearchParams();
+  const petIdFromUrl = searchParams.get("petId");
+
+  const { selectedPet, setSelectedPet, checkoutDetails, setCheckoutDetails, processCheckout, loading, error } =
     useBuyStore();
 
   const [formError, setFormError] = useState("");
+  const [isInitializing, setIsInitializing] = useState(true);
+
+  useEffect(() => {
+    const initPet = async () => {
+      if (petIdFromUrl && (!selectedPet || selectedPet._id !== petIdFromUrl)) {
+        await setSelectedPet(petIdFromUrl);
+      }
+      setIsInitializing(false);
+    };
+    initPet();
+  }, [petIdFromUrl, selectedPet, setSelectedPet]);
+
+  if (isInitializing) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--gradient-hero)" }}>
+        <div className="text-center bg-white p-8 rounded-3xl shadow-xl">
+          <FaSpinner className="animate-spin text-3xl mx-auto mb-2 text-orange-600" />
+          <p className="text-gray-600 font-medium">Loading checkout...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!selectedPet) {
     return (
@@ -46,7 +72,7 @@ export default function CheckoutPage() {
     try {
       const redirectUrl = await processCheckout();
       if (redirectUrl) {
-        window.location.href = redirectUrl; // Redirects to Stripe or order completion page
+        window.location.href = redirectUrl;
       }
     } catch (err: any) {
       console.error("Checkout submission error:", err);
@@ -70,7 +96,6 @@ export default function CheckoutPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
-          {/* Left/Main Form: User Info & Payment */}
           <form onSubmit={handleSubmit} className="md:col-span-2 space-y-6">
             
             <div className="space-y-4">
@@ -82,7 +107,7 @@ export default function CheckoutPage() {
                   type="text"
                   name="fullName"
                   required
-                  value={checkoutDetails.fullName}
+                  value={checkoutDetails.fullName || ""}
                   onChange={handleInputChange}
                   placeholder="John Doe"
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-(--color-primary) text-sm"
@@ -96,9 +121,9 @@ export default function CheckoutPage() {
                     type="tel"
                     name="phone"
                     required
-                    value={checkoutDetails.phone}
+                    value={checkoutDetails.phone || ""}
                     onChange={handleInputChange}
-                    placeholder="+91 98765 43210"
+                    placeholder="+92 300 1234567"
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-(--color-primary) text-sm"
                   />
                 </div>
@@ -108,9 +133,9 @@ export default function CheckoutPage() {
                     type="text"
                     name="city"
                     required
-                    value={checkoutDetails.city}
+                    value={checkoutDetails.city || ""}
                     onChange={handleInputChange}
-                    placeholder="New Delhi"
+                    placeholder="Islamabad"
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-(--color-primary) text-sm"
                   />
                 </div>
@@ -122,7 +147,7 @@ export default function CheckoutPage() {
                   type="text"
                   name="address"
                   required
-                  value={checkoutDetails.address}
+                  value={checkoutDetails.address || ""}
                   onChange={handleInputChange}
                   placeholder="House #123, Street Name"
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-(--color-primary) text-sm"
@@ -130,7 +155,6 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Payment Method Selector */}
             <div className="space-y-4 pt-4">
               <h2 className="text-lg font-bold text-gray-800 border-b pb-2">2. Payment Method</h2>
 
@@ -186,11 +210,10 @@ export default function CheckoutPage() {
               disabled={loading}
               className="w-full py-4 bg-(--color-primary) text-black font-extrabold rounded-2xl shadow-lg hover:scale-102 transition-transform text-base cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
             >
-              {loading ? <FaSpinner className="animate-spin text-xl" /> : `Confirm & Pay ₹${selectedPet.price}`}
+              {loading ? <FaSpinner className="animate-spin text-xl" /> : `Confirm & Pay PKR ${selectedPet.price}`}
             </button>
           </form>
 
-          {/* Right Side: Order Summary Card */}
           <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 flex flex-col justify-between h-fit">
             <div>
               <h3 className="font-bold text-gray-900 mb-4 border-b pb-2">Order Summary</h3>
@@ -200,15 +223,15 @@ export default function CheckoutPage() {
                   <Image src={petImage} alt="Pet" fill className="object-cover" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm text-gray-900">{selectedPet.petName || selectedPet.breed}</h4>
-                  <p className="text-xs text-gray-500">{selectedPet.category}</p>
+                  <h4 className="font-bold text-sm text-gray-900">{selectedPet.name || selectedPet.breed}</h4>
+                  <p className="text-xs text-gray-500">{selectedPet.category || selectedPet.breed}</p>
                 </div>
               </div>
 
               <div className="space-y-2 text-sm text-gray-600 border-t pt-4">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-gray-900">₹{selectedPet.price}</span>
+                  <span className="font-semibold text-gray-900">PKR {selectedPet.price}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Shipping Inspection</span>
@@ -216,7 +239,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between border-t pt-2 text-base font-extrabold text-gray-900">
                   <span>Total</span>
-                  <span>₹{selectedPet.price}</span>
+                  <span>PKR {selectedPet.price}</span>
                 </div>
               </div>
             </div>
@@ -229,5 +252,23 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// 2. Main wrapper component with Suspense boundary
+export default function CheckoutPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--gradient-hero)" }}>
+          <div className="text-center bg-white p-8 rounded-3xl shadow-xl">
+            <FaSpinner className="animate-spin text-3xl mx-auto mb-2 text-orange-600" />
+            <p className="text-gray-600 font-medium">Loading checkout...</p>
+          </div>
+        </div>
+      }
+    >
+      <CheckoutContent />
+    </Suspense>
   );
 }

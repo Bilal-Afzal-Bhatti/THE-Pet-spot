@@ -5,8 +5,9 @@ import { FaDog, FaFire } from "react-icons/fa";
 import { SiWhatsapp } from "react-icons/si";
 import { useAdStore } from "@/Store/AdsStore";
 import { cats, catBreeds, popularCatBreeds, statesWithCatCities } from "./data";
-
+import { useRouter } from "next/navigation";
 export default function CatsPage() {
+  const router = useRouter();
   // Core states
   const [budget, setBudget] = useState<number>(500000);
   const [selectedBreed, setSelectedBreed] = useState<string>("");
@@ -79,6 +80,25 @@ export default function CatsPage() {
       return s.replace(/-/g, " ");
     }
   };
+const handleViewPet = (pet: any) => {
+  const petName = pet.name || pet.title || "Pet";
+  const petBreed = pet.breed || "cats";
+  const petSlug = `${slugify(petName)}-${slugify(petBreed)}`;
+  
+  // Get the exact ID
+  const petId = pet._id || pet.id;
+ console.log("Navigating to pet details for:", petName, "with ID:", petId);
+  // Store both the full pet object AND the explicit ID in sessionStorage
+  if (typeof window !== "undefined") {
+    sessionStorage.setItem("selectedPetData", JSON.stringify(pet));
+    sessionStorage.setItem("currentPetId", petId);
+  }
+
+  // Push to the slug route, while your app logic can grab the ID from storage when making API calls
+ router.push(`/cats/pet/${petSlug}`);
+};
+  // This will push the slug to the URL (e.g. /cats/pet/milo-persian)
+ 
 
   const findStateForCity = (cityName: string) => {
     if (!cityName) return "";
@@ -769,13 +789,21 @@ export default function CatsPage() {
                           <SiWhatsapp className="text-sm" />
                           Chat
                         </a>
-                      <a
+                      {/* <a
                         href={`/cats/pet/${pet._id || pet.id}`}
                         className="px-3 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1"
                       >
                         <FiInfo className="text-sm" />
                         Info
-                      </a>
+                      </a> */}
+                      <button
+                        type="button"
+                        onClick={() => handleViewPet(pet)}
+                        className="px-3 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        <FiInfo className="text-sm" />
+                        Info
+                      </button>    
                     </div>                    
                     <button className="w-full py-3 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 hover:scale-[1.02]" style={{background: "var(--gradient-hero)"}}>
                       {pet.price?.toLocaleString() || 'N/A'} PKR

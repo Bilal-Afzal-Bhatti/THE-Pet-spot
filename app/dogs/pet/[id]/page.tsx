@@ -1,16 +1,28 @@
 "use client";
+import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { FiMapPin, FiDollarSign, FiCalendar, FiUser, FiPhone } from "react-icons/fi";
+import { useRouter } from "next/navigation";
+import { FiMapPin, FiCalendar, FiUser, FiPhone } from "react-icons/fi";
 import { FaDog, FaWeight, FaRulerVertical, FaHeartbeat, FaSyringe, FaCertificate } from "react-icons/fa";
 import { SiWhatsapp } from "react-icons/si";
 import { useAdStore } from "@/Store/AdsStore";
+import { useBuyStore } from "@/Store/buyStore";
 
 export default function DogDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const router = useRouter();
   const { getApprovedDogAdById } = useAdStore();
+  // If you need useBuyStore actions/state, initialize them here
+  const {} = useBuyStore();
+  
   const [pet, setPet] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
+
+  // Magnifying lens states
+  const [isZoomed, setIsZoomed] = useState<boolean>(false);
+  const [lensPos, setLensPos] = useState({ x: 0, y: 0, bgX: 0, bgY: 0 });
+  
   const resolvedParams = React.use(params);
 
   useEffect(() => {
@@ -37,10 +49,22 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
     }
   }, [resolvedParams.id, getApprovedDogAdById]);
 
+  // Handle mouse movement for circular zoom lens
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - left;
+    const y = e.clientY - top;
+
+    const bgX = (x / width) * 100;
+    const bgY = (y / height) * 100;
+
+    setLensPos({ x, y, bgX, bgY });
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen font-raleway">
-        <div className="h-25" style={{background: "var(--gradient-hero)"}}></div>
+      <div className="min-h-screen font-raleway bg-gray-50">
+        <div className="h-25" style={{ background: "var(--gradient-hero)" }}></div>
         <div className="p-6 px-44 -mt-16 relative z-10 flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto mb-4"></div>
@@ -53,14 +77,12 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
 
   if (error || !pet) {
     return (
-      <div className="min-h-screen font-raleway">
-        <div className="h-25" style={{background: "var(--gradient-hero)"}}></div>
+      <div className="min-h-screen font-raleway bg-gray-50">
+        <div className="h-25" style={{ background: "var(--gradient-hero)" }}></div>
         <div className="p-6 px-44 -mt-16 relative z-10 flex items-center justify-center min-h-[60vh]">
           <div className="text-center">
             <div className="text-6xl mb-4">🐕</div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              {error || "Dog not found"}
-            </h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">{error || "Dog not found"}</h2>
             <p className="text-gray-500">The dog you're looking for might have been removed or is no longer available.</p>
           </div>
         </div>
@@ -68,244 +90,273 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
     );
   }
 
-  return (
-    <div className="min-h-screen font-raleway">
-      {/* Banner Background for Navbar Visibility */}
-      <div className="h-25" style={{background: "var(--gradient-hero)"}}></div>
-      
-      <div className="p-6 px-44 relative z-10">
-        {/* Breadcrumb */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 text-sm text-gray-700 mb-3">
-            <a href="/" className="hover:text-orange-600 cursor-pointer transition-colors">Home</a>
-            <span>→</span>
-            <a href="/dogs/for-sale" className="hover:text-orange-600 cursor-pointer transition-colors">Dogs</a>
-            <span>→</span>
-            <span className="text-gray-800 font-medium">{pet.name}</span>
-          </div>
-        </div>
+  // Safe image list resolution
+  const images: string[] = pet.images && pet.images.length > 0 
+    ? pet.images 
+    : [pet.img || '/default-pet.jpg'];
 
-      <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          {/* Image Gallery */}
-          <div className="space-y-4">
-            <div className="relative aspect-square rounded-2xl overflow-hidden shadow-lg">
-              <img
-                src={pet.images?.[currentImageIndex] || pet.img || '/default-pet.jpg'}
-                alt={pet.name}
-                className="w-full h-full object-cover"
-              />
-              {pet.images && pet.images.length > 1 && (
-                <>
-                  <button
-                    onClick={() => setCurrentImageIndex(prev => prev === 0 ? pet.images.length - 1 : prev - 1)}
-                    className="absolute left-3 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-all"
-                  >
-                    <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </button>
-                  <button
-                    onClick={() => setCurrentImageIndex(prev => prev === pet.images.length - 1 ? 0 : prev + 1)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg transition-all"
-                  >
-                    <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                  <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-2">
-                    {pet.images.map((_: string, index: number) => (
-                      <div
-                        key={index}
-                        className={`w-2 h-2 rounded-full transition-all cursor-pointer ${
-                          index === currentImageIndex ? 'bg-white' : 'bg-white/50'
-                        }`}
-                        onClick={() => setCurrentImageIndex(index)}
+  const petImage = images[currentImageIndex] || '/default-pet.jpg';
+
+  return (
+    <div className="min-h-screen font-raleway bg-gray-50 pb-16">
+      {/* Banner Background */}
+      <div className="h-25" style={{ background: "var(--gradient-hero)" }}></div>
+      
+      <div className="p-6 px-6 lg:px-44 relative z-10">
+        {/* Breadcrumb */}
+        <nav className="mb-6" aria-label="Breadcrumb">
+          <ol className="flex items-center gap-2 text-sm text-gray-600">
+            <li><a href="/" className="hover:text-orange-600 transition-colors">Home</a></li>
+            <li><span>→</span></li>
+            <li><a href="/dogs/for-sale" className="hover:text-orange-600 transition-colors">Dogs</a></li>
+            <li><span>→</span></li>
+            <li className="text-gray-800 font-medium truncate max-w-[200px]">{pet.name}</li>
+          </ol>
+        </nav>
+
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            {/* Left Column: Image Gallery & Seller Card */}
+            <div className="space-y-6">
+              
+              {/* Main Image Container with Circular Magnifying Lens */}
+              <div 
+                className="relative overflow-hidden rounded-2xl h-[400px] cursor-crosshair bg-gray-100 shadow-lg select-none"
+                onMouseEnter={() => setIsZoomed(true)}
+                onMouseLeave={() => setIsZoomed(false)}
+                onMouseMove={handleMouseMove}
+              >
+                <img
+                  src={petImage}
+                  alt={pet.name || "Pet"}
+                  className="w-full h-full object-cover pointer-events-none"
+                />
+
+                {isZoomed && (
+                  <div
+                    className="absolute pointer-events-none rounded-full border-2 border-white shadow-2xl"
+                    style={{
+                      width: "160px",
+                      height: "160px",
+                      left: `${lensPos.x - 80}px`,
+                      top: `${lensPos.y - 80}px`,
+                      backgroundImage: `url(${petImage})`,
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: `${lensPos.bgX}% ${lensPos.bgY}%`,
+                      backgroundSize: "500%",
+                    }}
+                  />
+                )}
+              </div>
+
+              {/* Thumbnails Grid */}
+              {images.length > 1 && (
+                <div className="grid grid-cols-4 gap-2">
+                  {images.map((img: string, index: number) => (
+                    <button
+                      type="button"
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`aspect-square rounded-lg overflow-hidden transition-all text-left focus:outline-none ${
+                        index === currentImageIndex ? 'ring-2 ring-orange-500 shadow-md' : 'opacity-70 hover:opacity-100'
+                      }`}
+                    >
+                      <img
+                        src={img}
+                        alt={`${pet.name} thumbnail ${index + 1}`}
+                        className="w-full h-full object-cover"
                       />
-                    ))}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Description Card */}
+              {pet.description && (
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">Description</h3>
+                  <p className="text-gray-600 leading-relaxed text-sm whitespace-pre-line">{pet.description}</p>
+                </div>
+              )}
+
+              {/* Seller Info Card */}
+              {pet.user && (
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                  <h3 className="text-lg font-semibold text-gray-800 mb-4">Seller Information</h3>
+                  <div className="flex items-center gap-3">
+                    {pet.user.avatar ? (
+                      <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0">
+                        <Image
+                          src={pet.user.avatar}
+                          alt={pet.user.name || "Seller"}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center shrink-0">
+                        <FiUser className="text-orange-600 text-xl" />
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-medium text-gray-800">{pet.user.name}</p>
+                      <p className="text-sm text-gray-500">{pet.user.email}</p>
+                    </div>
                   </div>
-                </>
+                </div>
               )}
             </div>
-            {pet.images && pet.images.length > 1 && (
-              <div className="grid grid-cols-4 gap-2">
-                {pet.images.map((img: string, index: number) => (
-                  <div 
-                    key={index} 
-                    className={`aspect-square rounded-lg overflow-hidden cursor-pointer transition-all ${
-                      index === currentImageIndex ? 'ring-2 ring-orange-500' : ''
-                    }`}
-                    onClick={() => setCurrentImageIndex(index)}
-                  >
-                    <img
-                      src={img}
-                      alt={`${pet.name} ${index + 1}`}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-            {pet.description && (
-              <div className="bg-gray-50 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Description</h3>
-                <p className="text-gray-700 leading-relaxed">{pet.description}</p>
-              </div>
-            )}
 
-
-            {/* Seller Info */}
-            {pet.user && (
-              <div className="bg-gray-50 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Seller Information</h3>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                    <FiUser className="text-orange-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-800">{pet.user.name}</p>
-                    <p className="text-sm text-gray-500">{pet.user.email}</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-
-          </div>
-
-          {/* Pet Details */}
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-800 mb-2">{pet.name}</h1>
-              <div className="flex items-center gap-4 text-gray-600 mb-4">
-                <span className="flex items-center gap-2">
-                  <FaDog className="text-orange-600" />
-                  {pet.breed}
-                </span>
-                <span className="flex items-center gap-2">
-                  <FiMapPin className="text-orange-600" />
-                  {pet.city}
-                </span>
-              </div>
-              <div className="text-3xl font-bold text-orange-600 mb-6">
-                PKR {pet.price?.toLocaleString() || 'N/A'}
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="grid grid-cols-2 gap-3">
-              <a
-                href={`tel:${pet.contactNumber}`}
-                className="px-4 py-3 rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors text-sm font-medium text-center block text-white"
-                style={{background: "var(--gradient-hero)"}}
-              >
-                <FiPhone className="inline mr-2" />
-                Call
-              </a>
-              <a
-                href={`https://wa.me/${pet.contactNumber}?text=${encodeURIComponent('Hi, I saw your ad, I am interested')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-3 rounded-lg hover:bg-[var(--color-primary-hover)] transition-colors text-sm font-medium text-center block text-white"
-                style={{background: "var(--gradient-hero)"}}
-              >
-                <SiWhatsapp className="inline mr-2" />
-                Chat
-              </a>
-            </div>
-
-            {/* Key Details */}
-            <div className="bg-gray-50 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Dog Details</h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center gap-3">
-                  <FiUser className="text-orange-600" />
-                  <div>
-                    <p className="text-sm text-gray-500">Gender</p>
-                    <p className="font-medium">{pet.gender}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <FiCalendar className="text-orange-600" />
-                  <div>
-                    <p className="text-sm text-gray-500">Age</p>
-                    <p className="font-medium">{pet.age} months</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <FaWeight className="text-orange-600" />
-                  <div>
-                    <p className="text-sm text-gray-500">Weight</p>
-                    <p className="font-medium">{pet.weight} kg</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <FaRulerVertical className="text-orange-600" />
-                  <div>
-                    <p className="text-sm text-gray-500">Height</p>
-                    <p className="font-medium">{pet.height} cm</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Health & Features */}
-            <div className="bg-gray-50 rounded-xl p-6">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Health & Features</h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <FaSyringe className="text-orange-600" />
-                    Vaccinated
+            {/* Right Column: Details & Actions */}
+            <div className="space-y-6">
+              <div>
+                <h1 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-2">{pet.name}</h1>
+                <div className="flex items-center gap-4 text-gray-600 mb-4">
+                  <span className="flex items-center gap-1.5 text-sm">
+                    <FaDog className="text-orange-600" />
+                    {pet.breed}
                   </span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    pet.vaccinated ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                  }`}>
-                    {pet.vaccinated ? 'Yes' : 'No'}
+                  <span className="flex items-center gap-1.5 text-sm">
+                    <FiMapPin className="text-orange-600" />
+                    {pet.city}
                   </span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <FaCertificate className="text-orange-600" />
-                    KCI Registered
-                  </span>
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    pet.kcpRegistered ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                  }`}>
-                    {pet.kcpRegistered ? 'Yes' : 'No'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-2">
-                    <FaHeartbeat className="text-orange-600" />
-                    Life Expectancy
-                  </span>
-                  <span className="font-medium">{pet.maxLife} years</span>
+                <div className="text-3xl font-bold text-orange-600 mb-6">
+                  PKR {pet.price?.toLocaleString() || 'N/A'}
                 </div>
               </div>
-            </div>
 
-            {/* Suitable For */}
-            {pet.suitableFor && pet.suitableFor.length > 0 && (
-              <div className="bg-gray-50 rounded-xl p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Suitable For</h3>
-                <div className="flex flex-wrap gap-2">
-                  {Array.isArray(pet.suitableFor) ? pet.suitableFor.map((item: string, index: number) => (
-                    <span key={index} className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">
-                      {item.trim()}
+              {/* Contact / Action Buttons */}
+              <div className="grid grid-cols-2 gap-3">
+                <a
+                  href={`tel:${pet.contactNumber}`}
+                  className="px-4 py-3 rounded-xl hover:opacity-90 transition-opacity text-sm font-medium text-center block text-white shadow-sm"
+                  style={{ background: "var(--gradient-hero)" }}
+                >
+                  <FiPhone className="inline mr-2" />
+                  Call
+                </a>
+                <a
+                  href={`https://wa.me/${pet.contactNumber}?text=${encodeURIComponent('Hi, I saw your ad, I am interested')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-3 rounded-xl hover:opacity-90 transition-opacity text-sm font-medium text-center block text-white shadow-sm"
+                  style={{ background: "var(--gradient-hero)" }}
+                >
+                  <SiWhatsapp className="inline mr-2" />
+                  Chat
+                </a>
+              </div>
+
+              {/* Dog Attributes Card */}
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Dog Details</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-3">
+                    <FiUser className="text-orange-600 text-lg" />
+                    <div>
+                      <p className="text-xs text-gray-500">Gender</p>
+                      <p className="font-medium text-sm text-gray-800">{pet.gender}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <FiCalendar className="text-orange-600 text-lg" />
+                    <div>
+                      <p className="text-xs text-gray-500">Age</p>
+                      <p className="font-medium text-sm text-gray-800">{pet.age} months</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <FaWeight className="text-orange-600 text-lg" />
+                    <div>
+                      <p className="text-xs text-gray-500">Weight</p>
+                      <p className="font-medium text-sm text-gray-800">{pet.weight} kg</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <FaRulerVertical className="text-orange-600 text-lg" />
+                    <div>
+                      <p className="text-xs text-gray-500">Height</p>
+                      <p className="font-medium text-sm text-gray-800">{pet.height} cm</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Health & Features Card */}
+              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Health & Features</h3>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-2 text-gray-700">
+                      <FaSyringe className="text-orange-600" />
+                      Vaccinated
                     </span>
-                  )) : (
-                    <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">
-                      {pet.suitableFor}
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                      pet.vaccinated ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {pet.vaccinated ? 'Yes' : 'No'}
                     </span>
-                  )}
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-2 text-gray-700">
+                      <FaCertificate className="text-orange-600" />
+                      KCI Registered
+                    </span>
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                      pet.kcpRegistered ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {pet.kcpRegistered ? 'Yes' : 'No'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="flex items-center gap-2 text-gray-700">
+                      <FaHeartbeat className="text-orange-600" />
+                      Life Expectancy
+                    </span>
+                    <span className="font-medium text-gray-800">{pet.maxLife} years</span>
+                  </div>
                 </div>
               </div>
-            )}
 
+              {/* Suitable For Card */}
+              {pet.suitableFor && (
+                Array.isArray(pet.suitableFor) && pet.suitableFor.length > 0 ? (
+                  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Suitable For</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {pet.suitableFor.map((item: string, index: number) => (
+                        <span key={index} className="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-medium border border-orange-100">
+                          {item.trim()}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : typeof pet.suitableFor === 'string' && pet.suitableFor.trim() !== '' ? (
+                  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Suitable For</h3>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-medium border border-orange-100">
+                        {pet.suitableFor}
+                      </span>
+                    </div>
+                  </div>
+                ) : null
+              )}
+
+              {/* Buy Now Checkout Button */}
+              <button
+                type="button"
+                onClick={() => router.push(`/checkout?petId=${pet._id || resolvedParams.id}`)}
+                className="w-full py-4 rounded-xl text-white font-semibold text-center shadow-md hover:opacity-95 transition-all transform active:scale-[0.99]"
+                style={{ background: "var(--gradient-hero)" }}
+              >
+                Buy Now
+              </button>
+
+            </div>
           </div>
-        </div>
-
         </div>
       </div>
     </div>

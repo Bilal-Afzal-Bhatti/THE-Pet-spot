@@ -223,7 +223,7 @@ export const getApprovedUserAdById = async (req: Request, res: Response): Promis
     const ad = await UserAd.findOne({
       _id: new mongoose.Types.ObjectId(idParam),
       isApproved: 'approved',
-    });
+    }).populate('user', 'name email avatar'); // <--- Added populate to fetch user details
 
     if (!ad) {
       res.status(404).json({ message: 'Ad not found' });

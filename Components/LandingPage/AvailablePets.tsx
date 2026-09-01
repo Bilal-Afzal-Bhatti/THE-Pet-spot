@@ -159,7 +159,18 @@ export default function AvailablePets() {
             })}
           </div>
         )}
+
+        <div className="text-center mt-12">
+          <button
+            onClick={() => router.push("/pet")}
+            className="group inline-flex items-center gap-3 bg-(--color-primary) text-white font-bold px-10 py-5 rounded-2xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+          >
+            <span className="text-lg text-black">Explore All Pets</span>
+            <FaArrowRight className="group-hover:translate-x-2 transition-transform duration-300 text-black" />
+          </button>
+        </div>
       </div>
     </section>
+
   );
 }

@@ -699,7 +699,7 @@ export default function DogsCatchAllPage() {
                     <span className="absolute top-2 right-2 bg-purple-600 text-white text-xs px-3 py-1 rounded-full">
                       Pet Quality
                     </span>
-                    <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black/70 to-transparent text-white px-3 py-2 text-sm font-semibold">
+                    <div className="absolute bottom-0 left-0 w-full bg-linear-to-t from-black/70 to-transparent text-white px-3 py-2 text-sm font-semibold">
                       View Price
                     </div>
                   </div>
