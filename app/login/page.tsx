@@ -117,7 +117,7 @@ export default function LoginPage() {
               ← Back to Home
             </Link>
           </div>
-          <div className="flex-grow flex flex-col justify-center">
+          <div className="grow flex flex-col justify-center">
             <h2 className="text-2xl font-semibold text-center mb-2 text-(--color-primary)">
               Login to Continue
             </h2>
