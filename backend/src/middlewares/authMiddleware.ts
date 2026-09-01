@@ -7,8 +7,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 // Single unified request interface
 export interface AuthenticatedRequest extends Request {
   user?: IUser;
-  file?: Express.Multer.File;
-  files?: Express.Multer.File[];
+  file?: Express.Multer.File | undefined;
+  files?: Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] } | undefined;
 }
 
 export const sendTokenResponse = (
@@ -39,7 +39,7 @@ export const sendTokenResponse = (
   });
 };
 
-export const protect: RequestHandler = asyncHandler(
+export const protect = asyncHandler(
   async (req: AuthenticatedRequest, _res: Response, next: NextFunction) => {
     let token = req.cookies?.jwt;
 
