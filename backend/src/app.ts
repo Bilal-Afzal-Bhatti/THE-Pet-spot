@@ -40,17 +40,16 @@ const limiter = rateLimit({
 app.use("/api", limiter);
 
 // 4. CORS & Cookie Parsing
-const CLIENT_URL = process.env.CLIENT_URL || "https://the-pet-spot-pink.vercel.app/";
+const CLIENT_URL = process.env.CLIENT_URL || "https://the-pet-spot-pink.vercel.app";
 
 app.use(
   cors({
     origin: CLIENT_URL,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization", "Idempotency-Key"]
+    allowedHeaders: ["Content-Type", "Authorization", "Idempotency-Key"]
   })
 );
-
 app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(cookieParser());
