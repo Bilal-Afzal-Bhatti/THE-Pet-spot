@@ -1,31 +1,13 @@
 import { create } from "zustand";
 import axios from "axios";
 import toast from "react-hot-toast";
-
-const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
-
-let Base_URL: string;
-if (process.env.NEXT_PUBLIC_API_BASE_URL) {
-  Base_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-} else if (hostname === 'localhost' || hostname === '127.0.0.1') {
-  Base_URL = 'http://localhost:5000';
-} else {
-  Base_URL = 'https://the-pet-spot-backend.vercel.app';
-}
-
-console.log("FINAL RESOLVED BASE_URL:", Base_URL);
-export { Base_URL };
-
-// Create a pre-configured Axios instance to prevent missing credentials or base URLs
-const api = axios.create({
-  baseURL: Base_URL,
-  withCredentials: true,
-});
+import { api } from "@/utils/api/axiosInstance"; // Centralized API instance
+// Get current hostname safely for client-side evaluation
 
 const getImageUrl = (imagePath?: string) => {
   if (!imagePath) return "/default-pet.jpg";
   if (imagePath.startsWith("http")) return imagePath;
-  return `${Base_URL}${imagePath.startsWith("/") ? "" : "/"}${imagePath}`;
+  return `${api.defaults.baseURL}${imagePath.startsWith("/") ? "" : "/"}${imagePath}`;
 };
 
 interface AdState {

@@ -1,21 +1,9 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import axios from "axios";
+import { api } from "@/utils/api/axiosInstance"; // Centralized API instance
+// Get current hostname safely for client-side evaluation
 
-const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
-
-let Base_URL: string;
-
-if (process.env.NEXT_PUBLIC_API_BASE_URL) {
-  Base_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-} else if (hostname === 'localhost' || hostname === '127.0.0.1') {
-  Base_URL = 'http://localhost:5000';
-} else {
-  Base_URL = 'https://the-pet-spot-backend.vercel.app';
-}
-
-console.log("BASE_URL:", Base_URL);
-export { Base_URL };
 
 interface CheckoutDetails {
   fullName: string;
@@ -113,8 +101,9 @@ export const useBuyStore = create<BuyState>()(
           "";
 
         try {
-          const response = await axios.post(
-            `${Base_URL}/api/orders/checkout`,
+          // Using the centralized api instance instead of raw axios
+          const response = await api.post(
+            `/api/orders/checkout`,
             {
               petId: selectedPet._id || selectedPet.id,
               title: selectedPet.name || selectedPet.title || selectedPet.breed,
@@ -124,10 +113,8 @@ export const useBuyStore = create<BuyState>()(
             },
             {
               headers: {
-                "Content-Type": "application/json",
                 "Idempotency-Key": currentKey,
               },
-              withCredentials: true,
             }
           );
 
