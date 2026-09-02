@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FaHeart, FaPaw, FaArrowRight } from "react-icons/fa";
 import Image from "next/image";
-import { useAdStore } from "@/Store/AdsStore";
-import { Base_URL } from "@/Store/AdsStore"; // adjust path to your actual store location
+
+import { useAdStore, Base_URL } from "@/Store/AdsStore"; // 👈 Import Base_URL here!
 
 const getPetImage = (pet: any) => {
   const rawPath =

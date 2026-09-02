@@ -2,12 +2,14 @@ import { create } from "zustand";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { api } from "@/utils/api/axiosInstance"; // Centralized API instance
-// Get current hostname safely for client-side evaluation
+
+// Export Base_URL for backward compatibility if other files import it from here
+export const Base_URL = api.defaults.baseURL;
 
 const getImageUrl = (imagePath?: string) => {
   if (!imagePath) return "/default-pet.jpg";
   if (imagePath.startsWith("http")) return imagePath;
-  return `${api.defaults.baseURL}${imagePath.startsWith("/") ? "" : "/"}${imagePath}`;
+  return `${Base_URL || ""}${imagePath.startsWith("/") ? "" : "/"}${imagePath}`;
 };
 
 interface AdState {
