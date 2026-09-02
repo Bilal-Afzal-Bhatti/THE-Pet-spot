@@ -48,6 +48,24 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
     }
   }, [resolvedParams.id, getApprovedCatAdById]);
 
+  // Safe image list resolution
+  const validImages: string[] = (pet?.images || []).filter((img: string) => img?.startsWith("http"));
+
+  const images: string[] = validImages.length > 0
+    ? validImages
+    : [pet?.img?.startsWith("http") ? pet.img : '/default-pet.jpg'];
+
+  // Auto-slide effect every 4 seconds
+  useEffect(() => {
+    if (images.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, [images.length]);
+
   // Handle mouse movement for circular zoom lens
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
@@ -88,13 +106,6 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
       </div>
     );
   }
-
-  // Safe image list resolution
-  const validImages: string[] = (pet.images || []).filter((img: string) => img?.startsWith("http"));
-
-  const images: string[] = validImages.length > 0
-    ? validImages
-    : [pet.img?.startsWith("http") ? pet.img : '/default-pet.jpg'];
 
   const petImage = images[currentImageIndex] || '/default-pet.jpg';
 
@@ -161,7 +172,7 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
                   />
                 )}
 
-                {/* Slider arrows — hidden when images.length <= 1, and turns off zoom on hover */}
+                {/* Slider arrows */}
                 {images.length > 1 && (
                   <>
                     <button
