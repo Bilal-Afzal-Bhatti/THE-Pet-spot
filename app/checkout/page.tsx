@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { FaShieldAlt, FaCreditCard, FaMoneyBillWave, FaArrowLeft, FaSpinner } from "react-icons/fa";
 import { useBuyStore } from "@/Store/buyStore";
+import { useAuthStore } from "@/Store/authStore"; // ⬅️ 1. Import your auth store
 
 // 1. Separate component that uses useSearchParams
 function CheckoutContent() {
@@ -15,6 +16,8 @@ function CheckoutContent() {
   const { selectedPet, setSelectedPet, checkoutDetails, setCheckoutDetails, processCheckout, loading, error } =
     useBuyStore();
 
+  const { user } = useAuthStore(); // ⬅️ 2. Get user from authStore
+
   const [formError, setFormError] = useState("");
   const [isInitializing, setIsInitializing] = useState(true);
 
@@ -23,10 +26,16 @@ function CheckoutContent() {
       if (petIdFromUrl && (!selectedPet || selectedPet._id !== petIdFromUrl)) {
         await setSelectedPet(petIdFromUrl);
       }
+      
+      // ⬅️ 3. Auto-populate email from authStore if available and not already set
+      if (user?.email && !checkoutDetails.email) {
+        setCheckoutDetails({ email: user.email });
+      }
+
       setIsInitializing(false);
     };
     initPet();
-  }, [petIdFromUrl, selectedPet, setSelectedPet]);
+  }, [petIdFromUrl, selectedPet, setSelectedPet, user, checkoutDetails.email, setCheckoutDetails]);
 
   if (isInitializing) {
     return (
@@ -64,7 +73,7 @@ function CheckoutContent() {
     e.preventDefault();
     setFormError("");
 
-    if (!checkoutDetails.fullName || !checkoutDetails.phone || !checkoutDetails.address || !checkoutDetails.city) {
+    if (!checkoutDetails.fullName || !checkoutDetails.phone || !checkoutDetails.address || !checkoutDetails.city || !checkoutDetails.email) {
       setFormError("Please fill out all required shipping fields.");
       return;
     }
@@ -111,6 +120,19 @@ function CheckoutContent() {
                   onChange={handleInputChange}
                   placeholder="John Doe"
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-(--color-primary) text-sm"
+                />
+              </div>
+
+              {/* ⬅️ Added Email Input Field */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Email Address (Linked to Account)</label>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  disabled
+                  value={checkoutDetails.email || user?.email || ""}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed text-sm"
                 />
               </div>
 
