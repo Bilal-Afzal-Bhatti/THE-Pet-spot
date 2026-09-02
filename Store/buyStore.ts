@@ -2,8 +2,27 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import axios from "axios";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+// const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+// const Base_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+// Get current hostname safely for client-side evaluation if needed
+const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
 
+// Determine base URL dynamically based on environment or fallback rules
+let Base_URL: string;
+
+if (process.env.NEXT_PUBLIC_API_BASE_URL) {
+  // Best practice: Read directly from environment variable
+  Base_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+} else if (hostname === 'localhost' || hostname === '127.0.0.1') {
+  // Local development fallback
+  Base_URL = 'http://localhost:5000';
+} else {
+  // Production fallback (or throw an error if you want strict env enforcement)
+  Base_URL = 'https://the-pet-spot-backend.vercel.app';
+}
+
+console.log("BASE_URL:", Base_URL);
+export { Base_URL };
 interface CheckoutDetails {
   fullName: string;
   phone: string;
@@ -83,7 +102,7 @@ export const useBuyStore = create<BuyState>()(
 
         try {
           const response = await axios.post(
-            `${API_BASE}/api/orders/checkout`,
+            `${Base_URL}/api/orders/checkout`,
             {
               petId: selectedPet._id || selectedPet.id,
               title: selectedPet.name || selectedPet.title || selectedPet.breed,

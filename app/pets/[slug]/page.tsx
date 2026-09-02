@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { FaPaw, FaShieldAlt, FaArrowLeft } from "react-icons/fa";
 import { useBuyStore } from "@/Store/buyStore";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL|| "http://localhost:5000";
 
 const getImageUrl = (imagePath?: string) => {
   if (!imagePath) return "https://via.placeholder.com/400?text=No+Image";
