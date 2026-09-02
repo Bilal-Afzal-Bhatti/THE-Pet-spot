@@ -3,7 +3,7 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FiMapPin, FiCalendar, FiUser, FiPhone, FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import { FaDog, FaWeight, FaRulerVertical, FaHeartbeat, FaSyringe, FaCertificate } from "react-icons/fa";
+import { FaCat, FaWeight, FaRulerVertical, FaHeartbeat, FaSyringe, FaCertificate } from "react-icons/fa";
 import { SiWhatsapp } from "react-icons/si";
 import { useAdStore } from "@/Store/AdsStore";
 import { useBuyStore } from "@/Store/buyStore";
@@ -11,7 +11,6 @@ import { useBuyStore } from "@/Store/buyStore";
 export default function CatDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { getApprovedCatAdById } = useAdStore();
-  // If you need useBuyStore actions/state, initialize them here
   const {} = useBuyStore();
   
   const [pet, setPet] = useState<any>(null);
@@ -90,10 +89,7 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
     );
   }
 
-  // Safe image list resolution — only keep real, working URLs (Vercel Blob or
-  // any other full https/http link). Old local "/uploads/..." paths from
-  // pre-Blob test data never resolve on the deployed site, so they're dropped
-  // here instead of showing a broken-image icon.
+  // Safe image list resolution
   const validImages: string[] = (pet.images || []).filter((img: string) => img?.startsWith("http"));
 
   const images: string[] = validImages.length > 0
@@ -102,7 +98,7 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
 
   const petImage = images[currentImageIndex] || '/default-pet.jpg';
 
-  // Slider navigation — only meaningful (and only rendered) when images.length > 1
+  // Slider navigation
   const goToPrevImage = (e: React.MouseEvent) => {
     e.stopPropagation();
     setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
@@ -165,12 +161,13 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
                   />
                 )}
 
-                {/* Slider arrows — only shown when there's more than one image */}
+                {/* Slider arrows — hidden when images.length <= 1, and turns off zoom on hover */}
                 {images.length > 1 && (
                   <>
                     <button
                       type="button"
                       onClick={goToPrevImage}
+                      onMouseEnter={() => setIsZoomed(false)}
                       aria-label="Previous image"
                       className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center text-gray-800 transition-colors z-10"
                     >
@@ -179,6 +176,7 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
                     <button
                       type="button"
                       onClick={goToNextImage}
+                      onMouseEnter={() => setIsZoomed(false)}
                       aria-label="Next image"
                       className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center text-gray-800 transition-colors z-10"
                     >
@@ -230,7 +228,7 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
                 <h1 className="text-3xl lg:text-4xl font-bold text-gray-800 mb-2">{pet.name}</h1>
                 <div className="flex items-center gap-4 text-gray-600 mb-4">
                   <span className="flex items-center gap-1.5 text-sm">
-                    <FaDog className="text-orange-600" />
+                    <FaCat className="text-orange-600" />
                     {pet.breed}
                   </span>
                   <span className="flex items-center gap-1.5 text-sm">
@@ -318,7 +316,7 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
                   <div className="flex items-center justify-between text-sm">
                     <span className="flex items-center gap-2 text-gray-700">
                       <FaCertificate className="text-orange-600" />
-                      KCI Registered
+                      Registered
                     </span>
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
                       pet.kcpRegistered ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'

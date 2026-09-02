@@ -1,12 +1,14 @@
 "use client";
 import Image from "next/image";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FiMapPin, FiCalendar, FiUser, FiPhone } from "react-icons/fi";
+import { FiMapPin, FiCalendar, FiUser, FiPhone, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { FaDog, FaWeight, FaRulerVertical, FaHeartbeat, FaSyringe, FaCertificate } from "react-icons/fa";
 import { SiWhatsapp } from "react-icons/si";
 import { useAdStore } from "@/Store/AdsStore";
 import { useBuyStore } from "@/Store/buyStore";
+
+const AUTO_SLIDE_INTERVAL_MS = 4000;
 
 export default function DogDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -22,6 +24,9 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
   // Magnifying lens states
   const [isZoomed, setIsZoomed] = useState<boolean>(false);
   const [lensPos, setLensPos] = useState({ x: 0, y: 0, bgX: 0, bgY: 0 });
+
+  // Auto-slide pause state — true while the cursor is over the image
+  const [isHovering, setIsHovering] = useState<boolean>(false);
   
   const resolvedParams = React.use(params);
 
@@ -61,6 +66,41 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
     setLensPos({ x, y, bgX, bgY });
   };
 
+  // Safe image list resolution — only keep real, working URLs (Vercel Blob or
+  // any other full https/http link). Old local "/uploads/..." paths from
+  // pre-Blob test data never resolve on the deployed site, so they're dropped
+  // here instead of showing a broken-image icon.
+  const validImages: string[] = (pet?.images || []).filter((img: string) => img?.startsWith("http"));
+
+  const images: string[] = validImages.length > 0
+    ? validImages
+    : [pet?.img?.startsWith("http") ? pet.img : '/default-pet.jpg'];
+
+  const petImage = images[currentImageIndex] || '/default-pet.jpg';
+
+  // Slider navigation — only meaningful (and only rendered) when images.length > 1
+  const goToPrevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+  const goToNextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
+  // Auto-advance the slider on an interval, pausing while the cursor is
+  // hovering the image. Only runs when there's more than one image.
+  useEffect(() => {
+    if (images.length <= 1 || isHovering) return;
+
+    const timer = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    }, AUTO_SLIDE_INTERVAL_MS);
+
+    return () => clearInterval(timer);
+  }, [images.length, isHovering]);
+
   if (loading) {
     return (
       <div className="min-h-screen font-raleway bg-gray-50">
@@ -90,13 +130,6 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
     );
   }
 
-  // Safe image list resolution
-  const images: string[] = pet.images && pet.images.length > 0 
-    ? pet.images 
-    : [pet.img || '/default-pet.jpg'];
-
-  const petImage = images[currentImageIndex] || '/default-pet.jpg';
-
   return (
     <div className="min-h-screen font-raleway bg-gray-50 pb-16">
       {/* Banner Background */}
@@ -120,11 +153,17 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
             {/* Left Column: Image Gallery & Seller Card */}
             <div className="space-y-6">
               
-              {/* Main Image Container with Circular Magnifying Lens */}
+              {/* Main Image Container with Circular Magnifying Lens + Slider */}
               <div 
                 className="relative overflow-hidden rounded-2xl h-100 cursor-crosshair bg-gray-100 shadow-lg select-none"
-                onMouseEnter={() => setIsZoomed(true)}
-                onMouseLeave={() => setIsZoomed(false)}
+                onMouseEnter={() => {
+                  setIsZoomed(true);
+                  setIsHovering(true);
+                }}
+                onMouseLeave={() => {
+                  setIsZoomed(false);
+                  setIsHovering(false);
+                }}
                 onMouseMove={handleMouseMove}
               >
                 <img
@@ -148,29 +187,33 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
                     }}
                   />
                 )}
-              </div>
 
-              {/* Thumbnails Grid */}
-              {images.length > 1 && (
-                <div className="grid grid-cols-4 gap-2">
-                  {images.map((img: string, index: number) => (
+                {/* Slider arrows — only shown when there's more than one image */}
+                {images.length > 1 && (
+                  <>
                     <button
                       type="button"
-                      key={index}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`aspect-square rounded-lg overflow-hidden transition-all text-left focus:outline-none ${
-                        index === currentImageIndex ? 'ring-2 ring-orange-500 shadow-md' : 'opacity-70 hover:opacity-100'
-                      }`}
+                      onClick={goToPrevImage}
+                      onMouseEnter={() => setIsZoomed(false)}
+                      onMouseLeave={() => setIsZoomed(true)}
+                      aria-label="Previous image"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center text-gray-800 transition-colors z-10"
                     >
-                      <img
-                        src={img}
-                        alt={`${pet.name} thumbnail ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
+                      <FiChevronLeft className="text-xl" />
                     </button>
-                  ))}
-                </div>
-              )}
+                    <button
+                      type="button"
+                      onClick={goToNextImage}
+                      onMouseEnter={() => setIsZoomed(false)}
+                      onMouseLeave={() => setIsZoomed(true)}
+                      aria-label="Next image"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center text-gray-800 transition-colors z-10"
+                    >
+                      <FiChevronRight className="text-xl" />
+                    </button>
+                  </>
+                )}
+              </div>
 
               {/* Description Card */}
               {pet.description && (
