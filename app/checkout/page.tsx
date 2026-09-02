@@ -15,7 +15,9 @@ function CheckoutContent() {
   const { selectedPet, setSelectedPet, checkoutDetails, setCheckoutDetails, processCheckout, loading, error } =
     useBuyStore();
 
-  const { user } = authStore();
+  // Pull both user and authUser to ensure compatibility regardless of store naming convention
+  const { user, authUser } = authStore() as any;
+  const activeUser = user || authUser;
 
   const [formError, setFormError] = useState("");
   const [isInitializing, setIsInitializing] = useState(true);
@@ -26,17 +28,17 @@ function CheckoutContent() {
       if (petIdFromUrl && (!selectedPet || selectedPet._id !== petIdFromUrl)) {
         await setSelectedPet(petIdFromUrl);
       }
-      
-      // 2. Ensure email is automatically populated from authStore user session
-      if (user?.email && checkoutDetails.email !== user.email) {
-        setCheckoutDetails({ email: user.email });
+
+      // 2. Automatically sync user email into checkout details state once user data loads
+      if (activeUser?.email && checkoutDetails.email !== activeUser.email) {
+        setCheckoutDetails({ email: activeUser.email });
       }
 
       setIsInitializing(false);
     };
 
     initCheckout();
-  }, [petIdFromUrl, selectedPet, setSelectedPet, user, checkoutDetails.email, setCheckoutDetails]);
+  }, [petIdFromUrl, selectedPet, setSelectedPet, activeUser, checkoutDetails.email, setCheckoutDetails]);
 
   if (isInitializing) {
     return (
@@ -68,15 +70,16 @@ function CheckoutContent() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setCheckoutDetails({ [e.target.name]: e.target.value });
+    if (formError) setFormError(""); 
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError("");
 
-    const targetEmail = checkoutDetails.email || user?.email;
+    const currentEmail = activeUser?.email || checkoutDetails.email;
 
-    if (!checkoutDetails.fullName || !targetEmail || !checkoutDetails.phone || !checkoutDetails.address || !checkoutDetails.city) {
+    if (!checkoutDetails.fullName || !currentEmail || !checkoutDetails.phone || !checkoutDetails.address || !checkoutDetails.city) {
       setFormError("Please fill out all required shipping and contact fields.");
       return;
     }
@@ -91,12 +94,16 @@ function CheckoutContent() {
     }
   };
 
-  const petImage = selectedPet.images?.[0] || selectedPet.image || selectedPet.petImage || "https://via.placeholder.com/200";
+  const petImage = 
+    selectedPet?.images?.[0] || 
+    selectedPet?.image || 
+    selectedPet?.petImage || 
+    "https://via.placeholder.com/200";
 
   return (
     <div className="min-h-screen w-full flex justify-center py-5 pb-10" style={{ background: "var(--gradient-hero)" }}>
       <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl p-6 sm:p-10 mt-20">
-        
+
         <button
           onClick={() => router.back()}
           className="flex items-center gap-2 text-gray-600 hover:text-black mb-6 font-semibold text-sm cursor-pointer"
@@ -107,13 +114,12 @@ function CheckoutContent() {
         <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-8">Secure Checkout</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          
+
           <form onSubmit={handleSubmit} className="md:col-span-2 space-y-6">
-            
+
             <div className="space-y-4">
               <h2 className="text-lg font-bold text-gray-800 border-b pb-2">1. Shipping & Contact Information</h2>
 
-              {/* Full Name field - Starts completely blank */}
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Full Name</label>
                 <input
@@ -127,7 +133,6 @@ function CheckoutContent() {
                 />
               </div>
 
-              {/* Email Address Field - Automatically displays user email from authStore */}
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">
                   Email Address <span className="text-gray-400 lowercase font-normal">(linked to account)</span>
@@ -137,7 +142,7 @@ function CheckoutContent() {
                   name="email"
                   required
                   disabled
-                  value={user?.email || checkoutDetails.email || ""}
+                  value={activeUser?.email || checkoutDetails.email || ""}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 text-gray-600 font-medium cursor-not-allowed text-sm"
                 />
               </div>
@@ -258,7 +263,7 @@ function CheckoutContent() {
           <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 flex flex-col justify-between h-fit">
             <div>
               <h3 className="font-bold text-gray-900 mb-4 border-b pb-2">Order Summary</h3>
-              
+
               <div className="flex items-center gap-4 mb-4">
                 <div className="relative w-16 h-16 rounded-xl overflow-hidden bg-gray-200 shrink-0">
                   <Image src={petImage} alt="Pet" fill className="object-cover" />
