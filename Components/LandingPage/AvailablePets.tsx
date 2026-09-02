@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 import { FaHeart, FaPaw, FaArrowRight } from "react-icons/fa";
 import Image from "next/image";
 import { useAdStore } from "@/Store/AdsStore";
-
-const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+import { Base_URL } from "@/Store/AdsStore"; // adjust path to your actual store location
 
 const getPetImage = (pet: any) => {
   const rawPath =
@@ -17,7 +16,7 @@ const getPetImage = (pet: any) => {
   if (!rawPath) return "/default-pet.jpg";
   if (rawPath.startsWith("http")) return rawPath;
 
-  return `${BASE_URL}${rawPath.startsWith("/") ? "" : "/"}${rawPath}`;
+  return `${Base_URL}${rawPath.startsWith("/") ? "" : "/"}${rawPath}`;
 };
 
 const shuffleArray = (array: any[]) => {
