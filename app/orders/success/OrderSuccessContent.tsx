@@ -1,49 +1,52 @@
 "use client";
 
-// @ts-ignore
 import { useSearchParams, useRouter } from "next/navigation";
 import { FaCheckCircle, FaHome, FaSpinner } from "react-icons/fa";
-import { useEffect, useState } from "react";
-import { useBuyStore, Base_URL } from "@/Store/buyStore";
-import axios from "axios";
+import { useEffect, useState, Suspense } from "react";
+import { useBuyStore } from "@/Store/buyStore";
+import { api } from "@/utils/api/axiosInstance"; // 👈 Using your centralized API instance
 
-export default function OrderSuccessContent() {
+function OrderSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const type = searchParams.get("type"); // 'cod' or null for online
   const sessionId = searchParams.get("session_id");
   const orderId = searchParams.get("orderId");
   
-  const { clearCheckout } = useBuyStore();
+  const clearCheckout = useBuyStore((state) => state.clearCheckout);
   const [verifying, setVerifying] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<string>("");
 
   useEffect(() => {
+    let isMounted = true;
+
     const verifyOnlinePayment = async () => {
-      // If it's a COD order, no need to verify Stripe session
       if (type === "cod") {
         clearCheckout();
         return;
       }
 
-      // If we have a Stripe session ID, instantly verify and mark order as PAID on backend
       if (sessionId) {
         setVerifying(true);
         try {
-          const response = await axios.get(
-            `${Base_URL}/api/orders/verify-payment?session_id=${sessionId}&orderId=${orderId}`,
-            { withCredentials: true }
+          // Using the centralized api instance instead of raw axios and localhost strings
+          const response = await api.get(
+            `/api/orders/verify-payment?session_id=${sessionId}&orderId=${orderId}`
           );
           
-          if (response.data.success) {
+          if (isMounted && response.data.success) {
             setVerificationStatus("Payment verified & status updated to PAID!");
           }
         } catch (err: any) {
           console.error("Payment verification call failed:", err);
-          setVerificationStatus("Payment processed, updating backend status...");
+          if (isMounted) {
+            setVerificationStatus("Verification failed or already completed.");
+          }
         } finally {
-          setVerifying(false);
-          clearCheckout();
+          if (isMounted) {
+            setVerifying(false);
+            clearCheckout();
+          }
         }
       } else {
         clearCheckout();
@@ -51,6 +54,10 @@ export default function OrderSuccessContent() {
     };
 
     verifyOnlinePayment();
+
+    return () => {
+      isMounted = false;
+    };
   }, [sessionId, orderId, type, clearCheckout]);
 
   return (
@@ -84,5 +91,17 @@ export default function OrderSuccessContent() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function OrderSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
+        <FaSpinner className="animate-spin text-green-600 text-4xl" />
+      </div>
+    }>
+      <OrderSuccessContent />
+    </Suspense>
   );
 }
