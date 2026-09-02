@@ -4,7 +4,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 
 const Base_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
-
+ console.log("Base_URL:", Base_URL);
 const jsonHeaders = { "Content-Type": "application/json" };
 
 export const authStore = create(
