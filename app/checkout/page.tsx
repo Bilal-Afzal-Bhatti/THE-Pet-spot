@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { FaShieldAlt, FaCreditCard, FaMoneyBillWave, FaArrowLeft, FaSpinner } from "react-icons/fa";
 import { useBuyStore } from "@/Store/buyStore";
-import { useAdStore } from "@/Store/AdsStore";
+import { authStore } from "@/Store/authStore";
 
 function CheckoutContent() {
   const router = useRouter();
@@ -15,25 +15,27 @@ function CheckoutContent() {
   const { selectedPet, setSelectedPet, checkoutDetails, setCheckoutDetails, processCheckout, loading, error } =
     useBuyStore();
 
-  const { user } = useAdStore();
+  const { user } = authStore();
 
   const [formError, setFormError] = useState("");
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
-    const initPet = async () => {
+    const initCheckout = async () => {
+      // 1. Handle Pet Selection from URL if needed
       if (petIdFromUrl && (!selectedPet || selectedPet._id !== petIdFromUrl)) {
         await setSelectedPet(petIdFromUrl);
       }
       
-      // Auto-populate email from authStore if available and not already set in checkout details
-      if (user?.email && !checkoutDetails.email) {
+      // 2. Ensure email is automatically populated from authStore user session
+      if (user?.email && checkoutDetails.email !== user.email) {
         setCheckoutDetails({ email: user.email });
       }
 
       setIsInitializing(false);
     };
-    initPet();
+
+    initCheckout();
   }, [petIdFromUrl, selectedPet, setSelectedPet, user, checkoutDetails.email, setCheckoutDetails]);
 
   if (isInitializing) {
@@ -72,8 +74,10 @@ function CheckoutContent() {
     e.preventDefault();
     setFormError("");
 
-    if (!checkoutDetails.fullName || !checkoutDetails.phone || !checkoutDetails.address || !checkoutDetails.city || !checkoutDetails.email) {
-      setFormError("Please fill out all required shipping fields.");
+    const targetEmail = checkoutDetails.email || user?.email;
+
+    if (!checkoutDetails.fullName || !targetEmail || !checkoutDetails.phone || !checkoutDetails.address || !checkoutDetails.city) {
+      setFormError("Please fill out all required shipping and contact fields.");
       return;
     }
 
@@ -87,7 +91,7 @@ function CheckoutContent() {
     }
   };
 
-  const petImage = selectedPet.images?.[0] || selectedPet.image || "https://via.placeholder.com/200";
+  const petImage = selectedPet.images?.[0] || selectedPet.image || selectedPet.petImage || "https://via.placeholder.com/200";
 
   return (
     <div className="min-h-screen w-full flex justify-center py-5 pb-10" style={{ background: "var(--gradient-hero)" }}>
@@ -109,6 +113,7 @@ function CheckoutContent() {
             <div className="space-y-4">
               <h2 className="text-lg font-bold text-gray-800 border-b pb-2">1. Shipping & Contact Information</h2>
 
+              {/* Full Name field - Starts completely blank */}
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Full Name</label>
                 <input
@@ -117,21 +122,23 @@ function CheckoutContent() {
                   required
                   value={checkoutDetails.fullName || ""}
                   onChange={handleInputChange}
-                  placeholder="John Doe"
+                  placeholder="Enter your full name"
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-(--color-primary) text-sm"
                 />
               </div>
 
-              {/* Email Field - Read-only / Non-editable */}
+              {/* Email Address Field - Automatically displays user email from authStore */}
               <div>
-                <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Email Address (Linked to Account)</label>
+                <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">
+                  Email Address <span className="text-gray-400 lowercase font-normal">(linked to account)</span>
+                </label>
                 <input
                   type="email"
                   name="email"
                   required
                   disabled
-                  value={checkoutDetails.email || user?.email || ""}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed text-sm"
+                  value={user?.email || checkoutDetails.email || ""}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 text-gray-600 font-medium cursor-not-allowed text-sm"
                 />
               </div>
 
@@ -176,7 +183,7 @@ function CheckoutContent() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Postal Code (Optional)</label>
+                  <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Postal Code</label>
                   <input
                     type="text"
                     name="postalCode"
@@ -257,7 +264,7 @@ function CheckoutContent() {
                   <Image src={petImage} alt="Pet" fill className="object-cover" />
                 </div>
                 <div>
-                  <h4 className="font-bold text-sm text-gray-900">{selectedPet.name || selectedPet.breed}</h4>
+                  <h4 className="font-bold text-sm text-gray-900">{selectedPet.name || selectedPet.title || selectedPet.breed}</h4>
                   <p className="text-xs text-gray-500">{selectedPet.category || selectedPet.breed}</p>
                 </div>
               </div>
@@ -279,7 +286,7 @@ function CheckoutContent() {
             </div>
 
             <div className="mt-8 pt-4 border-t text-xs text-gray-400 flex items-center gap-2">
-              <FaShieldAlt className="text-green-500 text-base" /> Secured with industry-grade encryption & idempotency safeguards.
+              <FaShieldAlt className="text-green-500 text-base shrink-0" /> Secured with industry-grade encryption & idempotency safeguards.
             </div>
           </div>
 

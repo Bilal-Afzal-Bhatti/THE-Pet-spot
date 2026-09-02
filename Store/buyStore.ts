@@ -19,7 +19,7 @@ export { Base_URL };
 
 interface CheckoutDetails {
   fullName: string;
-  email: string;      // ⬅️ Added email here
+  email: string;
   phone: string;
   address: string;
   city: string;
@@ -48,7 +48,7 @@ export const useBuyStore = create<BuyState>()(
       idempotencyKey: null,
       checkoutDetails: {
         fullName: "",
-        email: "",    // ⬅️ Initial empty string for email
+        email: "",
         phone: "",
         address: "",
         city: "",
@@ -104,6 +104,8 @@ export const useBuyStore = create<BuyState>()(
               petId: selectedPet._id || selectedPet.id,
               title: selectedPet.name || selectedPet.title || selectedPet.breed,
               price: selectedPet.price,
+              // ⬅️ Added petImage mapping to match your Mongoose schema
+              petImage: selectedPet.image || selectedPet.imageUrl || selectedPet.petImage || "",
               customerInfo: checkoutDetails,
             },
             {
