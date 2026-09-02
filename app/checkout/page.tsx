@@ -24,21 +24,42 @@ function CheckoutContent() {
 
   useEffect(() => {
     const initCheckout = async () => {
-      // 1. Handle Pet Selection from URL if needed
-      if (petIdFromUrl && (!selectedPet || selectedPet._id !== petIdFromUrl)) {
+      // 1. Hydrate selectedPet from sessionStorage if missing
+      if (!selectedPet && typeof window !== "undefined") {
+        const storedPet = sessionStorage.getItem("selectedPetData");
+        if (storedPet) {
+          try {
+            const parsedPet = JSON.parse(storedPet);
+            if (!petIdFromUrl || parsedPet._id === petIdFromUrl || parsedPet.id === petIdFromUrl) {
+              useBuyStore.setState({ selectedPet: parsedPet });
+            }
+          } catch (e) {
+            console.error("Failed to parse stored pet data from sessionStorage", e);
+          }
+        }
+      }
+
+      // 2. Handle Pet Selection from URL if still not selected
+      const currentSelected = useBuyStore.getState().selectedPet;
+      if (petIdFromUrl && (!currentSelected || currentSelected._id !== petIdFromUrl)) {
         await setSelectedPet(petIdFromUrl);
       }
 
-      // 2. Automatically sync user email into checkout details state once user data loads
-      if (activeUser?.email && checkoutDetails.email !== activeUser.email) {
-        setCheckoutDetails({ email: activeUser.email });
-      }
+      // 3. Clear all form fields on load/reload, keeping ONLY the email
+      setCheckoutDetails({
+        fullName: "",
+        phone: "",
+        address: "",
+        city: "",
+        postalCode: "",
+        email: activeUser?.email || checkoutDetails.email || "",
+      });
 
       setIsInitializing(false);
     };
 
     initCheckout();
-  }, [petIdFromUrl, selectedPet, setSelectedPet, activeUser, checkoutDetails.email, setCheckoutDetails]);
+  }, [petIdFromUrl]); // Run only on initial mount/petId change so it clears fields on refresh/return
 
   if (isInitializing) {
     return (

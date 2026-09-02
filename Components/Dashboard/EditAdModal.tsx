@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { dogBreeds, catBreeds, suitableForOptions, pakistaniProvinces, provinceCities } from '@/utils/breeds';
 import { Ad } from '@/app/dashboard/page';
+import { Base_URL } from '@/Store/AdsStore';
 
 interface EditAdModalProps {
   isOpen: boolean;
@@ -11,6 +12,14 @@ interface EditAdModalProps {
   ad: Ad | null;
   originPosition?: { x: number; y: number } | null;
 }
+
+const getDisplayImageUrl = (rawPath: string) => {
+  if (!rawPath) return "/default-pet.jpg";
+  if (rawPath.startsWith("http") || rawPath.startsWith("blob:") || rawPath.startsWith("data:")) {
+    return rawPath;
+  }
+  return `${Base_URL}${rawPath.startsWith("/") ? "" : "/"}${rawPath}`;
+};
 
 export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, ad, originPosition }: EditAdModalProps) {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -69,14 +78,9 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
         images: []
       });
 
-      // Only keep real, loadable image URLs — old local "/uploads/..." paths
-      // from pre-Blob test data never resolve on the deployed site and would
-      // show as a broken image with no clean way to remove/re-save them.
-      const validImages = (ad.images || []).filter(
-        (img) => img?.startsWith('http://') || img?.startsWith('https://') || img?.startsWith('blob:')
-      );
-      setExistingImages(validImages);
-      setImagePreviews(validImages);
+      const rawImages = ad.images || [];
+      setExistingImages(rawImages);
+      setImagePreviews(rawImages);
     }
   }, [ad, isOpen]);
 
@@ -112,10 +116,8 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
   useEffect(() => {
     if (isOpen) {
       setAnimationPhase('initial');
-      // Start animation after a brief delay
       const timer = setTimeout(() => {
         setAnimationPhase('animating');
-        // Complete animation
         setTimeout(() => {
           setAnimationPhase('final');
         }, 300);
@@ -146,7 +148,6 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
     e.preventDefault();
     if (!ad) return;
 
-    // Check if at least one image exists (either existing or new)
     const totalImages = existingImages.length + formData.images.length;
     if (totalImages === 0) {
       alert('At least one image is required. Please upload an image before updating the advertisement.');
@@ -155,11 +156,10 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
 
     const formDataToSend = new FormData();
     
-    // Map frontend field names to backend field names
-    formDataToSend.append('name', formData.title); // title -> name
+    formDataToSend.append('name', formData.title);
     formDataToSend.append('description', formData.description);
     formDataToSend.append('price', formData.price);
-    formDataToSend.append('type', formData.category); // category -> type
+    formDataToSend.append('type', formData.category);
     formDataToSend.append('breed', formData.breed);
     formDataToSend.append('age', formData.age);
     formDataToSend.append('gender', formData.gender);
@@ -171,16 +171,13 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
     formDataToSend.append('kcpRegistered', formData.kcpRegistered.toString());
     formDataToSend.append('suitableFor', formData.suitableFor.join(', '));
     
-    // Combine province and city into location
     const location = `${formData.city}, ${formData.province}`;
-    formDataToSend.append('city', location); // location -> city
+    formDataToSend.append('city', location);
     
-    // Add new uploaded images
     formData.images.forEach((file: File) => {
       formDataToSend.append('images', file);
     });
 
-    // Send the existing images that should be kept
     if (existingImages.length > 0) {
       formDataToSend.append('existingImages', JSON.stringify(existingImages));
     }
@@ -196,10 +193,7 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
         images: [...prev.images, ...files]
       }));
 
-      // Create preview URLs for new files
       const newPreviews = files.map(file => URL.createObjectURL(file));
-      
-      // Combine existing previews with new previews
       setImagePreviews(prev => [...prev, ...newPreviews]);
     }
   };
@@ -207,23 +201,19 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
   const removeImage = (index: number) => {
     const imageToRemove = imagePreviews[index];
     
-    // Check if this would be the last image
     const totalImages = imagePreviews.length;
     if (totalImages === 1) {
       alert('At least one image is required. You cannot remove the last image.');
       return;
     }
     
-    // Check if this is an existing image (from backend) or a new image (from file upload)
+    // Check if this belongs to existing images or new files
     const isExistingImage = existingImages.includes(imageToRemove);
     
     if (isExistingImage) {
-      // Remove from existing images
       setExistingImages(prev => prev.filter(img => img !== imageToRemove));
     } else {
-      // Remove from new images (formData.images)
       const newImageIndex = formData.images.findIndex(file => {
-        // Create a temporary URL to compare with the preview
         const tempUrl = URL.createObjectURL(file);
         const isMatch = tempUrl === imageToRemove;
         URL.revokeObjectURL(tempUrl);
@@ -238,9 +228,7 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
       }
     }
     
-    // Remove from previews and revoke object URL if it's a blob URL
     setImagePreviews(prev => {
-      // Revoke the object URL to prevent memory leaks (only for blob URLs)
       if (imageToRemove.startsWith('blob:')) {
         URL.revokeObjectURL(imageToRemove);
       }
@@ -259,7 +247,6 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
           [name]: checked
         }));
       } else if (name.startsWith('suitableFor-')) {
-        // Handle suitableFor checkboxes
         const option = name.replace('suitableFor-', '');
         setFormData(prev => ({
           ...prev,
@@ -275,12 +262,10 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
           [name]: value
         };
 
-        // Reset breed when category changes
         if (name === 'category' && value !== prev.category) {
           newData.breed = '';
         }
 
-        // Reset city when province changes
         if (name === 'province' && value !== prev.province) {
           newData.city = '';
         }
@@ -292,18 +277,13 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
 
   if (!isOpen) return null;
 
-  // Calculate transform based on animation phase and origin position
   const getTransformStyle = () => {
     if (!originPosition || animationPhase === 'final') {
       return 'translate(-50%, -50%) scale(1)';
     }
-    
     if (animationPhase === 'initial') {
-      // Start from within the button - very small scale at button center
       return `translate(${originPosition.x - window.innerWidth / 2}px, ${originPosition.y - window.innerHeight / 2}px) scale(0.01)`;
     }
-    
-    // animating phase - interpolate between initial and final
     return 'translate(-50%, -50%) scale(1)';
   };
 
@@ -321,7 +301,7 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="sticky top-0 bg-white rounded-t-3xl border-b border-gray-100 px-8 py-6">
+        <div className="sticky top-0 bg-white rounded-t-3xl border-b border-gray-100 px-8 py-6 z-10">
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-2xl font-bold text-gray-900">Edit Advertisement</h2>
@@ -518,8 +498,6 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
           {/* Location and Contact */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Location & Contact</h3>
-            
-            {/* First row: Province and City */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label htmlFor="province" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -567,7 +545,6 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
               </div>
             </div>
 
-            {/* Second row: Price and Contact */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="price" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -604,7 +581,7 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
             </div>
           </div>
 
-          {/* Price and Additional Info */}
+          {/* Additional Information */}
           <div>
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Additional Information</h3>
             <div className="grid grid-cols-1 gap-6">
@@ -675,14 +652,14 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
                   {imagePreviews.map((preview, index) => (
                     <div key={index} className="relative group">
                       <img
-                        src={preview}
+                        src={getDisplayImageUrl(preview)}
                         alt={`Preview ${index + 1}`}
                         className="w-full h-24 object-cover rounded-lg border border-gray-200"
                       />
                       <button
                         type="button"
                         onClick={() => removeImage(index)}
-                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg"
+                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg cursor-pointer"
                       >
                         ×
                       </button>
@@ -724,7 +701,7 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-6 py-3 border border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 transition-all duration-200"
+              className="flex-1 px-6 py-3 border border-gray-300 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 transition-all duration-200 cursor-pointer"
             >
               Cancel
             </button>
@@ -736,7 +713,7 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
                   ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                   : isSubmitting
                   ? 'bg-gray-400 text-white cursor-not-allowed'
-                  : 'bg-gradient-to-r from-[#028d8f] to-[#008080] hover:from-[#00595F] hover:to-[#004d4f] text-white hover:shadow-xl transform hover:scale-105'
+                  : 'bg-gradient-to-r from-[#028d8f] to-[#008080] hover:from-[#00595F] hover:to-[#004d4f] text-white hover:shadow-xl transform hover:scale-105 cursor-pointer'
               }`}
             >
               {isSubmitting ? (

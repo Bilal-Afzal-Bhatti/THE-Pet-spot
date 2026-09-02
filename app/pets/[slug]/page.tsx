@@ -1,83 +1,62 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { FaPaw, FaShieldAlt, FaArrowLeft } from "react-icons/fa";
-import { useBuyStore } from "@/Store/buyStore";
+import { FaArrowLeft, FaShieldAlt, FaPhone, FaMapMarkerAlt, FaVenusMars, FaBirthdayCake, FaSpinner } from "react-icons/fa";
 import { Base_URL } from "@/Store/AdsStore";
-// const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL|| "http://localhost:5000";
+import { useBuyStore } from "@/Store/buyStore";
 
-// const getImageUrl = (imagePath?: string) => {
-//   if (!imagePath) return "https://via.placeholder.com/400?text=No+Image";
-//   if (imagePath.startsWith("http") || imagePath.startsWith("blob:")) return imagePath;
-//   return `${API_BASE}${imagePath.startsWith("/") ? imagePath : `/${imagePath}`}`;
-// };
- // adjust path to match your actual file location
-console.log("Base_URL from AdsStore:", Base_URL); // Log the Base_URL to verify it's being imported correctly
-const getImageUrl = (imagePath?: string) => {
-  if (!imagePath) return "https://via.placeholder.com/400?text=No+Image";
-  if (imagePath.startsWith("http") || imagePath.startsWith("blob:")) return imagePath;
-  return `${Base_URL}${imagePath.startsWith("/") ? imagePath : `/${imagePath}`}`;
+const getPetImage = (pet: any) => {
+  const rawPath =
+    (typeof pet?.img === "string" && pet.img.trim() !== "" ? pet.img : null) ||
+    (Array.isArray(pet?.images) && pet.images[0] ? pet.images[0] : null) ||
+    (typeof pet?.image === "string" && pet.image.trim() !== "" ? pet.image : null) ||
+    (typeof pet?.petImage === "string" && pet.petImage.trim() !== "" ? pet.petImage : null);
+
+  if (!rawPath) return "/default-pet.jpg";
+  if (rawPath.startsWith("http")) return rawPath;
+
+  return `${Base_URL}${rawPath.startsWith("/") ? "" : "/"}${rawPath}`;
 };
+
 export default function PetDetailPage() {
   const router = useRouter();
-  const [pet, setPet] = useState<any | null>(null);
-  const [loading, setLoading] = useState(true);
+  const params = useParams();
+  const slug = params?.slug as string;
 
-  const { setSelectedPet, processCheckout, loading: checkoutLoading } = useBuyStore();
+  const { setSelectedPet } = useBuyStore();
+  const [pet, setPet] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isZoomed, setIsZoomed] = useState(false);
 
   useEffect(() => {
-    // Read the passed pet object directly from session storage instantly
-    if (typeof window !== "undefined") {
-      const storedPet = sessionStorage.getItem("selectedPetData");
-      if (storedPet) {
-        try {
-          setPet(JSON.parse(storedPet));
-        } catch (e) {
-          console.error("Failed to parse pet data", e);
+    const loadPet = () => {
+      try {
+        if (typeof window !== "undefined") {
+          const storedPet = sessionStorage.getItem("selectedPetData");
+          if (storedPet) {
+            const parsedPet = JSON.parse(storedPet);
+            setPet(parsedPet);
+          }
         }
+      } catch (err) {
+        console.error("Failed to load pet from session storage", err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    }
-  }, []);
+    };
 
-  // Circular Zoom Lens States
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [lensPos, setLensPos] = useState({ x: 0, y: 0, bgX: 0, bgY: 0 });
-  const imageContainerRef = useRef<HTMLDivElement>(null);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!imageContainerRef.current) return;
-    const { left, top, width, height } = imageContainerRef.current.getBoundingClientRect();
-    const x = e.clientX - left;
-    const y = e.clientY - top;
-
-    if (x < 0 || x > width || y < 0 || y > height) {
-      setIsZoomed(false);
-      return;
-    }
-
-    setLensPos({
-      x,
-      y,
-      bgX: (x / width) * 100,
-      bgY: (y / height) * 100,
-    });
-  };
-
-const handleBuyNow = () => {
-  if (!pet) return;
-  setSelectedPet(pet); // Store the selected pet in Zustand/persist storage
-  router.push("/checkout"); // Navigate to the checkout page
-};
+    loadPet();
+  }, [slug]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-pulse flex flex-col items-center gap-4">
-          <FaPaw className="text-[#55c5d0] text-5xl animate-bounce" />
-          <p className="text-gray-500 font-medium">Loading pet details...</p>
+        <div className="text-center">
+          <FaSpinner className="animate-spin text-4xl mx-auto mb-3 text-orange-600" />
+          <p className="text-gray-600 font-medium">Loading pet details...</p>
         </div>
       </div>
     );
@@ -85,104 +64,158 @@ const handleBuyNow = () => {
 
   if (!pet) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 text-center">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">Pet Not Found</h2>
-        <p className="text-gray-500 mb-6">No pet data was passed or found.</p>
-        <button
-          onClick={() => router.push("/pet")}
-          className="bg-[#55c5d0] text-black font-bold px-6 py-3 rounded-xl shadow-md cursor-pointer"
-        >
-          Back to Marketplace
-        </button>
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gray-50">
+        <div className="bg-white p-8 rounded-3xl shadow-xl text-center max-w-md w-full">
+          <h2 className="text-xl font-bold mb-4 text-gray-900">Pet Not Found</h2>
+          <p className="text-gray-500 text-sm mb-6">We couldn't find the details for this pet. Please select one from the marketplace.</p>
+          <button
+            onClick={() => router.push("/")}
+            className="px-6 py-3 bg-black text-white font-bold rounded-xl cursor-pointer"
+          >
+            Back to Marketplace
+          </button>
+        </div>
       </div>
     );
   }
 
-  const rawImage = pet.img || (pet.images && pet.images[0]) || pet.image;
-  const petImage = getImageUrl(rawImage);
-  const petName = pet.name || pet.petName || pet.breed;
-  const petPrice = pet.price || 0;
+  const petName = pet.name || pet.title || "Pet";
+  const images = Array.isArray(pet.images) && pet.images.length > 0 
+    ? pet.images 
+    : [pet.img || pet.image || pet.petImage].filter(Boolean);
+
+  const currentImageUrl = images[selectedImageIndex] ? getPetImage({ images: [images[selectedImageIndex]] }) : "/default-pet.jpg";
+
+  const handleBuyNow = () => {
+    setSelectedPet(pet);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("selectedPetData", JSON.stringify(pet));
+    }
+    const petId = pet._id || pet.id;
+    router.push(`/checkout${petId ? `?petId=${petId}` : ""}`);
+  };
 
   return (
-   <div className="min-h-screen w-full flex justify-center py-5 pb-10" style={{ background: "var(--gradient-hero)" }}>
-      <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-xl p-6 sm:p-10 mt-20">
+    <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto mt-12">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 hover:text-black mb-6 font-semibold text-sm cursor-pointer"
+          className="flex items-center gap-2 text-gray-600 hover:text-black mb-6 font-semibold text-sm cursor-pointer transition-colors"
         >
-          <FaArrowLeft /> Back to Marketplace
+          <FaArrowLeft /> Back to Listings
         </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-          <div
-            ref={imageContainerRef}
-            onMouseEnter={() => setIsZoomed(true)}
-            onMouseLeave={() => setIsZoomed(false)}
-            onMouseMove={handleMouseMove}
-            className="relative w-full h-100 sm:h-120 bg-gray-100 rounded-2xl overflow-hidden cursor-crosshair select-none flex items-center justify-center border border-gray-100"
-          >
-            <Image src={petImage} alt={petName} fill priority className="object-cover pointer-events-none" />
-
-            {isZoomed && (
-              <div
-                className="absolute pointer-events-none rounded-full border-2 border-white shadow-2xl"
-                style={{
-                  width: "160px",
-                  height: "160px",
-                  left: `${lensPos.x - 80}px`,
-                  top: `${lensPos.y - 80}px`,
-                  backgroundImage: `url(${petImage})`,
-                  backgroundRepeat: "no-repeat",
-                  backgroundPosition: `${lensPos.bgX}% ${lensPos.bgY}%`,
-                  backgroundSize: "500%",
-                }}
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-10">
+          
+          {/* Image Gallery Section */}
+          <div className="space-y-4">
+            <div 
+              className="relative w-full h-80 sm:h-96 bg-gray-100 rounded-2xl overflow-hidden cursor-pointer shadow-md"
+              onClick={() => setIsZoomed(true)}
+            >
+              <Image
+                src={currentImageUrl}
+                alt={petName}
+                fill
+                priority
+                unoptimized={true}
+                className="object-cover transition-transform duration-300 hover:scale-105"
               />
+              <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-3 py-1 rounded-full">
+                Click to expand
+              </div>
+            </div>
+
+            {images.length > 1 && (
+              <div className="flex gap-3 overflow-x-auto pb-2">
+                {images.map((img: string, idx: number) => {
+                  const thumbUrl = getPetImage({ images: [img] });
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedImageIndex(idx)}
+                      className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${
+                        selectedImageIndex === idx ? "border-black scale-105 shadow-md" : "border-transparent opacity-70 hover:opacity-100"
+                      }`}
+                    >
+                      <Image src={thumbUrl} alt="Thumbnail" fill unoptimized={true} className="object-cover" />
+                    </button>
+                  );
+                })}
+              </div>
             )}
           </div>
 
+          {/* Details Section */}
           <div className="flex flex-col justify-between space-y-6">
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="bg-(--color-primary)/20 text-black px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
-                  {pet.category || pet.type || "Pet"}
-                </span>
-                <span className="text-gray-400 text-sm">• {pet.breed || "Pure Breed"}</span>
+              <div className="flex justify-between items-start gap-4 mb-2">
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">{petName}</h1>
+                <span className="text-2xl font-black text-orange-600">PKR {pet.price || "Contact for Price"}</span>
+              </div>
+              <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-6">
+                {pet.breed || pet.category || "Available Pet"}
+              </p>
+
+              <div className="grid grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                <div className="flex items-center gap-3 text-gray-700 text-sm">
+                  <FaBirthdayCake className="text-orange-500 text-lg" />
+                  <div>
+                    <span className="block text-xs text-gray-400 font-semibold uppercase">Age</span>
+                    <span className="font-bold">{pet.age || "Not Specified"}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 text-gray-700 text-sm">
+                  <FaVenusMars className="text-orange-500 text-lg" />
+                  <div>
+                    <span className="block text-xs text-gray-400 font-semibold uppercase">Gender</span>
+                    <span className="font-bold">{pet.gender || "Not Specified"}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 text-gray-700 text-sm col-span-2">
+                  <FaMapMarkerAlt className="text-orange-500 text-lg" />
+                  <div>
+                    <span className="block text-xs text-gray-400 font-semibold uppercase">Location</span>
+                    <span className="font-bold">{pet.location || pet.city || "Pakistan"}</span>
+                  </div>
+                </div>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">{petName}</h1>
-              <p className="text-2xl font-black text-(--color-primary) mt-2">₹{petPrice}</p>
-
-              <div className="grid grid-cols-2 gap-4 my-6 p-4 bg-gray-50 rounded-xl border border-gray-100 text-sm">
-                <div>
-                  <span className="text-gray-400 block">Age</span>
-                  <strong className="text-gray-800">{pet.age ? `${pet.age}` : "N/A"}</strong>
-                </div>
-                <div>
-                  <span className="text-gray-400 block">Gender</span>
-                  <strong className="text-gray-800">{pet.gender || "N/A"}</strong>
-                </div>
+              <div>
+                <h3 className="text-sm font-bold text-gray-900 uppercase mb-2">About {petName}</h3>
+                <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
+                  {pet.description || pet.bio || "No description provided for this pet yet."}
+                </p>
               </div>
-
-              <h3 className="font-bold text-gray-900 mb-1">About {petName}</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">{pet.description || "No description provided."}</p>
             </div>
 
-            <div className="space-y-3 pt-6 border-t border-gray-100">
+            <div className="space-y-4 pt-4 border-t">
               <button
                 onClick={handleBuyNow}
-                disabled={checkoutLoading}
-                className="w-full py-4 bg-(--color-primary) text-black font-extrabold rounded-2xl shadow-lg hover:scale-102 transition-transform text-base cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-4 bg-black text-white font-extrabold rounded-2xl shadow-lg hover:bg-gray-800 transition-all text-base cursor-pointer"
               >
-                <FaPaw /> {checkoutLoading ? "PROCESSING..." : `BUY NOW — ₹{petPrice}`}
+                Proceed to Checkout
               </button>
-
-              <div className="flex items-center justify-center gap-2 text-xs text-gray-400 pt-2">
-                <FaShieldAlt className="text-green-500" /> Secure checkout protected by Stripe Idempotency & SSL
+              
+              <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
+                <FaShieldAlt className="text-green-500 text-sm" /> Verified healthy & vaccinated pet listing.
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Modal Image Zoom */}
+      {isZoomed && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 cursor-pointer"
+          onClick={() => setIsZoomed(false)}
+        >
+          <div className="relative w-full max-w-4xl h-[80vh]">
+            <Image src={currentImageUrl} alt="Zoomed Pet" fill unoptimized={true} className="object-contain" />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
