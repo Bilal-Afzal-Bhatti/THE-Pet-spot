@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FaPaw, FaSpinner, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useAdStore, Base_URL } from "@/Store/AdsStore";
 
@@ -26,10 +26,63 @@ const getImageUrl = (imagePath?: string) => {
 };
 
 export default function AllPetsPage() {
+  const router = useRouter();
   const [pets, setPets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [isPaused, setIsPaused] = useState(false); // State to handle pause on hover
+
+  // ---------- Utility helpers ----------
+  const slugify = (s?: string) => {
+    if (!s) return "";
+    return encodeURIComponent(
+      s
+        .toString()
+        .trim()
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[\s\_]+/g, "-")
+        .replace(/[^\w\-]+/g, "")
+        .replace(/\-\-+/g, "-")
+    );
+  };
+
+  // Convert slug back to human readable (german-shepherd -> German Shepherd)
+  const unSlug = (s?: string) => {
+    if (!s) return "";
+    try {
+      const dec = decodeURIComponent(s);
+      const words = dec
+        .replace(/-/g, " ")
+        .replace(/_/g, " ")
+        .trim()
+        .split(/\s+/)
+        .map((w) => (w.length ? w[0].toUpperCase() + w.slice(1) : w));
+      return words.join(" ");
+    } catch {
+      return s.replace(/-/g, " ");
+    }
+  };
+
+  const handleViewPet = (pet: any) => {
+    const petName = pet.petName || pet.name || pet.title || "Pet";
+    const petBreed = pet.breed || "dog";
+    const petSlug = `${slugify(petName)}-${slugify(petBreed)}`;
+
+    // Get the exact ID
+    const petId = pet._id || pet.id;
+    console.log("Navigating to pet details for:", petName, "with ID:", petId);
+    
+    // Store both the full pet object AND the explicit ID in sessionStorage
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("selectedPetData", JSON.stringify(pet));
+      sessionStorage.setItem("currentPetId", petId);
+    }
+
+    // Push to the slug route
+    router.push(`/dogs/pet/${petSlug}`);
+  };
 
   // Fetch and offload data processing to a Web Worker
   useEffect(() => {
@@ -100,16 +153,16 @@ export default function AllPetsPage() {
     };
   }, []);
 
-  // Main Carousel Auto-play Timer (1 second interval)
+  // Main Carousel Auto-play Timer (1 second interval) - pauses when isPaused is true
   useEffect(() => {
-    if (pets.length === 0) return;
+    if (pets.length === 0 || isPaused) return;
 
     const timer = setInterval(() => {
       setCarouselIndex((prev) => (prev === pets.length - 1 ? 0 : prev + 1));
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [pets.length]);
+  }, [pets.length, isPaused]);
 
   const totalPages = Math.ceil(pets.length / ITEMS_PER_PAGE);
   const currentPets = useMemo(() => {
@@ -159,8 +212,12 @@ export default function AllPetsPage() {
             </div>
           ) : (
             <>
-              {/* Main Featured Hero Carousel with 1s Smooth Transition */}
-              <div className="relative w-full h-90 sm:h-115 lg:h-130 rounded-3xl overflow-hidden shadow-xl bg-gray-900 group">
+              {/* Main Featured Hero Carousel with Pause on Hover */}
+              <div 
+                className="relative w-full h-90 sm:h-115 lg:h-130 rounded-3xl overflow-hidden shadow-xl bg-gray-900 group cursor-pointer"
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+              >
                 {pets.map((pet, idx) => {
                   const petId = pet._id || pet.id;
                   const petImage = getImageUrl(pet.images?.[0] || pet.image);
@@ -197,12 +254,18 @@ export default function AllPetsPage() {
                         <p className="text-sm sm:text-base text-gray-200 mt-1 line-clamp-1">
                           {pet.breed ? `${pet.breed} • ` : ""}Looking for a loving home
                         </p>
-                        <Link
-                          href={`/pet/${petId}`}
-                          className="inline-block mt-4 px-6 py-2.5 bg-(--color-primary) text-black font-bold rounded-xl hover:scale-105 transition-transform text-sm"
+                        
+                        {/* Hero Slider View Details Button targeting exact displayed pet */}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewPet(pet);
+                          }}
+                          className="inline-block mt-4 px-6 py-2.5 bg-(--color-primary) text-black font-bold rounded-xl hover:scale-105 transition-transform text-sm cursor-pointer border-none z-30 relative"
                         >
                           View Details
-                        </Link>
+                        </button>
                       </div>
                     </div>
                   );
@@ -277,12 +340,15 @@ export default function AllPetsPage() {
                             <span className="text-sm font-extrabold text-gray-900">
                               {price}
                             </span>
-                            <Link
-                              href={`/pet/${petId}`}
-                              className="text-xs font-semibold text-(--color-primary) group-hover:translate-x-1 transition-transform"
+                            
+                            {/* Grid Card View Details Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleViewPet(pet)}
+                              className="text-xs font-semibold text-(--color-primary) group-hover:translate-x-1 transition-transform cursor-pointer bg-transparent border-none"
                             >
                               View Details &rarr;
-                            </Link>
+                            </button>
                           </div>
                         </div>
                       </div>
