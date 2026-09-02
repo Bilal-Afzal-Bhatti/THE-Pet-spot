@@ -5,15 +5,21 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FaPaw, FaShieldAlt, FaArrowLeft } from "react-icons/fa";
 import { useBuyStore } from "@/Store/buyStore";
+import { Base_URL } from "@/Store/AdsStore";
+// const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL|| "http://localhost:5000";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL|| "http://localhost:5000";
+// const getImageUrl = (imagePath?: string) => {
+//   if (!imagePath) return "https://via.placeholder.com/400?text=No+Image";
+//   if (imagePath.startsWith("http") || imagePath.startsWith("blob:")) return imagePath;
+//   return `${API_BASE}${imagePath.startsWith("/") ? imagePath : `/${imagePath}`}`;
+// };
+ // adjust path to match your actual file location
 
 const getImageUrl = (imagePath?: string) => {
   if (!imagePath) return "https://via.placeholder.com/400?text=No+Image";
   if (imagePath.startsWith("http") || imagePath.startsWith("blob:")) return imagePath;
-  return `${API_BASE}${imagePath.startsWith("/") ? imagePath : `/${imagePath}`}`;
+  return `${Base_URL}${imagePath.startsWith("/") ? imagePath : `/${imagePath}`}`;
 };
-
 export default function PetDetailPage() {
   const router = useRouter();
   const [pet, setPet] = useState<any | null>(null);
