@@ -100,15 +100,7 @@ const handleViewPet = (pet: any) => {
   // This will push the slug to the URL (e.g. /cats/pet/milo-persian)
  
 
-  const findStateForCity = (cityName: string) => {
-    if (!cityName) return "";
-    for (const [state, cities] of Object.entries(statesWithCatCities)) {
-      if (cities.map((c) => c.toLowerCase()).includes(cityName.toLowerCase()))
-        return state;
-    }
-    return "";
-  };
-
+  
   // ---------- API Data Fetching ----------
   useEffect(() => {
     const fetchApprovedCatAds = async () => {
@@ -130,6 +122,17 @@ const handleViewPet = (pet: any) => {
 
     fetchApprovedCatAds();
   }, [currentPage, getApprovedCatAds]);
+
+
+  
+const findStateForCity = (cityName: string) => {
+    if (!cityName) return "";
+    for (const [state, cities] of Object.entries(statesWithCatCities)) {
+      if (cities.map((c) => c.toLowerCase()).includes(cityName.toLowerCase()))
+        return state;
+    }
+    return "";
+  };
 
   // ---------- Filtering logic (client-side for current page data) ----------
   const applyFilters = () => {
