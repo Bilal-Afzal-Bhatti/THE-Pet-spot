@@ -1,19 +1,33 @@
 "use client";
 import Image from "next/image";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FiMapPin, FiCalendar, FiUser, FiPhone, FiChevronLeft, FiChevronRight, FiUpload, FiX } from "react-icons/fi";
+import { FiMapPin, FiCalendar, FiUser, FiPhone, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { FaDog, FaWeight, FaRulerVertical, FaHeartbeat, FaSyringe, FaCertificate } from "react-icons/fa";
 import { SiWhatsapp } from "react-icons/si";
 import { useAdStore } from "@/Store/AdsStore";
 import { useBuyStore } from "@/Store/buyStore";
 
 const AUTO_SLIDE_INTERVAL_MS = 4000;
+const Base_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+// Your custom image helper function
+const getPetImage = (pet: any) => {
+  const rawPath =
+    (typeof pet?.img === "string" && pet.img.trim() !== "" ? pet.img : null) ||
+    (Array.isArray(pet?.images) && pet.images[0] ? pet.images[0] : null) ||
+    (typeof pet?.image === "string" && pet.image.trim() !== "" ? pet.image : null) ||
+    (typeof pet?.petImage === "string" && pet.petImage.trim() !== "" ? pet.petImage : null);
+
+  if (!rawPath) return "/default-pet.jpg";
+  if (rawPath.startsWith("http")) return rawPath;
+
+  return `${Base_URL}${rawPath.startsWith("/") ? "" : "/"}${rawPath}`;
+};
 
 export default function DogDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { getApprovedDogAdById } = useAdStore();
-  // If you need useBuyStore actions/state, initialize them here
   const {} = useBuyStore();
   
   const [pet, setPet] = useState<any>(null);
@@ -21,16 +35,9 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
   const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
 
-  // --- IMAGE UPLOAD FUNCTIONALITY STATES ---
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [isUploading, setIsUploading] = useState<boolean>(false);
-
   // Magnifying lens states
   const [isZoomed, setIsZoomed] = useState<boolean>(false);
   const [lensPos, setLensPos] = useState({ x: 0, y: 0, bgX: 0, bgY: 0 });
-
-  // Auto-slide pause state — true while the cursor is over the image
   const [isHovering, setIsHovering] = useState<boolean>(false);
   
   const resolvedParams = React.use(params);
@@ -59,87 +66,49 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
     }
   }, [resolvedParams.id, getApprovedDogAdById]);
 
-  // Handle mouse movement for circular zoom lens
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - left;
     const y = e.clientY - top;
-
     const bgX = (x / width) * 100;
     const bgY = (y / height) * 100;
-
     setLensPos({ x, y, bgX, bgY });
   };
 
-  // --- IMAGE UPLOAD HANDLERS (Fixed to show ALL uploaded files) ---
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const filesArray = Array.from(e.target.files);
-      setSelectedFiles((prev) => [...prev, ...filesArray]);
+  // Resolve backend images array safely
+  const rawImagesList = Array.isArray(pet?.images) && pet.images.length > 0 
+    ? pet.images 
+    : [pet?.img, pet?.image, pet?.petImage].filter(Boolean);
 
-      const newPreviews = filesArray.map((file) => URL.createObjectURL(file));
-      setImagePreviews((prev) => [...prev, ...newPreviews]);
-    }
-  };
+  const backendImages: string[] = rawImagesList.length > 0
+    ? rawImagesList.map((imgStr: string) => {
+        if (!imgStr || typeof imgStr !== "string") return getPetImage(pet);
+        if (imgStr.startsWith("http")) return imgStr;
+        return `${Base_URL}${imgStr.startsWith("/") ? "" : "/"}${imgStr}`;
+      })
+    : [getPetImage(pet)];
 
-  const handleRemoveNewImage = (index: number) => {
-    URL.revokeObjectURL(imagePreviews[index]);
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
-  };
+  const petImage = backendImages[currentImageIndex] || getPetImage(pet);
 
-  const handleUploadSubmit = async () => {
-    if (selectedFiles.length === 0) return;
-    setIsUploading(true);
-    try {
-      const formData = new FormData();
-      selectedFiles.forEach((file) => {
-        formData.append("images", file);
-      });
-      
-      console.log("Images ready for upload:", selectedFiles);
-      alert("Images uploaded successfully!");
-      
-      setSelectedFiles([]);
-      setImagePreviews([]);
-    } catch (err) {
-      console.error("Upload failed:", err);
-      alert("Failed to upload images.");
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  // Safe image list resolution
-  const validImages: string[] = (pet?.images || []).filter((img: string) => img?.startsWith("http"));
-
-  const images: string[] = validImages.length > 0
-    ? validImages
-    : [pet?.img?.startsWith("http") ? pet.img : '/default-pet.jpg'];
-
-  const petImage = images[currentImageIndex] || '/default-pet.jpg';
-
-  // Slider navigation
   const goToPrevImage = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    setCurrentImageIndex((prev) => (prev === 0 ? backendImages.length - 1 : prev - 1));
   };
 
   const goToNextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    setCurrentImageIndex((prev) => (prev === backendImages.length - 1 ? 0 : prev + 1));
   };
 
-  // Auto-advance the slider on an interval
   useEffect(() => {
-    if (images.length <= 1 || isHovering) return;
+    if (backendImages.length <= 1 || isHovering) return;
 
     const timer = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+      setCurrentImageIndex((prev) => (prev === backendImages.length - 1 ? 0 : prev + 1));
     }, AUTO_SLIDE_INTERVAL_MS);
 
     return () => clearInterval(timer);
-  }, [images.length, isHovering]);
+  }, [backendImages.length, isHovering]);
 
   if (loading) {
     return (
@@ -172,11 +141,9 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
 
   return (
     <div className="min-h-screen font-raleway bg-gray-50 pb-16">
-      {/* Banner Background */}
       <div className="h-25" style={{ background: "var(--gradient-hero)" }}></div>
       
       <div className="p-6 px-6 lg:px-44 relative z-10">
-        {/* Breadcrumb */}
         <nav className="mb-6" aria-label="Breadcrumb">
           <ol className="flex items-center gap-2 text-sm text-gray-600">
             <li><a href="/" className="hover:text-orange-600 transition-colors">Home</a></li>
@@ -190,10 +157,10 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
-            {/* Left Column: Image Gallery & Seller Card */}
+            {/* Left Column: Image Gallery */}
             <div className="space-y-6">
               
-              {/* Main Image Container with Circular Magnifying Lens + Slider */}
+              {/* Main Image Container */}
               <div 
                 className="relative overflow-hidden rounded-2xl h-100 cursor-crosshair bg-gray-100 shadow-lg select-none"
                 onMouseEnter={() => {
@@ -228,8 +195,7 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
                   />
                 )}
 
-                {/* Slider arrows */}
-                {images.length > 1 && (
+                {backendImages.length > 1 && (
                   <>
                     <button
                       type="button"
@@ -253,55 +219,6 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
                     </button>
                   </>
                 )}
-              </div>
-
-              {/* --- IMAGE UPLOAD SECTION WIDGET (Fixed to display all selected previews) --- */}
-              <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
-                  <FiUpload className="text-orange-600" /> Upload More Images
-                </h3>
-                <div className="flex flex-col gap-4">
-                  <label className="border-2 border-dashed border-gray-300 hover:border-orange-500 rounded-xl p-4 text-center cursor-pointer transition-colors block">
-                    <span className="text-sm text-gray-600">Click to select multiple images to add</span>
-                    <input 
-                      type="file" 
-                      multiple 
-                      accept="image/*" 
-                      onChange={handleFileChange} 
-                      className="hidden" 
-                    />
-                  </label>
-
-                  {/* Previews Grid - Shows ALL selected images correctly */}
-                  {imagePreviews.length > 0 && (
-                    <div>
-                      <p className="text-xs font-semibold text-gray-500 mb-2">Selected Previews ({imagePreviews.length}):</p>
-                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-60 overflow-y-auto p-1">
-                        {imagePreviews.map((src, idx) => (
-                          <div key={idx} className="relative h-24 rounded-lg overflow-hidden border border-gray-200 shadow-sm bg-gray-50">
-                            <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover" />
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveNewImage(idx)}
-                              className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 text-xs shadow hover:bg-red-700 transition-colors"
-                              title="Remove image"
-                            >
-                              <FiX size={14} />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleUploadSubmit}
-                        disabled={isUploading}
-                        className="mt-4 w-full py-2.5 rounded-xl text-white font-medium text-sm shadow-sm transition-all bg-orange-600 hover:bg-orange-700 disabled:opacity-50"
-                      >
-                        {isUploading ? "Uploading..." : "Confirm & Upload Images"}
-                      </button>
-                    </div>
-                  )}
-                </div>
               </div>
 
               {/* Description Card */}
@@ -359,7 +276,6 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
                 </div>
               </div>
 
-              {/* Contact / Action Buttons */}
               <div className="grid grid-cols-2 gap-3">
                 <a
                   href={`tel:${pet.contactNumber}`}

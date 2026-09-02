@@ -8,6 +8,23 @@ import { SiWhatsapp } from "react-icons/si";
 import { useAdStore } from "@/Store/AdsStore";
 import { useBuyStore } from "@/Store/buyStore";
 
+const AUTO_SLIDE_INTERVAL_MS = 4000;
+const Base_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+
+// Custom image helper function for cats
+const getCatImage = (pet: any) => {
+  const rawPath =
+    (typeof pet?.img === "string" && pet.img.trim() !== "" ? pet.img : null) ||
+    (Array.isArray(pet?.images) && pet.images[0] ? pet.images[0] : null) ||
+    (typeof pet?.image === "string" && pet.image.trim() !== "" ? pet.image : null) ||
+    (typeof pet?.petImage === "string" && pet.petImage.trim() !== "" ? pet.petImage : null);
+
+  if (!rawPath) return "/default-pet.jpg";
+  if (rawPath.startsWith("http")) return rawPath;
+
+  return `${Base_URL}${rawPath.startsWith("/") ? "" : "/"}${rawPath}`;
+};
+
 export default function CatDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
   const { getApprovedCatAdById } = useAdStore();
@@ -18,9 +35,10 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
   const [error, setError] = useState<string | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
 
-  // Magnifying lens states
+  // Magnifying lens & hover states
   const [isZoomed, setIsZoomed] = useState<boolean>(false);
   const [lensPos, setLensPos] = useState({ x: 0, y: 0, bgX: 0, bgY: 0 });
+  const [isHovering, setIsHovering] = useState<boolean>(false);
   
   const resolvedParams = React.use(params);
 
@@ -48,35 +66,50 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
     }
   }, [resolvedParams.id, getApprovedCatAdById]);
 
-  // Safe image list resolution
-  const validImages: string[] = (pet?.images || []).filter((img: string) => img?.startsWith("http"));
-
-  const images: string[] = validImages.length > 0
-    ? validImages
-    : [pet?.img?.startsWith("http") ? pet.img : '/default-pet.jpg'];
-
-  // Auto-slide effect every 4 seconds
-  useEffect(() => {
-    if (images.length <= 1) return;
-
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, [images.length]);
-
-  // Handle mouse movement for circular zoom lens
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - left;
     const y = e.clientY - top;
-
     const bgX = (x / width) * 100;
     const bgY = (y / height) * 100;
-
     setLensPos({ x, y, bgX, bgY });
   };
+
+  // Resolve backend images array safely using helper logic
+  const rawImagesList = Array.isArray(pet?.images) && pet.images.length > 0 
+    ? pet.images 
+    : [pet?.img, pet?.image, pet?.petImage].filter(Boolean);
+
+  const backendImages: string[] = rawImagesList.length > 0
+    ? rawImagesList.map((imgStr: string) => {
+        if (!imgStr || typeof imgStr !== "string") return getCatImage(pet);
+        if (imgStr.startsWith("http")) return imgStr;
+        return `${Base_URL}${imgStr.startsWith("/") ? "" : "/"}${imgStr}`;
+      })
+    : [getCatImage(pet)];
+
+  const petImage = backendImages[currentImageIndex] || getCatImage(pet);
+
+  const goToPrevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === 0 ? backendImages.length - 1 : prev - 1));
+  };
+
+  const goToNextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === backendImages.length - 1 ? 0 : prev + 1));
+  };
+
+  // Auto-slide effect that pauses on hover
+  useEffect(() => {
+    if (backendImages.length <= 1 || isHovering) return;
+
+    const timer = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev === backendImages.length - 1 ? 0 : prev + 1));
+    }, AUTO_SLIDE_INTERVAL_MS);
+
+    return () => clearInterval(timer);
+  }, [backendImages.length, isHovering]);
 
   if (loading) {
     return (
@@ -107,19 +140,6 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
     );
   }
 
-  const petImage = images[currentImageIndex] || '/default-pet.jpg';
-
-  // Slider navigation
-  const goToPrevImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-  };
-
-  const goToNextImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-  };
-
   return (
     <div className="min-h-screen font-raleway bg-gray-50 pb-16">
       {/* Banner Background */}
@@ -146,8 +166,14 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
               {/* Main Image Container with Circular Magnifying Lens */}
               <div 
                 className="relative overflow-hidden rounded-2xl h-100 cursor-crosshair bg-gray-100 shadow-lg select-none"
-                onMouseEnter={() => setIsZoomed(true)}
-                onMouseLeave={() => setIsZoomed(false)}
+                onMouseEnter={() => {
+                  setIsZoomed(true);
+                  setIsHovering(true);
+                }}
+                onMouseLeave={() => {
+                  setIsZoomed(false);
+                  setIsHovering(false);
+                }}
                 onMouseMove={handleMouseMove}
               >
                 <img
@@ -173,12 +199,13 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
                 )}
 
                 {/* Slider arrows */}
-                {images.length > 1 && (
+                {backendImages.length > 1 && (
                   <>
                     <button
                       type="button"
                       onClick={goToPrevImage}
                       onMouseEnter={() => setIsZoomed(false)}
+                      onMouseLeave={() => setIsZoomed(true)}
                       aria-label="Previous image"
                       className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center text-gray-800 transition-colors z-10"
                     >
@@ -188,6 +215,7 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
                       type="button"
                       onClick={goToNextImage}
                       onMouseEnter={() => setIsZoomed(false)}
+                      onMouseLeave={() => setIsZoomed(true)}
                       aria-label="Next image"
                       className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center text-gray-800 transition-colors z-10"
                     >
