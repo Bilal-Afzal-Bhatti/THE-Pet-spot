@@ -14,7 +14,7 @@ import { Base_URL } from "@/Store/AdsStore";
 //   return `${API_BASE}${imagePath.startsWith("/") ? imagePath : `/${imagePath}`}`;
 // };
  // adjust path to match your actual file location
-
+console.log("Base_URL from AdsStore:", Base_URL); // Log the Base_URL to verify it's being imported correctly
 const getImageUrl = (imagePath?: string) => {
   if (!imagePath) return "https://via.placeholder.com/400?text=No+Image";
   if (imagePath.startsWith("http") || imagePath.startsWith("blob:")) return imagePath;

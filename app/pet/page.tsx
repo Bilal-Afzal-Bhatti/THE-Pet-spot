@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FaPaw, FaSpinner, FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { useAdStore } from "@/Store/AdsStore";
+import { useAdStore, Base_URL } from "@/Store/AdsStore";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -19,13 +19,11 @@ const getImageUrl = (imagePath?: string) => {
     return imagePath;
   }
 
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
   const cleanPath = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
   const fullPath = cleanPath.startsWith("/uploads/") ? cleanPath : `/uploads${cleanPath}`;
 
-  return `${API_BASE}${fullPath}`;
+  return `${Base_URL}${fullPath}`;
 };
-
 export default function AllPetsPage() {
   const [pets, setPets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
