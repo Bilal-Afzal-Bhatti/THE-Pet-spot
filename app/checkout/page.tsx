@@ -15,7 +15,9 @@ function CheckoutContent() {
   const { selectedPet, setSelectedPet, checkoutDetails, setCheckoutDetails, processCheckout, loading, error } =
     useBuyStore();
 
-  const { user } = authStore();
+  // Pull both user and authUser to ensure compatibility regardless of store naming convention
+  const { user, authUser } = authStore() as any;
+  const activeUser = user || authUser;
 
   const [formError, setFormError] = useState("");
   const [isInitializing, setIsInitializing] = useState(true);
@@ -27,16 +29,16 @@ function CheckoutContent() {
         await setSelectedPet(petIdFromUrl);
       }
 
-      // 2. Automatically sync user email into checkout details state once user data is available
-      if (user?.email && checkoutDetails.email !== user.email) {
-        setCheckoutDetails({ email: user.email });
+      // 2. Automatically sync user email into checkout details state once user data loads
+      if (activeUser?.email && checkoutDetails.email !== activeUser.email) {
+        setCheckoutDetails({ email: activeUser.email });
       }
 
       setIsInitializing(false);
     };
 
     initCheckout();
-  }, [petIdFromUrl, selectedPet, setSelectedPet, user, checkoutDetails.email, setCheckoutDetails]);
+  }, [petIdFromUrl, selectedPet, setSelectedPet, activeUser, checkoutDetails.email, setCheckoutDetails]);
 
   if (isInitializing) {
     return (
@@ -68,14 +70,14 @@ function CheckoutContent() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setCheckoutDetails({ [e.target.name]: e.target.value });
-    if (formError) setFormError(""); // Clear error instantly when typing
+    if (formError) setFormError(""); 
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError("");
 
-    const currentEmail = user?.email || checkoutDetails.email;
+    const currentEmail = activeUser?.email || checkoutDetails.email;
 
     if (!checkoutDetails.fullName || !currentEmail || !checkoutDetails.phone || !checkoutDetails.address || !checkoutDetails.city) {
       setFormError("Please fill out all required shipping and contact fields.");
@@ -92,7 +94,6 @@ function CheckoutContent() {
     }
   };
 
-  // Safe image fallback ensuring it never evaluates to an empty string
   const petImage = 
     selectedPet?.images?.[0] || 
     selectedPet?.image || 
@@ -141,7 +142,7 @@ function CheckoutContent() {
                   name="email"
                   required
                   disabled
-                  value={user?.email || checkoutDetails.email || ""}
+                  value={activeUser?.email || checkoutDetails.email || ""}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 text-gray-600 font-medium cursor-not-allowed text-sm"
                 />
               </div>
