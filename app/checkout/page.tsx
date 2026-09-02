@@ -5,9 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { FaShieldAlt, FaCreditCard, FaMoneyBillWave, FaArrowLeft, FaSpinner } from "react-icons/fa";
 import { useBuyStore } from "@/Store/buyStore";
-import { useAuthStore } from "@/Store/authStore"; // ⬅️ 1. Import your auth store
+import { useAdStore } from "@/Store/AdsStore";
 
-// 1. Separate component that uses useSearchParams
 function CheckoutContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -16,7 +15,7 @@ function CheckoutContent() {
   const { selectedPet, setSelectedPet, checkoutDetails, setCheckoutDetails, processCheckout, loading, error } =
     useBuyStore();
 
-  const { user } = useAuthStore(); // ⬅️ 2. Get user from authStore
+  const { user } = useAdStore();
 
   const [formError, setFormError] = useState("");
   const [isInitializing, setIsInitializing] = useState(true);
@@ -27,7 +26,7 @@ function CheckoutContent() {
         await setSelectedPet(petIdFromUrl);
       }
       
-      // ⬅️ 3. Auto-populate email from authStore if available and not already set
+      // Auto-populate email from authStore if available and not already set in checkout details
       if (user?.email && !checkoutDetails.email) {
         setCheckoutDetails({ email: user.email });
       }
@@ -123,7 +122,7 @@ function CheckoutContent() {
                 />
               </div>
 
-              {/* ⬅️ Added Email Input Field */}
+              {/* Email Field - Read-only / Non-editable */}
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Email Address (Linked to Account)</label>
                 <input
@@ -163,17 +162,30 @@ function CheckoutContent() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Street Address</label>
-                <input
-                  type="text"
-                  name="address"
-                  required
-                  value={checkoutDetails.address || ""}
-                  onChange={handleInputChange}
-                  placeholder="House #123, Street Name"
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-(--color-primary) text-sm"
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Street Address</label>
+                  <input
+                    type="text"
+                    name="address"
+                    required
+                    value={checkoutDetails.address || ""}
+                    onChange={handleInputChange}
+                    placeholder="House #123, Street Name"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-(--color-primary) text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Postal Code (Optional)</label>
+                  <input
+                    type="text"
+                    name="postalCode"
+                    value={checkoutDetails.postalCode || ""}
+                    onChange={handleInputChange}
+                    placeholder="44000"
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-(--color-primary) text-sm"
+                  />
+                </div>
               </div>
             </div>
 
@@ -277,7 +289,6 @@ function CheckoutContent() {
   );
 }
 
-// 2. Main wrapper component with Suspense boundary
 export default function CheckoutPage() {
   return (
     <Suspense
