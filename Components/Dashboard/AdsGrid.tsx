@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Base_URL } from '@/Store/AdsStore';
 
 interface Ad {
   _id: string;
@@ -29,23 +30,14 @@ interface AdsGridProps {
   onEditAd: (ad: Ad, event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-// Global Image URL Builder
-const getImageUrl = (imagePath?: string) => {
-  if (!imagePath) return "https://via.placeholder.com/150?text=No+Image";
-
-  if (
-    imagePath.startsWith("http://") ||
-    imagePath.startsWith("https://") ||
-    imagePath.startsWith("blob:")
-  ) {
-    return imagePath;
-  }
-
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-  const cleanPath = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
-  const fullPath = cleanPath.startsWith("/uploads/") ? cleanPath : `/uploads${cleanPath}`;
-
-  return `${API_BASE}${fullPath}`;
+// Picks the first real, loadable image (Vercel Blob or any other full URL).
+// Old local "/uploads/..." paths from pre-Blob test data never resolve on
+// the deployed site, so they're skipped here instead of showing a broken image.
+const getFirstValidImage = (images?: string[]): string => {
+  const valid = (images || []).find(
+    (img) => img?.startsWith('http://') || img?.startsWith('https://') || img?.startsWith('blob:')
+  );
+  return valid || 'https://via.placeholder.com/150?text=No+Image';
 };
 
 export default function AdsGrid({ ads, onDeleteAd, onEditAd }: AdsGridProps) {
@@ -78,7 +70,7 @@ export default function AdsGrid({ ads, onDeleteAd, onEditAd }: AdsGridProps) {
     const confirmed = window.confirm(
       `Are you sure you want to delete the ad "${adTitle}"?\n\nThis action cannot be undone.`
     );
-    
+
     if (confirmed) {
       onDeleteAd(adId);
     }
@@ -87,7 +79,7 @@ export default function AdsGrid({ ads, onDeleteAd, onEditAd }: AdsGridProps) {
   return (
     <div className="mb-8">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Advertisements</h2>
-      
+
       <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -117,14 +109,14 @@ export default function AdsGrid({ ads, onDeleteAd, onEditAd }: AdsGridProps) {
               {ads.map((ad) => {
                 const titleText = ad.name || ad.title || 'Untitled Pet';
                 const locationText = ad.city || ad.location || 'Location not specified';
-                
+
                 return (
                   <tr key={ad._id} className="hover:bg-gray-50/80 transition-colors duration-200">
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-4">
                         <div className="shrink-0">
                           <img
-                            src={getImageUrl(ad.images?.[0])}
+                            src={getFirstValidImage(ad.images)}
                             alt={titleText}
                             className="h-14 w-14 rounded-xl object-cover border border-gray-200 shadow-sm"
                             onError={(e) => {
@@ -141,8 +133,8 @@ export default function AdsGrid({ ads, onDeleteAd, onEditAd }: AdsGridProps) {
                           </p>
                           <div className="mt-1">
                             <p className="text-xs text-gray-500">
-                              {expandedDescription === ad._id 
-                                ? ad.description 
+                              {expandedDescription === ad._id
+                                ? ad.description
                                 : truncateDescription(ad.description || '')
                               }
                               {ad.description && ad.description.length > 50 && (
@@ -158,7 +150,7 @@ export default function AdsGrid({ ads, onDeleteAd, onEditAd }: AdsGridProps) {
                         </div>
                       </div>
                     </td>
-                    
+
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-bold text-gray-900">
                         ₨ {Number(ad.price || 0).toLocaleString()}
@@ -167,7 +159,7 @@ export default function AdsGrid({ ads, onDeleteAd, onEditAd }: AdsGridProps) {
                         {ad.category || 'Pet'}
                       </div>
                     </td>
-                    
+
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900 font-medium">
                         {locationText}
@@ -176,11 +168,11 @@ export default function AdsGrid({ ads, onDeleteAd, onEditAd }: AdsGridProps) {
                         {ad.contactNumber || 'No contact provided'}
                       </div>
                     </td>
-                    
+
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(ad.isApproved)}
                     </td>
-                    
+
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-col space-y-1">
                         {ad.vaccinated && (
@@ -198,7 +190,7 @@ export default function AdsGrid({ ads, onDeleteAd, onEditAd }: AdsGridProps) {
                         )}
                       </div>
                     </td>
-                    
+
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="flex items-center justify-center space-x-3">
                         <button
@@ -221,7 +213,7 @@ export default function AdsGrid({ ads, onDeleteAd, onEditAd }: AdsGridProps) {
             </tbody>
           </table>
         </div>
-        
+
         {ads.length === 0 && (
           <div className="text-center py-12">
             <p className="text-gray-500 text-lg">No advertisements found.</p>

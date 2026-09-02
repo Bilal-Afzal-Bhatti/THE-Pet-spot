@@ -68,8 +68,15 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
         suitableFor: suitableForArray,
         images: []
       });
-      setExistingImages(ad.images || []);
-      setImagePreviews(ad.images || []);
+
+      // Only keep real, loadable image URLs — old local "/uploads/..." paths
+      // from pre-Blob test data never resolve on the deployed site and would
+      // show as a broken image with no clean way to remove/re-save them.
+      const validImages = (ad.images || []).filter(
+        (img) => img?.startsWith('http://') || img?.startsWith('https://') || img?.startsWith('blob:')
+      );
+      setExistingImages(validImages);
+      setImagePreviews(validImages);
     }
   }, [ad, isOpen]);
 

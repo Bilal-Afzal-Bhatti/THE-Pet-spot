@@ -2,7 +2,7 @@
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FiMapPin, FiCalendar, FiUser, FiPhone } from "react-icons/fi";
+import { FiMapPin, FiCalendar, FiUser, FiPhone, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { FaDog, FaWeight, FaRulerVertical, FaHeartbeat, FaSyringe, FaCertificate } from "react-icons/fa";
 import { SiWhatsapp } from "react-icons/si";
 import { useAdStore } from "@/Store/AdsStore";
@@ -90,12 +90,28 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
     );
   }
 
-  // Safe image list resolution
-  const images: string[] = pet.images && pet.images.length > 0 
-    ? pet.images 
-    : [pet.img || '/default-pet.jpg'];
+  // Safe image list resolution — only keep real, working URLs (Vercel Blob or
+  // any other full https/http link). Old local "/uploads/..." paths from
+  // pre-Blob test data never resolve on the deployed site, so they're dropped
+  // here instead of showing a broken-image icon.
+  const validImages: string[] = (pet.images || []).filter((img: string) => img?.startsWith("http"));
+
+  const images: string[] = validImages.length > 0
+    ? validImages
+    : [pet.img?.startsWith("http") ? pet.img : '/default-pet.jpg'];
 
   const petImage = images[currentImageIndex] || '/default-pet.jpg';
+
+  // Slider navigation — only meaningful (and only rendered) when images.length > 1
+  const goToPrevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+  };
+
+  const goToNextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
 
   return (
     <div className="min-h-screen font-raleway bg-gray-50 pb-16">
@@ -148,29 +164,29 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
                     }}
                   />
                 )}
-              </div>
 
-              {/* Thumbnails Grid */}
-              {images.length > 1 && (
-                <div className="grid grid-cols-4 gap-2">
-                  {images.map((img: string, index: number) => (
+                {/* Slider arrows — only shown when there's more than one image */}
+                {images.length > 1 && (
+                  <>
                     <button
                       type="button"
-                      key={index}
-                      onClick={() => setCurrentImageIndex(index)}
-                      className={`aspect-square rounded-lg overflow-hidden transition-all text-left focus:outline-none ${
-                        index === currentImageIndex ? 'ring-2 ring-orange-500 shadow-md' : 'opacity-70 hover:opacity-100'
-                      }`}
+                      onClick={goToPrevImage}
+                      aria-label="Previous image"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center text-gray-800 transition-colors z-10"
                     >
-                      <img
-                        src={img}
-                        alt={`${pet.name} thumbnail ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
+                      <FiChevronLeft className="text-xl" />
                     </button>
-                  ))}
-                </div>
-              )}
+                    <button
+                      type="button"
+                      onClick={goToNextImage}
+                      aria-label="Next image"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white shadow-md flex items-center justify-center text-gray-800 transition-colors z-10"
+                    >
+                      <FiChevronRight className="text-xl" />
+                    </button>
+                  </>
+                )}
+              </div>
 
               {/* Description Card */}
               {pet.description && (

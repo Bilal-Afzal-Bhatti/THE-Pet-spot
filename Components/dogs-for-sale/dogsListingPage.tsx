@@ -40,7 +40,7 @@ export default function DogsPage() {
 
   // Store
   const { getApprovedDogAds } = useAdStore();
-  
+
 
   const genderOptions = ["Male", "Female", "Other"];
   const featureOptions = [
@@ -84,23 +84,23 @@ export default function DogsPage() {
       return s.replace(/-/g, " ");
     }
   };
-const handleViewPet = (pet: any) => {
-  const petName = pet.name || pet.title || "Pet";
-  const petBreed = pet.breed || "dog";
-  const petSlug = `${slugify(petName)}-${slugify(petBreed)}`;
-  
-  // Get the exact ID
-  const petId = pet._id || pet.id;
- console.log("Navigating to pet details for:", petName, "with ID:", petId);
-  // Store both the full pet object AND the explicit ID in sessionStorage
-  if (typeof window !== "undefined") {
-    sessionStorage.setItem("selectedPetData", JSON.stringify(pet));
-    sessionStorage.setItem("currentPetId", petId);
-  }
+  const handleViewPet = (pet: any) => {
+    const petName = pet.name || pet.title || "Pet";
+    const petBreed = pet.breed || "dog";
+    const petSlug = `${slugify(petName)}-${slugify(petBreed)}`;
 
-  // Push to the slug route, while your app logic can grab the ID from storage when making API calls
-  router.push(`/dogs/pet/${petSlug}`);
-};
+    // Get the exact ID
+    const petId = pet._id || pet.id;
+    console.log("Navigating to pet details for:", petName, "with ID:", petId);
+    // Store both the full pet object AND the explicit ID in sessionStorage
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("selectedPetData", JSON.stringify(pet));
+      sessionStorage.setItem("currentPetId", petId);
+    }
+
+    // Push to the slug route, while your app logic can grab the ID from storage when making API calls
+    router.push(`/dogs/pet/${petSlug}`);
+  };
   const findStateForCity = (cityName: string) => {
     if (!cityName) return "";
     for (const [state, cities] of Object.entries(statesWithCities)) {
@@ -321,13 +321,13 @@ const handleViewPet = (pet: any) => {
 
   // ---------- Render ----------
   return (
-    <div className="min-h-screen font-raleway p-6 px-44 bg-orange-50">
+    <div className="min-h-screen font-raleway p-4 sm:p-6 px-4 sm:px-8 lg:px-20 xl:px-44 bg-orange-50">
       {/* 🔍 Integrated Search Bar */}
       <div
         ref={searchRef}
         className="w-full max-w-6xl mx-auto bg-white border border-gray-200 
-              rounded-xl flex items-center justify-between gap-3 
-              px-4 sm:px-6 lg:px-8 py-4 mb-10"
+        rounded-xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 
+        px-4 sm:px-6 lg:px-8 py-4 mb-10"
       >
         {/* 🐶 Breed Input */}
         <div className="relative flex items-center bg-white border border-gray-200 rounded-md px-3 py-2 w-full">
@@ -450,18 +450,18 @@ const handleViewPet = (pet: any) => {
         {/* 🔍 Search Button */}
         <button
           onClick={() => applyFilters()}
-          className="bg-(--color-primary) hover:bg-(--color-primary-hover) text-white font-medium 
-                  rounded-md px-18 py-2 flex items-center justify-center gap-2 
-                  transition-all duration-200"
+          className="w-full md:w-auto bg-(--color-primary) hover:bg-(--color-primary-hover) text-white font-medium 
+          rounded-md px-6 md:px-18 py-2.5 flex items-center justify-center gap-2 
+          transition-all duration-200 shrink-0"
         >
           Search
         </button>
       </div>
 
       {/* 🔽 Main Layout (Sidebar + Content) */}
-      <div className="max-w-7xl mx-auto flex gap-4">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-4">
         {/* 🧭 Sidebar */}
-        <div className="w-60 ">
+        <div className="w-full lg:w-60 shrink-0">
           {/* Clear All Filters */}
           <div className="px-3 py-2 shadow rounded-lg mb-3" style={{ background: 'var(--color-primary)' }}>
             <button
@@ -755,6 +755,7 @@ const handleViewPet = (pet: any) => {
         </div>
 
         {/* 🐶 Pets Grid */}
+        {/* 🐶 Pets Grid */}
         <div className="flex-1">
           <div className="mb-8">
             <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
@@ -775,7 +776,7 @@ const handleViewPet = (pet: any) => {
 
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <div>
-                <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent mb-2" style={{ color: "var(--gradient-hero)" }}>
+               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent mb-2" style={{ color: "var(--gradient-hero)" }}>
                   {selectedBreed
                     ? `${selectedBreed} For Sale`
                     : "Dogs For Sale"}
@@ -830,7 +831,7 @@ const handleViewPet = (pet: any) => {
                   key={pet.id || pet._id}
                   className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                 >
-                 <div className="relative overflow-hidden">
+                  <div className="relative overflow-hidden">
                     <img
                       src={pet.img || pet.images?.[0] || '/default-pet.jpg'}
                       alt={pet.name}
@@ -840,9 +841,9 @@ const handleViewPet = (pet: any) => {
                         :star: Premium
                       </span>
                     </div> */}
-                  </div>           
-                  
-                  
+                  </div>
+
+
                   <div className="p-5">
                     <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-purple-600 transition-colors">
                       {pet.name}
@@ -865,7 +866,8 @@ const handleViewPet = (pet: any) => {
                           {pet.city}
                         </span>
                       </div>
-                    </div>                    <div className="grid grid-cols-3 gap-2 mb-3">
+                    </div>                   
+                    <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-3 text-xs sm:text-sm">
                       <a
                         href={`tel:${pet.contactNumber}`}
                         className="px-3 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1"
@@ -890,14 +892,14 @@ const handleViewPet = (pet: any) => {
                         Info
                       </a> */}
 
-<button
-  type="button"
-  onClick={() => handleViewPet(pet)}
-  className="px-3 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1 cursor-pointer"
->
-  <FiInfo className="text-sm" />
-  Info
-</button>         </div>
+                      <button
+                        type="button"
+                        onClick={() => handleViewPet(pet)}
+                        className="px-3 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        <FiInfo className="text-sm" />
+                        Info
+                      </button>         </div>
                     <button className="w-full py-3 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 hover:scale-[1.02]" style={{ background: "var(--gradient-hero" }}>
                       {pet.price?.toLocaleString() || 'N/A'} PKR
                     </button>
@@ -914,23 +916,23 @@ const handleViewPet = (pet: any) => {
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 className={`px-6 py-2.5 rounded-full font-medium transition-all duration-200 ${currentPage === 1
-                    ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                    : "text-white hover:bg-(--color-primary-hover) shadow-sm hover:shadow-md hover:scale-105"
+                  ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                  : "text-white hover:bg-(--color-primary-hover) shadow-sm hover:shadow-md hover:scale-105"
                   }`}
                 style={currentPage !== 1 ? { background: 'var(--bg-dark-accent)' } : {}}
               >
                 Previous
               </button>
 
-              <div className="flex items-center gap-2">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+            <div className="flex items-center gap-2 overflow-x-auto max-w-full px-1 py-1">
+  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                   (page) => (
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
                       className={`w-10 h-10 rounded-full font-semibold transition-all duration-200 ${currentPage === page
-                          ? "bg-(--color-primary) text-white shadow-lg scale-110"
-                          : "text-white hover:bg-(--color-primary-hover) hover:text-white"
+                        ? "bg-(--color-primary) text-white shadow-lg scale-110"
+                        : "text-white hover:bg-(--color-primary-hover) hover:text-white"
                         }`}
                       style={currentPage !== page ? { background: 'var(--bg-dark-accent)' } : {}}
                     >
@@ -946,8 +948,8 @@ const handleViewPet = (pet: any) => {
                 }
                 disabled={currentPage >= totalPages}
                 className={`px-6 py-2.5 rounded-full font-medium transition-all duration-200 ${currentPage >= totalPages
-                    ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                    : "text-white hover:bg-(--color-primary-hover) shadow-sm hover:shadow-md hover:scale-105"
+                  ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                  : "text-white hover:bg-(--color-primary-hover) shadow-sm hover:shadow-md hover:scale-105"
                   }`}
                 style={currentPage < totalPages ? { background: 'var(--bg-dark-accent)' } : {}}
               >
