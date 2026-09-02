@@ -1,27 +1,8 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import axios from "axios";
+import { api } from "@/utils/api/axiosInstance"; // Centralized API instance
 import toast from "react-hot-toast";
 
-// Get current hostname safely for client-side evaluation if needed
-const hostname = typeof window !== 'undefined' ? window.location.hostname : '';
-
-// Determine base URL dynamically based on environment or fallback rules
-let Base_URL: string;
-
-if (process.env.NEXT_PUBLIC_API_BASE_URL) {
-  // Best practice: Read directly from environment variable
-  Base_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-} else if (hostname === 'localhost' || hostname === '127.0.0.1') {
-  // Local development fallback
-  Base_URL = 'http://localhost:5000';
-} else {
-  // Production fallback (or throw an error if you want strict env enforcement)
-  Base_URL = 'https://the-pet-spot-backend.vercel.app';
-}
-
-console.log("BASE_URL:", Base_URL);
-export { Base_URL };
 const jsonHeaders = { "Content-Type": "application/json" };
 
 export const authStore = create(
@@ -38,18 +19,15 @@ export const authStore = create(
       pendingEmail: null,
       lastLogout: null,
 
-      // ✅ Signup (Store pending email for OTP stage & throw on failure)
+      // ✅ Signup
       signup: async (data: any) => {
         set({ isSigningUp: true });
         try {
-          const res = await axios.post(`${Base_URL}/api/users/register`, data, {
-            withCredentials: true,
+          const res = await api.post("/api/users/register", data, {
             headers: jsonHeaders,
           });
 
           console.log("Signup response:", res.data);
-          
-          // Store pending email from response or payload
           const email = res.data?.email || data.email;
           set({ pendingEmail: email });
 
@@ -58,7 +36,7 @@ export const authStore = create(
         } catch (error: any) {
           console.error("Signup error response:", error.response?.data || error.message);
           toast.error(error.response?.data?.message || "Signup failed");
-          throw error; // Re-throw so page.tsx catches it and prevents navigation
+          throw error;
         } finally {
           set({ isSigningUp: false });
         }
@@ -76,14 +54,9 @@ export const authStore = create(
         }
 
         try {
-          const res = await axios.post(
-            `${Base_URL}/api/users/verify-otp`,
-            { email, otp },
-            {
-              withCredentials: true,
-              headers: jsonHeaders,
-            }
-          );
+          const res = await api.post("/api/users/verify-otp", { email, otp }, {
+            headers: jsonHeaders,
+          });
 
           set({ authUser: res.data.user || res.data.data, pendingEmail: null });
           toast.success("Email verified successfully!");
@@ -95,18 +68,14 @@ export const authStore = create(
           set({ isVerifyingOtp: false });
         }
       },
+
       // ✅ Login
       login: async (formData: any) => {
         set({ isLoggingIn: true });
         try {
-          const res = await axios.post(
-            `${Base_URL}/api/users/login`,
-            formData,
-            {
-              withCredentials: true,
-              headers: jsonHeaders,
-            }
-          );
+          const res = await api.post("/api/users/login", formData, {
+            headers: jsonHeaders,
+          });
           set({ authUser: res.data.user });
           toast.success(
             `Welcome back, ${res.data.user.name || res.data.user.userName}!`
@@ -123,20 +92,15 @@ export const authStore = create(
       // ✅ Logout
       logout: async () => {
         try {
-          const res = await axios.get(`${Base_URL}/api/users/logout`, {
-            withCredentials: true
-          });
+          const res = await api.get("/api/users/logout");
           console.log("api Called response", res.data);
           
-          // Immediately clear user state and set logout timestamp
           set({ authUser: null, lastLogout: Date.now() });
           
-          // Aggressively clear all storage
           localStorage.removeItem('auth-storage');
-          localStorage.clear(); // Clear all localStorage
-          sessionStorage.clear(); // Clear all sessionStorage
+          localStorage.clear();
+          sessionStorage.clear();
           
-          // Redirect to home page
           if (typeof window !== 'undefined') {
             window.location.href = '/';
           }
@@ -144,22 +108,14 @@ export const authStore = create(
           toast.success("Logged out successfully");
           return true;
         } catch (error) {
-          // Even if logout API fails, clear local state aggressively
           set({ authUser: null, lastLogout: Date.now() });
           
-          // Clear all storage even on error
           localStorage.removeItem('auth-storage');
           localStorage.clear();
           sessionStorage.clear();
           
-          if (axios.isAxiosError(error)) {
-            console.error("Logout error:", error);
-            toast.error("Logout failed");
-          } else {
-            toast.error("Logout failed");
-          }
+          toast.error("Logout failed");
           
-          // Redirect to home page even on error
           if (typeof window !== 'undefined') {
             window.location.href = '/';
           }
@@ -170,20 +126,16 @@ export const authStore = create(
 
       // ✅ Check auth on page load
       checkAuth: async () => {
-        // Check if we just logged out (from URL parameter)
         if (typeof window !== 'undefined' && window.location.search.includes('logout=')) {
           console.log('Detected logout parameter, skipping auth check');
           set({ authUser: null, isCheckingAuth: false });
-          // Clean URL
           window.history.replaceState({}, document.title, window.location.pathname);
           return;
         }
 
         set({ isCheckingAuth: true });
         try {
-          const res = await axios.get(`${Base_URL}/api/users/me`, {
-            withCredentials: true,
-            // Remove cache control headers that cause CORS issues
+          const res = await api.get("/api/users/me", {
             headers: {
               'Content-Type': 'application/json'
             }
@@ -193,38 +145,33 @@ export const authStore = create(
         } catch (error) {
           console.log("Auth check failed, clearing state");
           set({ authUser: null });
-          // Clear any stale localStorage data
           localStorage.removeItem('auth-storage');
         } finally {
           set({ isCheckingAuth: false });
         }
       },
 
-    // ✅ Update user profile
-updateUser: async (formData: FormData) => {
-  set({ isUpdatingProfile: true });
-  try {
-    const res = await axios.patch(`${Base_URL}/api/users/profile`, formData, {
-      withCredentials: true,
-      // Removed manual Content-Type header so the browser sets the boundary correctly
-    });
-    set({ authUser: res.data.user });
-    toast.success(res.data.message || "Profile updated successfully");
-    return true;
-  } catch (error: any) {
-    toast.error(error.response?.data?.message || "Profile update failed");
-    return false;
-  } finally {
-    set({ isUpdatingProfile: false });
-  }
-},
+      // ✅ Update user profile
+      updateUser: async (formData: FormData) => {
+        set({ isUpdatingProfile: true });
+        try {
+          const res = await api.patch("/api/users/profile", formData);
+          set({ authUser: res.data.user });
+          toast.success(res.data.message || "Profile updated successfully");
+          return true;
+        } catch (error: any) {
+          toast.error(error.response?.data?.message || "Profile update failed");
+          return false;
+        } finally {
+          set({ isUpdatingProfile: false });
+        }
+      },
 
       // ✅ Change password
       changePassword: async (data: { oldPassword: string; newPassword: string }) => {
         set({ isUpdatingProfile: true });
         try {
-          const res = await axios.patch(`${Base_URL}/api/users/change-password`, data, {
-            withCredentials: true,
+          const res = await api.patch("/api/users/change-password", data, {
             headers: jsonHeaders,
           });
           toast.success(res.data.message || "Password changed successfully");
@@ -241,7 +188,7 @@ updateUser: async (formData: FormData) => {
       forgotPassword: async (email: string) => {
         set({ isForgotPassword: true });
         try {
-          const res = await axios.post(`${Base_URL}/api/users/forgot-password`, { email }, {
+          const res = await api.post("/api/users/forgot-password", { email }, {
             headers: jsonHeaders,
           });
           toast.success(res.data.message || "OTP sent to your email");
@@ -258,7 +205,7 @@ updateUser: async (formData: FormData) => {
       resetPassword: async (data: { otp: string; newPassword: string }) => {
         set({ isResetPassword: true });
         try {
-          const res = await axios.post(`${Base_URL}/api/users/reset-password`, data, {
+          const res = await api.post("/api/users/reset-password", data, {
             headers: jsonHeaders,
           });
           toast.success(res.data.message || "Password reset successful");
@@ -272,16 +219,14 @@ updateUser: async (formData: FormData) => {
       },
     }),
     {
-      name: "auth-storage", // persisted in localStorage
+      name: "auth-storage",
       partialize: (state: any) => ({ 
         authUser: state.authUser,
         lastLogout: state.lastLogout 
-      }), // persist authUser and logout timestamp
+      }),
       onRehydrateStorage: () => (state: any) => {
-        // Check if we recently logged out
         if (state?.lastLogout) {
           const timeSinceLogout = Date.now() - state.lastLogout;
-          // If logged out less than 5 seconds ago, don't restore state
           if (timeSinceLogout < 5000) {
             console.log('Recent logout detected, not restoring auth state');
             state.authUser = null;
