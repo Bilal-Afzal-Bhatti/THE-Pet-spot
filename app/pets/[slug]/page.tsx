@@ -119,7 +119,7 @@ const handleBuyNow = () => {
             onMouseEnter={() => setIsZoomed(true)}
             onMouseLeave={() => setIsZoomed(false)}
             onMouseMove={handleMouseMove}
-            className="relative w-full h-[400px] sm:h-[480px] bg-gray-100 rounded-2xl overflow-hidden cursor-crosshair select-none flex items-center justify-center border border-gray-100"
+            className="relative w-full h-100 sm:h-120 bg-gray-100 rounded-2xl overflow-hidden cursor-crosshair select-none flex items-center justify-center border border-gray-100"
           >
             <Image src={petImage} alt={petName} fill priority className="object-cover pointer-events-none" />
 

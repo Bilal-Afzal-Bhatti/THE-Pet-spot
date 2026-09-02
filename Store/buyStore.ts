@@ -34,7 +34,7 @@ interface BuyState {
   loading: boolean;
   error: string | null;
 
-  setSelectedPet: (pet: any) => void;
+  setSelectedPet: (pet: any, userEmail?: string) => void;
   setCheckoutDetails: (details: Partial<CheckoutDetails>) => void;
   clearCheckout: () => void;
   generateIdempotencyKey: () => string;
@@ -58,9 +58,17 @@ export const useBuyStore = create<BuyState>()(
       loading: false,
       error: null,
 
-      setSelectedPet: (pet) => {
+      setSelectedPet: (pet, userEmail) => {
         const newKey = get().idempotencyKey || crypto.randomUUID();
-        set({ selectedPet: pet, idempotencyKey: newKey });
+        set((state) => ({
+          selectedPet: pet,
+          idempotencyKey: newKey,
+          checkoutDetails: {
+            ...state.checkoutDetails,
+            // Automatically patch email if passed or keep existing
+            email: userEmail || state.checkoutDetails.email,
+          },
+        }));
       },
 
       setCheckoutDetails: (details) =>
@@ -97,6 +105,13 @@ export const useBuyStore = create<BuyState>()(
         set({ loading: true, error: null });
         const currentKey = idempotencyKey || get().generateIdempotencyKey();
 
+        const extractedImage = 
+          selectedPet.images?.[0] || 
+          selectedPet.image || 
+          selectedPet.imageUrl || 
+          selectedPet.petImage || 
+          "";
+
         try {
           const response = await axios.post(
             `${Base_URL}/api/orders/checkout`,
@@ -104,8 +119,7 @@ export const useBuyStore = create<BuyState>()(
               petId: selectedPet._id || selectedPet.id,
               title: selectedPet.name || selectedPet.title || selectedPet.breed,
               price: selectedPet.price,
-              // ⬅️ Added petImage mapping to match your Mongoose schema
-              petImage: selectedPet.image || selectedPet.imageUrl || selectedPet.petImage || "",
+              petImage: extractedImage,
               customerInfo: checkoutDetails,
             },
             {

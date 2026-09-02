@@ -110,7 +110,7 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
             <li><span>→</span></li>
             <li><a href="/cats/for-sale" className="hover:text-orange-600 transition-colors">Cats</a></li>
             <li><span>→</span></li>
-            <li className="text-gray-800 font-medium truncate max-w-[200px]">{pet.name}</li>
+            <li className="text-gray-800 font-medium truncate max-w-50">{pet.name}</li>
           </ol>
         </nav>
 
@@ -122,7 +122,7 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
               
               {/* Main Image Container with Circular Magnifying Lens */}
               <div 
-                className="relative overflow-hidden rounded-2xl h-[400px] cursor-crosshair bg-gray-100 shadow-lg select-none"
+                className="relative overflow-hidden rounded-2xl h-100 cursor-crosshair bg-gray-100 shadow-lg select-none"
                 onMouseEnter={() => setIsZoomed(true)}
                 onMouseLeave={() => setIsZoomed(false)}
                 onMouseMove={handleMouseMove}

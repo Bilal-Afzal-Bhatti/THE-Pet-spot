@@ -24,6 +24,7 @@ const getImageUrl = (imagePath?: string) => {
 
   return `${Base_URL}${fullPath}`;
 };
+
 export default function AllPetsPage() {
   const [pets, setPets] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -148,7 +149,7 @@ export default function AllPetsPage() {
           </div>
 
           {loading ? (
-            <div className="flex flex-col items-center justify-center min-h-[400px] w-full">
+            <div className="flex flex-col items-center justify-center min-h-100 w-full">
               <FaSpinner className="animate-spin text-4xl text-(--color-primary) mb-4" />
               <p className="text-gray-500 font-medium">Processing via Web Worker...</p>
             </div>
@@ -159,10 +160,9 @@ export default function AllPetsPage() {
           ) : (
             <>
               {/* Main Featured Hero Carousel with 1s Smooth Transition */}
-              <div className="relative w-full h-[360px] sm:h-[460px] lg:h-[520px] rounded-3xl overflow-hidden shadow-xl bg-gray-900 group">
+              <div className="relative w-full h-90 sm:h-115 lg:h-130 rounded-3xl overflow-hidden shadow-xl bg-gray-900 group">
                 {pets.map((pet, idx) => {
                   const petId = pet._id || pet.id;
-                  const isDog = pet.category === "Dog";
                   const petImage = getImageUrl(pet.images?.[0] || pet.image);
                   const isActive = idx === carouselIndex;
 
@@ -198,7 +198,7 @@ export default function AllPetsPage() {
                           {pet.breed ? `${pet.breed} • ` : ""}Looking for a loving home
                         </p>
                         <Link
-                          href={isDog ? `/dogs/${petId}` : `/cats/${petId}`}
+                          href={`/pet/${petId}`}
                           className="inline-block mt-4 px-6 py-2.5 bg-(--color-primary) text-black font-bold rounded-xl hover:scale-105 transition-transform text-sm"
                         >
                           View Details
@@ -242,7 +242,6 @@ export default function AllPetsPage() {
                     const petName = pet.petName || pet.name || pet.breed || "Adorable Pet";
                     const petImage = getImageUrl(pet.images?.[0] || pet.image);
                     const price = pet.price ? `₹${pet.price}` : "Contact for Price";
-                    const isDog = pet.category === "Dog";
 
                     return (
                       <div
@@ -279,7 +278,7 @@ export default function AllPetsPage() {
                               {price}
                             </span>
                             <Link
-                              href={isDog ? `/dogs/${petId}` : `/cats/${petId}`}
+                              href={`/pet/${petId}`}
                               className="text-xs font-semibold text-(--color-primary) group-hover:translate-x-1 transition-transform"
                             >
                               View Details &rarr;

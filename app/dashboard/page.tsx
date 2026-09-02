@@ -173,7 +173,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Hero Section */}
-      <section className="relative h-[90px] w-full flex items-center justify-center shrink-0" style={{background: "var(--gradient-hero)"}}>
+      <section className="relative h-22.5 w-full flex items-center justify-center shrink-0" style={{background: "var(--gradient-hero)"}}>
         <div className="text-center text-white">
           {/* <h1 className="text-3xl md:text-4xl font-bold mb-2">Dashboard</h1> */}
           {/* <p className="text-lg opacity-90">Manage your pet advertisements</p> */}
