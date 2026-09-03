@@ -1,5 +1,5 @@
 "use client";
-
+//main page VIEW DETAIL PAGE FOR DOG
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
@@ -86,13 +86,62 @@ export default function PetDetailPage() {
 
   const currentImageUrl = images[selectedImageIndex] ? getPetImage({ images: [images[selectedImageIndex]] }) : "/default-pet.jpg";
 
+  // const handleBuyNow = () => {
+  //   setSelectedPet(pet);
+  //   if (typeof window !== "undefined") {
+  //     sessionStorage.setItem("selectedPetData", JSON.stringify(pet));
+  //   }
+  //   const petId = pet._id || pet.id;
+  //   router.push(`/checkout${petId ? `?petId=${petId}` : ""}`);
+  // };
+  const slugify = (s?: string) => {
+    if (!s) return "";
+    return encodeURIComponent(
+      s
+        .toString()
+        .trim()
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[\s\_]+/g, "-")
+        .replace(/[^\w\-]+/g, "")
+        .replace(/\-\-+/g, "-")
+    );
+  };
+
+  // Convert slug back to human readable (german-shepherd -> German Shepherd)
+  const unSlug = (s?: string) => {
+    if (!s) return "";
+    try {
+      const dec = decodeURIComponent(s);
+      const words = dec
+        .replace(/-/g, " ")
+        .replace(/_/g, " ")
+        .trim()
+        .split(/\s+/)
+        .map((w) => (w.length ? w[0].toUpperCase() + w.slice(1) : w));
+      return words.join(" ");
+    } catch {
+      return s.replace(/-/g, " ");
+    }
+  };
   const handleBuyNow = () => {
     setSelectedPet(pet);
+    
+    // Get the exact ID
+    const petId = pet._id || pet.id;
+    const petName = pet.petName || pet.name || pet.title || "Pet";
+    const petBreed = pet.breed || "cat"; // or dog based on your context
+    const petSlug = `${slugify(petName)}-${slugify(petBreed)}`;
+
     if (typeof window !== "undefined") {
       sessionStorage.setItem("selectedPetData", JSON.stringify(pet));
+      if (petId) {
+        sessionStorage.setItem("currentPetId", petId);
+      }
     }
-    const petId = pet._id || pet.id;
-    router.push(`/checkout${petId ? `?petId=${petId}` : ""}`);
+
+    // Push to a clean slug route without exposing the raw ID in the query params
+    router.push(`/checkout/${petSlug}`);
   };
 
   return (

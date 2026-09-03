@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { FaShieldAlt, FaCreditCard, FaMoneyBillWave, FaArrowLeft, FaSpinner } from "react-icons/fa";
 import { useBuyStore } from "@/Store/buyStore";
@@ -9,13 +9,18 @@ import { authStore } from "@/Store/authStore";
 
 function CheckoutContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const petIdFromUrl = searchParams.get("petId");
 
-  const { selectedPet, setSelectedPet, checkoutDetails, setCheckoutDetails, processCheckout, loading, error } =
-    useBuyStore();
+  const {
+    selectedPet,
+    setSelectedPet,
+    checkoutDetails,
+    setCheckoutDetails,
+    processCheckout,
+    clearCheckout,
+    loading,
+    error,
+  } = useBuyStore();
 
-  // Pull both user and authUser to ensure compatibility regardless of store naming convention
   const { user, authUser } = authStore() as any;
   const activeUser = user || authUser;
 
@@ -24,28 +29,22 @@ function CheckoutContent() {
 
   useEffect(() => {
     const initCheckout = async () => {
-      // 1. Hydrate selectedPet from sessionStorage if missing
       if (!selectedPet && typeof window !== "undefined") {
         const storedPet = sessionStorage.getItem("selectedPetData");
+        const storedPetId = sessionStorage.getItem("currentPetId");
+
         if (storedPet) {
           try {
             const parsedPet = JSON.parse(storedPet);
-            if (!petIdFromUrl || parsedPet._id === petIdFromUrl || parsedPet.id === petIdFromUrl) {
-              useBuyStore.setState({ selectedPet: parsedPet });
-            }
+            useBuyStore.setState({ selectedPet: parsedPet });
           } catch (e) {
             console.error("Failed to parse stored pet data from sessionStorage", e);
           }
+        } else if (storedPetId) {
+          await setSelectedPet(storedPetId);
         }
       }
 
-      // 2. Handle Pet Selection from URL if still not selected
-      const currentSelected = useBuyStore.getState().selectedPet;
-      if (petIdFromUrl && (!currentSelected || currentSelected._id !== petIdFromUrl)) {
-        await setSelectedPet(petIdFromUrl);
-      }
-
-      // 3. Clear all form fields on load/reload, keeping ONLY the email
       setCheckoutDetails({
         fullName: "",
         phone: "",
@@ -59,7 +58,7 @@ function CheckoutContent() {
     };
 
     initCheckout();
-  }, [petIdFromUrl]); // Run only on initial mount/petId change so it clears fields on refresh/return
+  }, []);
 
   if (isInitializing) {
     return (
@@ -91,34 +90,86 @@ function CheckoutContent() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setCheckoutDetails({ [e.target.name]: e.target.value });
-    if (formError) setFormError(""); 
+    if (formError) setFormError("");
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormError("");
-
+  const validateShippingFields = () => {
     const currentEmail = activeUser?.email || checkoutDetails.email;
 
-    if (!checkoutDetails.fullName || !currentEmail || !checkoutDetails.phone || !checkoutDetails.address || !checkoutDetails.city) {
+    if (
+      !checkoutDetails.fullName ||
+      !currentEmail ||
+      !checkoutDetails.phone ||
+      !checkoutDetails.address ||
+      !checkoutDetails.city
+    ) {
       setFormError("Please fill out all required shipping and contact fields.");
-      return;
+      return null;
     }
 
+    return currentEmail;
+  };
+
+  const handleOnlinePayment = async () => {
+    setFormError("");
+    const currentEmail = validateShippingFields();
+    if (!currentEmail) return;
+
+    setCheckoutDetails({ paymentMethod: "ONLINE", email: currentEmail });
+
     try {
-      const redirectUrl = await processCheckout();
+      const redirectUrl = await processCheckout("ONLINE");
+
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("lastOrderType", "ONLINE");
+      }
+
       if (redirectUrl) {
+        // Note: cart/checkout state is intentionally NOT cleared here.
+        // Stripe payment isn't confirmed yet — the order is only marked
+        // PAID after verifyAndCompleteOrder runs on the success page.
+        // Clear it there instead, once payment is actually confirmed.
         window.location.href = redirectUrl;
+      } else {
+        throw new Error("Stripe redirect URL not received from server.");
       }
     } catch (err: any) {
-      console.error("Checkout submission error:", err);
+      console.error("Online checkout error:", err);
+      setFormError(err?.message || "Something went wrong starting your payment. Please try again.");
     }
   };
 
-  const petImage = 
-    selectedPet?.images?.[0] || 
-    selectedPet?.image || 
-    selectedPet?.petImage || 
+  const handleCodPayment = async () => {
+    setFormError("");
+    const currentEmail = validateShippingFields();
+    if (!currentEmail) return;
+
+    setCheckoutDetails({ paymentMethod: "COD", email: currentEmail });
+
+    try {
+      // processCheckout now returns the backend's clean success URL
+      // (e.g. "/orders/success?type=cod") instead of us hardcoding one.
+      const successUrl = await processCheckout("COD");
+
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("lastOrderType", "COD");
+      }
+
+      // COD orders are confirmed immediately server-side, so it's safe
+      // to clear the cart/checkout state right away.
+      clearCheckout();
+
+      router.push(successUrl || "/orders/success?type=cod");
+    } catch (err: any) {
+      console.error("COD checkout error:", err);
+      setFormError(err?.message || "Something went wrong placing your order. Please try again.");
+    }
+  };
+
+  const petImage =
+    selectedPet?.images?.[0] ||
+    selectedPet?.image ||
+    selectedPet?.petImage ||
     "https://via.placeholder.com/200";
 
   return (
@@ -136,7 +187,7 @@ function CheckoutContent() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
-          <form onSubmit={handleSubmit} className="md:col-span-2 space-y-6">
+          <div className="md:col-span-2 space-y-6">
 
             <div className="space-y-4">
               <h2 className="text-lg font-bold text-gray-800 border-b pb-2">1. Shipping & Contact Information</h2>
@@ -162,7 +213,7 @@ function CheckoutContent() {
                   type="email"
                   name="email"
                   required
-                  disabled
+                  readOnly
                   value={activeUser?.email || checkoutDetails.email || ""}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-100 text-gray-600 font-medium cursor-not-allowed text-sm"
                 />
@@ -222,64 +273,45 @@ function CheckoutContent() {
               </div>
             </div>
 
-            <div className="space-y-4 pt-4">
-              <h2 className="text-lg font-bold text-gray-800 border-b pb-2">2. Payment Method</h2>
-
-              <div className="grid grid-cols-2 gap-4">
-                <label
-                  className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 cursor-pointer transition-all ${
-                    checkoutDetails.paymentMethod === "ONLINE"
-                      ? "border-(--color-primary) bg-(--color-primary)/10"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="ONLINE"
-                    checked={checkoutDetails.paymentMethod === "ONLINE"}
-                    onChange={handleInputChange}
-                    className="sr-only"
-                  />
-                  <FaCreditCard className="text-2xl mb-2 text-gray-800" />
-                  <span className="font-bold text-sm">Online (Stripe)</span>
-                  <span className="text-xs text-gray-400">Instant Checkout</span>
-                </label>
-
-                <label
-                  className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 cursor-pointer transition-all ${
-                    checkoutDetails.paymentMethod === "COD"
-                      ? "border-(--color-primary) bg-(--color-primary)/10"
-                      : "border-gray-200 hover:border-gray-300"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="COD"
-                    checked={checkoutDetails.paymentMethod === "COD"}
-                    onChange={handleInputChange}
-                    className="sr-only"
-                  />
-                  <FaMoneyBillWave className="text-2xl mb-2 text-gray-800" />
-                  <span className="font-bold text-sm">Cash on Delivery</span>
-                  <span className="text-xs text-gray-400">Pay upon arrival</span>
-                </label>
-              </div>
-            </div>
-
             {(formError || error) && (
               <p className="text-red-500 text-xs font-semibold">{formError || error}</p>
             )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-4 bg-(--color-primary) text-black font-extrabold rounded-2xl shadow-lg hover:scale-102 transition-transform text-base cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              {loading ? <FaSpinner className="animate-spin text-xl" /> : `Confirm & Pay PKR ${selectedPet.price}`}
-            </button>
-          </form>
+            <div className="space-y-3 pt-4 border-t">
+              <h2 className="text-lg font-bold text-gray-800 pb-1">2. Choose Payment & Complete Order</h2>
+
+              <button
+                type="button"
+                disabled={loading}
+                onClick={handleOnlinePayment}
+                className="w-full py-4 bg-black text-white font-extrabold rounded-2xl shadow-lg hover:bg-gray-800 transition-all text-base cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {loading && checkoutDetails.paymentMethod === "ONLINE" ? (
+                  <FaSpinner className="animate-spin text-xl" />
+                ) : (
+                  <>
+                    <FaCreditCard className="text-orange-400" /> Pay Online with Stripe (PKR {selectedPet.price})
+                  </>
+                )}
+              </button>
+
+              <button
+                type="button"
+                disabled={loading}
+                onClick={handleCodPayment}
+                className="w-full py-4 bg-(--color-primary) text-black font-extrabold rounded-2xl shadow-lg hover:scale-102 transition-transform text-base cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50 border border-black/10"
+              >
+                {loading && checkoutDetails.paymentMethod === "COD" ? (
+                  <FaSpinner className="animate-spin text-xl" />
+                ) : (
+                  <>
+                    <FaMoneyBillWave className="text-black" /> Confirm Cash on Delivery (PKR {selectedPet.price})
+                  </>
+                )}
+              </button>
+            </div>
+
+          </div>
 
           <div className="bg-gray-50 p-6 rounded-2xl border border-gray-100 flex flex-col justify-between h-fit">
             <div>
@@ -312,7 +344,7 @@ function CheckoutContent() {
             </div>
 
             <div className="mt-8 pt-4 border-t text-xs text-gray-400 flex items-center gap-2">
-              <FaShieldAlt className="text-green-500 text-base shrink-0" /> Secured with industry-grade encryption & idempotency safeguards.
+              <FaShieldAlt className="text-green-500 text-base shrink-0" /> Secured with encryption & secure session storage.
             </div>
           </div>
 

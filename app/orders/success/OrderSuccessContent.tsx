@@ -4,15 +4,14 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { FaCheckCircle, FaHome, FaSpinner } from "react-icons/fa";
 import { useEffect, useState, Suspense } from "react";
 import { useBuyStore } from "@/Store/buyStore";
-import { api } from "@/utils/api/axiosInstance"; // 👈 Using your centralized API instance
+import { api } from "@/utils/api/axiosInstance";
 
 function OrderSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const type = searchParams.get("type"); // 'cod' or null for online
   const sessionId = searchParams.get("session_id");
-  const orderId = searchParams.get("orderId");
-  
+
   const clearCheckout = useBuyStore((state) => state.clearCheckout);
   const [verifying, setVerifying] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<string>("");
@@ -29,11 +28,13 @@ function OrderSuccessContent() {
       if (sessionId) {
         setVerifying(true);
         try {
-          // Using the centralized api instance instead of raw axios and localhost strings
+          // `api` uses your axios instance's baseURL, so this automatically
+          // hits your local backend in dev and your deployed backend in
+          // production — no hardcoded host here.
           const response = await api.get(
-            `/api/orders/verify-payment?session_id=${sessionId}&orderId=${orderId}`
+            `/api/orders/verify-payment?session_id=${sessionId}`
           );
-          
+
           if (isMounted && response.data.success) {
             setVerificationStatus("Payment verified & status updated to PAID!");
           }
@@ -58,7 +59,7 @@ function OrderSuccessContent() {
     return () => {
       isMounted = false;
     };
-  }, [sessionId, orderId, type, clearCheckout]);
+  }, [sessionId, type, clearCheckout]);
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center py-12 px-4 bg-gray-50 mt-16">
@@ -96,11 +97,13 @@ function OrderSuccessContent() {
 
 export default function OrderSuccessPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
-        <FaSpinner className="animate-spin text-green-600 text-4xl" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
+          <FaSpinner className="animate-spin text-green-600 text-4xl" />
+        </div>
+      }
+    >
       <OrderSuccessContent />
     </Suspense>
   );

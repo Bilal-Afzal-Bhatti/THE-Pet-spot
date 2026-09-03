@@ -1,9 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import axios from "axios";
 import { api } from "@/utils/api/axiosInstance"; // Centralized API instance
-// Get current hostname safely for client-side evaluation
-
 
 interface CheckoutDetails {
   fullName: string;
@@ -26,7 +23,10 @@ interface BuyState {
   setCheckoutDetails: (details: Partial<CheckoutDetails>) => void;
   clearCheckout: () => void;
   generateIdempotencyKey: () => string;
-  processCheckout: () => Promise<string | null>;
+  // Returns a redirect/success URL for BOTH payment methods now.
+  // ONLINE -> Stripe hosted checkout URL
+  // COD    -> backend-provided clean success URL (e.g. /orders/success?type=cod)
+  processCheckout: (method?: "ONLINE" | "COD") => Promise<string | null>;
 }
 
 export const useBuyStore = create<BuyState>()(
@@ -53,7 +53,6 @@ export const useBuyStore = create<BuyState>()(
           idempotencyKey: newKey,
           checkoutDetails: {
             ...state.checkoutDetails,
-            // Automatically patch email if passed or keep existing
             email: userEmail || state.checkoutDetails.email,
           },
         }));
@@ -86,22 +85,27 @@ export const useBuyStore = create<BuyState>()(
         return key;
       },
 
-      processCheckout: async () => {
+      processCheckout: async (method) => {
         const { selectedPet, checkoutDetails, idempotencyKey } = get();
         if (!selectedPet) throw new Error("No pet selected for purchase.");
 
-        set({ loading: true, error: null });
+        const finalPaymentMethod = method || checkoutDetails.paymentMethod;
+        const finalCheckoutDetails = {
+          ...checkoutDetails,
+          paymentMethod: finalPaymentMethod,
+        };
+
+        set({ loading: true, error: null, checkoutDetails: finalCheckoutDetails });
         const currentKey = idempotencyKey || get().generateIdempotencyKey();
 
-        const extractedImage = 
-          selectedPet.images?.[0] || 
-          selectedPet.image || 
-          selectedPet.imageUrl || 
-          selectedPet.petImage || 
+        const extractedImage =
+          selectedPet.images?.[0] ||
+          selectedPet.image ||
+          selectedPet.imageUrl ||
+          selectedPet.petImage ||
           "";
 
         try {
-          // Using the centralized api instance instead of raw axios
           const response = await api.post(
             `/api/orders/checkout`,
             {
@@ -109,7 +113,7 @@ export const useBuyStore = create<BuyState>()(
               title: selectedPet.name || selectedPet.title || selectedPet.breed,
               price: selectedPet.price,
               petImage: extractedImage,
-              customerInfo: checkoutDetails,
+              customerInfo: finalCheckoutDetails,
             },
             {
               headers: {
@@ -119,9 +123,40 @@ export const useBuyStore = create<BuyState>()(
           );
 
           set({ loading: false });
-          return response.data.url || response.data.successUrl;
+
+          if (finalPaymentMethod === "ONLINE") {
+            const redirectUrl = response.data?.url;
+            if (!redirectUrl || typeof redirectUrl !== "string" || !redirectUrl.startsWith("http")) {
+              throw new Error("Invalid payment gateway redirect URL received from server.");
+            }
+            return redirectUrl;
+          }
+
+          // COD: use the clean, backend-provided success URL instead of
+          // silently discarding it. Falls back to a sane default just in
+          // case an older backend response doesn't include successUrl.
+          const codSuccessUrl =
+            typeof response.data?.successUrl === "string" && response.data.successUrl.length > 0
+              ? response.data.successUrl
+              : "/orders/success?type=cod";
+
+          return codSuccessUrl;
         } catch (err: any) {
-          const errorMsg = err.response?.data?.message || err.message || "Checkout failed.";
+          if (!err.response) {
+            console.error("Axios Network Error / CORS Block detected:", {
+              message: err.message,
+              code: err.code,
+            });
+          }
+
+          const errorMsg =
+            err.response?.data?.message ||
+            (err.message === "Network Error"
+              ? "Network Error: Please check if backend server is running and allows custom headers (CORS)."
+              : null) ||
+            err.message ||
+            "Checkout failed.";
+
           set({ error: errorMsg, loading: false });
           throw new Error(errorMsg);
         }
