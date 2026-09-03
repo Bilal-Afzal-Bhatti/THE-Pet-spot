@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import {
   FaWeight,
   FaRulerVertical,
@@ -12,105 +12,64 @@ import {
   FaShieldAlt,
 } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-
-// 🐱 Sample Cat Breed Data (replace with your real data later)
-const catBreeds = [
-  {
-    id: 1,
-    name: "Persian",
-    image:
-      "https://www.pexels.com/photo/white-persian-cat-lying-on-floor-1056251/",
-    maxWeight: "7 kg",
-    maxHeight: "25 cm",
-    maxLife: "15 years",
-    suitableFor: ["Family", "Kids", "New Owner"],
-  },
-  {
-    id: 2,
-    name: "Maine Coon",
-    image:
-      "https://www.istockphoto.com/photo/maine-coon-cat-sitting-on-white-background-gm1138453450-303798164",
-    maxWeight: "11 kg",
-    maxHeight: "40 cm",
-    maxLife: "13 years",
-    suitableFor: ["Family", "Couple"],
-  },
-  {
-    id: 3,
-    name: "Bengal",
-    image: "https://unsplash.com/photos/bengal-cat-on-window-sill-4qf1vZf8z5o",
-    maxWeight: "8 kg",
-    maxHeight: "35 cm",
-    maxLife: "16 years",
-    suitableFor: ["Couple", "Citizen", "Security"],
-  },
-  {
-    id: 4,
-    name: "Siamese",
-    image:
-      "https://www.pexels.com/photo/siamese-cat-sitting-on-white-surface-326875/",
-    maxWeight: "6 kg",
-    maxHeight: "30 cm",
-    maxLife: "14 years",
-    suitableFor: ["Family", "New Owner", "Kids"],
-  },
-  {
-    id: 5,
-    name: "Ragdoll",
-    image:
-      "https://www.gettyimages.com/detail/photo/ragdoll-cat-royalty-free-image/1280729986",
-    maxWeight: "9 kg",
-    maxHeight: "38 cm",
-    maxLife: "17 years",
-    suitableFor: ["Couple", "Family"],
-  },
-  {
-    id: 6,
-    name: "Sphynx",
-    image:
-      "https://unsplash.com/photos/gray-sphynx-cat-on-white-textile-4qf1vZf8z5o",
-    maxWeight: "6 kg",
-    maxHeight: "25 cm",
-    maxLife: "14 years",
-    suitableFor: ["Citizen", "Couple"],
-  },
-];
+import { useBreedStore } from "@/Store/BreedStore";
 
 export default function CatBreedListing() {
-  const [selectedPetType, setSelectedPetType] = useState<string>("Cat");
-
-  const [selectedBreed, setSelectedBreed] = useState<string>("");
   const router = useRouter();
+  
+  const {
+    breeds,
+    loading,
+    category,
+    search,
+    setCategory,
+    setSearch,
+    fetchBreeds,
+  } = useBreedStore();
 
-  const handleBreedClick = (breed: string) => {
-    setSelectedBreed(breed);
-    const slug = breed.toLowerCase().replace(/ /g, "-");
+  useEffect(() => {
+    setCategory("cat");
+    fetchBreeds();
+  }, []);
+
+  const handleBreedClick = (breedName: string) => {
+    const slug = breedName.toLowerCase().replace(/ /g, "-");
     router.push(`/cat-breed/${slug}`);
   };
 
   const getSuitableIcon = (type: string) => {
-    switch (type) {
+    switch (type?.trim()) {
       case "Couple":
+      case "COUPLE":
         return <FaUsers className="text-gray-400" />;
       case "New Owner":
+      case "NEW OWNER":
         return <FaBaby className="text-gray-400" />;
       case "Kids":
+      case "KIDS":
         return <FaChild className="text-orange-400" />;
       case "Family":
+      case "FAMILY":
         return <FaHome className="text-gray-400" />;
       case "Citizen":
+      case "CITIZEN":
         return <FaUserTie className="text-gray-700" />;
       case "Security":
+      case "SECURITY":
         return <FaShieldAlt className="text-green-500" />;
+      case "Single":
+      case "SINGLE":
+        return <FaUsers className="text-blue-400" />;
       default:
-        return null;
+        return <FaHome className="text-gray-400" />;
     }
   };
 
   const handlePetTypeClick = (pet: string) => {
-    setSelectedPetType(pet);
+    const formattedPet = pet.toLowerCase();
+    setCategory(formattedPet);
+    fetchBreeds();
 
-    // Navigate based on pet type
     switch (pet) {
       case "Dog":
         router.push("/dog-breed");
@@ -124,6 +83,16 @@ export default function CatBreedListing() {
       default:
         break;
     }
+  };
+
+  // Helper to parse suitableFor whether it's a string or an array in the DB
+  const getSuitableArray = (suitableFor: any) => {
+    if (!suitableFor) return [];
+    if (Array.isArray(suitableFor)) return suitableFor;
+    if (typeof suitableFor === "string") {
+      return suitableFor.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+    return [];
   };
 
   return (
@@ -140,8 +109,10 @@ export default function CatBreedListing() {
                 <div
                   key={pet}
                   onClick={() => handlePetTypeClick(pet)}
-                  className={`px-4 py-2 cursor-pointer rounded ${
-                    selectedPetType === pet ? "bg-gray-100" : "hover:bg-gray-50"
+                  className={`px-4 py-2 cursor-pointer rounded capitalize ${
+                    category.toLowerCase() === pet.toLowerCase()
+                      ? "bg-gray-100 font-medium"
+                      : "hover:bg-gray-50"
                   }`}
                 >
                   {pet}
@@ -156,120 +127,146 @@ export default function CatBreedListing() {
           {/* Search bar */}
           <input
             type="text"
-            value={selectedBreed}
-            onChange={(e) => setSelectedBreed(e.target.value)}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="Search breed..."
             className="w-full px-4 py-2 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-cyan-500"
           />
 
-          {/* Filtered List */}
+          {/* Filtered List from Backend */}
           <div className="space-y-1 max-h-96 overflow-y-auto border-l-4 border-yellow-400 pl-4">
-            {catBreeds
-              .filter((breed) =>
-                breed.name.toLowerCase().includes(selectedBreed.toLowerCase())
-              )
-              .map((breed) => (
+            {loading ? (
+              <p className="text-sm text-gray-400 py-2">Loading breeds...</p>
+            ) : breeds.length === 0 ? (
+              <p className="text-sm text-gray-400 py-2">No breeds found</p>
+            ) : (
+              breeds.map((breed) => (
                 <div
-                  key={breed.id}
+                  key={breed._id}
                   onClick={() => handleBreedClick(breed.name)}
                   className={`px-3 py-2 cursor-pointer rounded ${
-                    selectedBreed === breed.name
+                    search === breed.name
                       ? "bg-gray-100 font-medium"
                       : "hover:bg-gray-50"
                   }`}
                 >
                   {breed.name}
                 </div>
-              ))}
+              ))
+            )}
           </div>
         </div>
 
-        {/* Breed Cards */}
+        {/* Breed Cards Grid */}
         <div className="flex-1">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {catBreeds.map((breed) => (
-              <div
-                key={breed.id}
-                onClick={() => handleBreedClick(breed.name)}
-                className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
-              >
-                {/* Image */}
-                <div className="relative h-56 bg-gradient-to-br from-pink-100 to-blue-100">
-                  <img
-                    src={breed.image}
-                    alt={breed.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <p className="text-gray-500 font-medium">Loading catalog data from server...</p>
+            </div>
+          ) : breeds.length === 0 ? (
+            <div className="bg-white rounded-2xl shadow-md p-8 text-center">
+              <p className="text-gray-500">No pet breeds available matching your filter.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {breeds.map((breed) => {
+                const suitableList = getSuitableArray(breed.suitableFor);
 
-                {/* Content */}
-                <div className="p-5">
-                  <h3 className="text-cyan-600 font-semibold text-lg mb-4">
-                    {breed.name}
-                  </h3>
-
-                  {/* Stats */}
-                  <div className="grid grid-cols-3 gap-3 mb-4">
-                    <div className="flex items-start gap-2">
-                      <div className="w-6 h-6 bg-cyan-500 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <FaWeight className="text-white text-xs" />
-                      </div>
-                      <div className="text-xs">
-                        <div className="text-cyan-600 font-medium">
-                          Max-Weight
-                        </div>
-                        <div className="text-gray-700">{breed.maxWeight}</div>
-                      </div>
+                return (
+                  <div
+                    key={breed._id}
+                    onClick={() => handleBreedClick(breed.name)}
+                    className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
+                  >
+                    {/* Image */}
+                    <div className="relative h-56 bg-linear-to-br from-pink-100 to-blue-100">
+                      <img
+                        src={breed.image || "https://via.placeholder.com/400"}
+                        alt={breed.name}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
 
-                    <div className="flex items-start gap-2">
-                      <div className="w-6 h-6 bg-cyan-500 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <FaRulerVertical className="text-white text-xs" />
-                      </div>
-                      <div className="text-xs">
-                        <div className="text-cyan-600 font-medium">
-                          Max-Height
-                        </div>
-                        <div className="text-gray-700">{breed.maxHeight}</div>
-                      </div>
-                    </div>
+                    {/* Content */}
+                    <div className="p-5">
+                      <h3 className="text-cyan-600 font-semibold text-lg mb-4">
+                        {breed.name}
+                      </h3>
 
-                    <div className="flex items-start gap-2">
-                      <div className="w-6 h-6 bg-cyan-500 rounded flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <FaClock className="text-white text-xs" />
-                      </div>
-                      <div className="text-xs">
-                        <div className="text-cyan-600 font-medium">
-                          Max-Life
-                        </div>
-                        <div className="text-gray-700">{breed.maxLife}</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Suitable For */}
-                  <div>
-                    <h4 className="text-cyan-600 font-medium text-sm mb-3">
-                      Suitable For
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {breed.suitableFor.map((type) => (
-                        <div
-                          key={type}
-                          className="flex flex-col items-center gap-1"
-                        >
-                          <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                            {getSuitableIcon(type)}
+                      {/* Stats with Fallback Resolvers matching DB fields */}
+                      <div className="grid grid-cols-3 gap-3 mb-4">
+                        <div className="flex items-start gap-2">
+                          <div className="w-6 h-6 bg-cyan-500 rounded flex items-center justify-center shrink-0 mt-0.5">
+                            <FaWeight className="text-white text-xs" />
                           </div>
-                          <span className="text-xs text-gray-600">{type}</span>
+                          <div className="text-xs">
+                            <div className="text-cyan-600 font-medium">
+                              Max-Weight
+                            </div>
+                            <div className="text-gray-700">
+                              {breed.maxWeight || breed.weight || "N/A"}
+                            </div>
+                          </div>
                         </div>
-                      ))}
+
+                        <div className="flex items-start gap-2">
+                          <div className="w-6 h-6 bg-cyan-500 rounded flex items-center justify-center shrink-0 mt-0.5">
+                            <FaRulerVertical className="text-white text-xs" />
+                          </div>
+                          <div className="text-xs">
+                            <div className="text-cyan-600 font-medium">
+                              Max-Height
+                            </div>
+                            <div className="text-gray-700">
+                              {breed.maxHeight || breed.height || "N/A"}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-2">
+                          <div className="w-6 h-6 bg-cyan-500 rounded flex items-center justify-center shrink-0 mt-0.5">
+                            <FaClock className="text-white text-xs" />
+                          </div>
+                          <div className="text-xs">
+                            <div className="text-cyan-600 font-medium">
+                              Max-Life
+                            </div>
+                            <div className="text-gray-700">
+                              {breed.maxlife || breed.maxLife || breed.lifespan || breed.life || "N/A"}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Suitable For */}
+                      <div>
+                        <h4 className="text-cyan-600 font-medium text-sm mb-3">
+                          Suitable For
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {suitableList.length > 0 ? (
+                            suitableList.map((type: string) => (
+                              <div
+                                key={type}
+                                className="flex flex-col items-center gap-1"
+                              >
+                                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                                  {getSuitableIcon(type)}
+                                </div>
+                                <span className="text-xs text-gray-600">{type}</span>
+                              </div>
+                            ))
+                          ) : (
+                            <span className="text-xs text-gray-400">General</span>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -52,7 +52,7 @@ export default function DogBreedHeroSection() {
     <section
       className="relative h-[40vh] w-full flex items-start justify-center text-white" style={{background: "var(--gradient-hero)"}}
     >
-      <div className="relative z-20 mt-32 w-full max-w-[1100px] text-center px-6">
+      <div className="relative z-20 mt-32 w-full max-w-275 text-center px-6">
         <h1 className="text-4xl md:text-4xl font-semibold mb-6 drop-shadow-lg">
           Pets Complete Your Family
         </h1>
@@ -66,7 +66,7 @@ export default function DogBreedHeroSection() {
               setSelectedPet(e.target.value);
               setSelectedBreed(""); // reset breed when pet type changes
             }}
-            className="rounded-sm outline-none font-semibold bg-white p-3 w-full md:w-[250px] text-gray-700"
+            className="rounded-sm outline-none font-semibold bg-white p-3 w-full md:w-62.5 text-gray-700"
           >
             <option value="">Select Pet Type</option>
             <option value="Dogs">Dogs</option>
@@ -78,7 +78,7 @@ export default function DogBreedHeroSection() {
             value={selectedBreed}
             onChange={(e) => setSelectedBreed(e.target.value)}
             disabled={!selectedPet}
-            className={`rounded-sm outline-none font-semibold p-3 w-full md:w-[250px] ${
+            className={`rounded-sm outline-none font-semibold p-3 w-full md:w-62.5 ${
               selectedPet
                 ? "bg-white text-gray-700"
                 : "bg-gray-200 text-gray-400 cursor-not-allowed"

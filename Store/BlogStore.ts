@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import axios from "axios";
+import { api } from "@/utils/api/axiosInstance"; // Centralized API instance
 
 interface BlogStoreType {
   blogsAll: any[];
@@ -14,14 +14,11 @@ interface BlogStoreType {
   singleBlog: any | null; // For single blog
 
   fetchBlogs: (category?: string, page?: number) => Promise<void>;
-  fetchSingleBlog: (slug: string) => Promise<void>; // New method
+  fetchSingleBlog: (slug: string) => Promise<void>;
   setPage: (page: number) => void;
 }
 
-const Base_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3000";
-
-export const BlogStore = create<BlogStoreType>((set, get) => ({
+export const BlogStore = create<BlogStoreType>((set) => ({
   blogsAll: [],
   blogsDogs: [],
   blogsCats: [],
@@ -38,49 +35,66 @@ export const BlogStore = create<BlogStoreType>((set, get) => ({
     try {
       set({ loading: true, error: null });
 
-      const url = `${Base_URL}/api/admin/blogs/get-all?category=${category}&page=${page}&limit=10`;
-      const response = await axios.get(url);
+      // Using your backend query parameters: category, page, limit
+      const response = await api.get("/api/admin/blogs", {
+        params: {
+          category: category && category !== "all" ? category : undefined,
+          page,
+          limit: 10,
+        },
+      });
+
       const data = response.data;
-      console.log(data);
-      if (!data) return set({ error: "Failed to fetch blogs", loading: false });
+      if (!data) {
+        return set({ error: "Failed to fetch blogs", loading: false });
+      }
 
       const blogs = data.blogs || [];
-      const pagination = data.pagination || {};
 
-      if (category === "dogs") set({ blogsDogs: blogs });
-      else if (category === "cats") set({ blogsCats: blogs });
-      else set({ blogsAll: blogs });
+      // Categorize state update matching "dog-care" and "cat-care" variants
+      if (category === "dogs" || category === "dog-care") {
+        set({ blogsDogs: blogs });
+      } else if (category === "cats" || category === "cat-care") {
+        set({ blogsCats: blogs });
+      } else {
+        set({ blogsAll: blogs });
+      }
 
       set({
-        page: pagination.page || page,
-        totalPages: pagination.totalPages || 1,
+        page: data.page || page,
+        totalPages: data.pages || 1,
       });
 
       console.log("Fetched blogs successfully:", blogs);
     } catch (err: any) {
-      set({ error: err.message || "Something went wrong", loading: false });
+      set({ 
+        error: err.response?.data?.message || err.message || "Something went wrong", 
+        loading: false 
+      });
     } finally {
       set({ loading: false });
     }
   },
 
-  // ✅ Fetch a single blog by slug
+  // ✅ Fetch a single blog by slug using custom axios instance
   fetchSingleBlog: async (slug: string) => {
     try {
       set({ loading: true, error: null, singleBlog: null });
-      // http://localhost:8000/api/admin/blogs/get-single/the-joys-and-challenges-of-owning-a-pet
-      const url = `${Base_URL}/api/admin/blogs/get-single/${slug}`;
-      const response = await axios.get(url);
+      
+      const response = await api.get(`/api/admin/blogs/get-single/${slug}`);
       const data = response.data;
 
-      if (!data || !data.success) {
+      if (!data || (!data.success && !data.blog)) {
         return set({ error: "Failed to fetch the blog", loading: false });
       }
 
-      set({ singleBlog: data.blog });
-      console.log("Fetched single blog:", data.blog);
+      set({ singleBlog: data.blog || data });
+      console.log("Fetched single blog:", data.blog || data);
     } catch (err: any) {
-      set({ error: err.message || "Something went wrong", loading: false });
+      set({ 
+        error: err.response?.data?.message || err.message || "Something went wrong", 
+        loading: false 
+      });
     } finally {
       set({ loading: false });
     }

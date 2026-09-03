@@ -24,7 +24,12 @@ const nextConfig = {
         hostname: "images.unsplash.com",
       },
       {
-        // 4. Vercel Blob storage (ad images & avatars now uploaded here)
+        // 4. Google thumbnail / encrypted images domain
+        protocol: "https",
+        hostname: "encrypted-tbn0.gstatic.com",
+      },
+      {
+        // 5. Vercel Blob storage (ad images & avatars now uploaded here)
         protocol: "https",
         hostname: "*.public.blob.vercel-storage.com",
       },

@@ -6,94 +6,113 @@ import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { BlogStore } from "@/Store/BlogStore";
 
-export default function CatsCareMainSection() {
+export default function DogsCareMainSection() {
   const router = useRouter();
-  const { blogsCats, fetchBlogs, page, setPage, totalPages, loading, error } =
+  const { blogsDogs, fetchBlogs, page, setPage, totalPages, loading, error } =
     BlogStore();
   const [index, setIndex] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
 
-  // Prevent hydration mismatch by confirming client-side mount
+  // Prevent hydration mismatch by tracking client mount
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  // ⭐ Fetch Cats blogs from API on page change
+  // ⭐ Fetch Dog Care blogs from API using the exact database category key
   useEffect(() => {
-    fetchBlogs("cat-care", page);
+    fetchBlogs("dog-care", page);
   }, [page]);
+
+  // Reset slider index if blogs list changes or shrinks
+  useEffect(() => {
+    setIndex(0);
+  }, [blogsDogs.length]);
+
+  const nextSlide = () => {
+    if (blogsDogs.length === 0) return;
+    setIndex((prev) => (prev + 1) % blogsDogs.length);
+  };
+
+  const prevSlide = () => {
+    if (blogsDogs.length === 0) return;
+    setIndex((prev) => (prev - 1 + blogsDogs.length) % blogsDogs.length);
+  };
 
   const goToBlog = (slug: string) => {
     router.push(`/blog/${slug}`); // Navigate to single blog page
   };
 
-  // Get the featured blog and remaining blogs dynamically from state
-  const featuredBlog = blogsCats[index] || blogsCats[0];
-  const gridBlogs = blogsCats;
-
-  const nextSlide = () => {
-    if (blogsCats.length === 0) return;
-    setIndex((prev) => (prev + 1) % Math.min(blogsCats.length, 3));
-  };
-  
-  const prevSlide = () => {
-    if (blogsCats.length === 0) return;
-    setIndex((prev) => (prev - 1 + Math.min(blogsCats.length, 3)) % Math.min(blogsCats.length, 3));
-  };
+  // Get current slide blog dynamically from DB data
+  const currentFeaturedBlog = blogsDogs[index];
 
   return (
     <section className="max-w-6xl mx-auto py-10 flex flex-col lg:flex-row gap-10">
       {/* LEFT: Main Blog Area */}
       <div className="w-full lg:w-2/3">
-        {/* Featured blog slider */}
-        {featuredBlog && (
-          <div className="relative mb-8 cursor-pointer" onClick={() => goToBlog(featuredBlog.slug)}>
+        {/* Featured blog slider using DB data */}
+        {blogsDogs.length > 0 && currentFeaturedBlog ? (
+          <div className="relative mb-8">
             <div className="relative w-full h-[350px] overflow-hidden rounded-md shadow bg-gray-100">
-              <button
-                onClick={(e) => { e.stopPropagation(); prevSlide(); }}
-                aria-label="Previous"
-                className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-gray-700 p-3 rounded-md shadow transition"
-              >
-                <FaArrowLeft />
-              </button>
+              {blogsDogs.length > 1 && (
+                <button
+                  onClick={prevSlide}
+                  aria-label="Previous"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-gray-700 p-3 rounded-md shadow transition"
+                >
+                  <FaArrowLeft />
+                </button>
+              )}
 
               <Image
-                src={featuredBlog.coverImage || featuredBlog.image || "https://images.unsplash.com/photo-1574158622682-e40e69881006"}
-                alt={featuredBlog.title || "Featured Blog"}
+                src={
+                  currentFeaturedBlog.coverImage ||
+                  currentFeaturedBlog.image ||
+                  "https://images.unsplash.com/photo-1552053831-71594a27632d"
+                }
+                alt={currentFeaturedBlog.title}
                 fill
-                className="w-full h-full object-cover transition-all duration-500 ease-in-out"
+                className="object-cover transition-all duration-500 ease-in-out cursor-pointer"
+                onClick={() => goToBlog(currentFeaturedBlog.slug)}
                 priority
               />
 
-              <button
-                onClick={(e) => { e.stopPropagation(); nextSlide(); }}
-                aria-label="Next"
-                className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-gray-700 p-3 rounded-md shadow transition"
-              >
-                <FaArrowRight />
-              </button>
+              {blogsDogs.length > 1 && (
+                <button
+                  onClick={nextSlide}
+                  aria-label="Next"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/80 hover:bg-white text-gray-700 p-3 rounded-md shadow transition"
+                >
+                  <FaArrowRight />
+                </button>
+              )}
             </div>
 
-            {/* Overlay dynamic text */}
-            <div className="absolute bottom-4 left-4 text-white drop-shadow-md pointer-events-none">
+            {/* Overlay text from DB */}
+            <div className="absolute bottom-4 left-4 text-white pointer-events-none drop-shadow-md">
               <span className="bg-yellow-500 text-xs px-2 py-1 rounded uppercase font-semibold">
-                {featuredBlog.category || "Cat Care"}
+                {currentFeaturedBlog.category || "Dog Care"}
               </span>
-              <h2 className="text-xl font-semibold mt-2 pointer-events-auto">
-                {featuredBlog.title}
+              <h2
+                onClick={() => goToBlog(currentFeaturedBlog.slug)}
+                className="text-xl font-semibold mt-2 cursor-pointer hover:underline pointer-events-auto"
+              >
+                {currentFeaturedBlog.title}
               </h2>
               <p className="text-sm mt-1">
-                {featuredBlog.author ? `By ${featuredBlog.author} | ` : ""} 
-                {isMounted && featuredBlog.createdAt 
-                  ? new Date(featuredBlog.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) 
+                By {currentFeaturedBlog.author || "Admin"} |{" "}
+                {isMounted && currentFeaturedBlog.createdAt
+                  ? new Date(currentFeaturedBlog.createdAt).toLocaleDateString("en-US", {
+                      month: "long",
+                      year: "numeric",
+                    })
                   : "Recent"}
               </p>
             </div>
           </div>
-        )}
+        ) : null}
 
         <div className="bg-[#018F98] block w-fit text-white text-lg font-semibold px-4 py-2 rounded-md mb-5">
-          Cat Care
+          Dog Care
         </div>
 
         {/* Loading */}
@@ -103,11 +122,11 @@ export default function CatsCareMainSection() {
         {error && <p className="text-red-600 py-4">{error}</p>}
 
         {/* Blog Grid */}
-        {!loading && !error && blogsCats.length === 0 ? (
-          <p className="text-gray-500 py-4">No cat care blogs found.</p>
+        {!loading && !error && blogsDogs.length === 0 ? (
+          <p className="text-gray-500 py-4">No dog care blogs found.</p>
         ) : (
           <div className="grid md:grid-cols-3 gap-3">
-            {gridBlogs.map((blog: any) => (
+            {blogsDogs.map((blog: any) => (
               <div
                 key={blog._id}
                 onClick={() => goToBlog(blog.slug)}
@@ -115,7 +134,11 @@ export default function CatsCareMainSection() {
               >
                 <div className="relative w-full h-48">
                   <Image
-                    src={blog.coverImage || blog.image || "https://images.unsplash.com/photo-1518791841217-8f162f1e1131"}
+                    src={
+                      blog.coverImage ||
+                      blog.image ||
+                      "https://images.unsplash.com/photo-1552053831-71594a27632d"
+                    }
                     alt={blog.title}
                     fill
                     className="object-cover"
@@ -126,7 +149,9 @@ export default function CatsCareMainSection() {
                     {blog.category}
                   </p>
                   <h3 className="font-semibold text-sm mt-1">{blog.title}</h3>
-                  <p className="text-xs text-gray-600 mt-1 line-clamp-2">{blog.excerpt}</p>
+                  <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                    {blog.excerpt}
+                  </p>
                 </div>
               </div>
             ))}
