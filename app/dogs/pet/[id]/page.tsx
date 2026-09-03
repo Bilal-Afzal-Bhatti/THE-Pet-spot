@@ -128,18 +128,18 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
     const petId = (pet._id || pet.id || resolvedParams.id || "").toString();
     const petBreed = pet.breed || "dog";
     const petSlug = pet.slug || `${slugify(pet.name)}-${slugify(petBreed)}-${petId.slice(-6)}`;
-console.log("Navigating to checkout with slug:", petSlug, "and petId:", petId);
+
     if (typeof window !== "undefined") {
+      // Use unique keys keyed by petId to prevent cross-contamination between cats and dogs
       sessionStorage.setItem(
-        "selectedPetData",
+        `selectedPetData_${petId}`,
         JSON.stringify({ ...pet, _id: petId, type: "Dog" })
       );
-      if (petId) {
-        sessionStorage.setItem("currentPetId", petId);
-      }
+      // Keep a fallback pointer referencing the active ID
+      sessionStorage.setItem("currentPetId", petId);
+      sessionStorage.setItem("currentPetType", "Dog");
     }
 
-    // Fixed routing sync to pass the slug as a search parameter matching your checkout page setup
     router.push(`/checkout/${petSlug}`);
   };
 
