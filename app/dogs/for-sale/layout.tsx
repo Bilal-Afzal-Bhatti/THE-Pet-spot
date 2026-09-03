@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-       "max-snippet": -1,
+      "max-snippet": -1,
       "max-image-preview": "large",
       "max-video-preview": -1,
     },
@@ -113,15 +113,18 @@ export default function DogsForSaleLayout({
     },
   };
 
+  // IMPORTANT: nested layouts must NOT render <html>/<head>/<body> —
+  // only app/layout.tsx (the root layout) is allowed to do that. Next.js
+  // automatically nests this layout's output inside the root layout's
+  // <body>, so returning another <html>/<body> here creates two of each
+  // in the final DOM, which is what triggered the hydration error.
   return (
-    <html lang="en">
-      <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
-        />
-      </head>
-      <body>{children}</body>
-    </html>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+      />
+      {children}
+    </>
   );
 }

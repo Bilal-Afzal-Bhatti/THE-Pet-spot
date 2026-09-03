@@ -7,9 +7,14 @@ import { FaCat, FaWeight, FaRulerVertical, FaHeartbeat, FaSyringe, FaCertificate
 import { SiWhatsapp } from "react-icons/si";
 import { useAdStore } from "@/Store/AdsStore";
 import { useBuyStore } from "@/Store/buyStore";
+import { api } from "@/utils/api/axiosInstance";
 
 const AUTO_SLIDE_INTERVAL_MS = 4000;
-const Base_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+// Derive the image host from the same axios instance used for API calls,
+// instead of a separate NEXT_PUBLIC_API_URL env var — keeps local vs
+// deployed environments in sync automatically rather than relying on two
+// env values that can drift apart.
+const Base_URL = api.defaults.baseURL || "http://localhost:5000";
 
 // Custom image helper function for cats
 const getCatImage = (pet: any) => {
@@ -110,6 +115,63 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
 
     return () => clearInterval(timer);
   }, [backendImages.length, isHovering]);
+
+  const slugify = (s?: string) => {
+    if (!s) return "";
+    return encodeURIComponent(
+      s
+        .toString()
+        .trim()
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[\s\_]+/g, "-")
+        .replace(/[^\w\-]+/g, "")
+        .replace(/\-\-+/g, "-")
+    );
+  };
+
+  // Convert slug back to human readable (german-shepherd -> German Shepherd).
+  // Not consumed on this page yet, but kept here for wherever the slug
+  // gets read back (e.g. a title/breadcrumb on the checkout page).
+  const unSlug = (s?: string) => {
+    if (!s) return "";
+    try {
+      const dec = decodeURIComponent(s);
+      const words = dec
+        .replace(/-/g, " ")
+        .replace(/_/g, " ")
+        .trim()
+        .split(/\s+/)
+        .map((w) => (w.length ? w[0].toUpperCase() + w.slice(1) : w));
+      return words.join(" ");
+    } catch {
+      return s.replace(/-/g, " ");
+    }
+  };
+
+  const handleBuyNow = () => {
+    const petId = (pet._id || pet.id || resolvedParams.id || "").toString();
+    const petBreed = pet.breed || "cat";
+    // Prefer a backend-provided slug if you add one later; otherwise build
+    // a readable one from name + breed, with a short id fragment so two
+    // pets with the same name/breed don't collide.
+    const petSlug = pet.slug || `${slugify(pet.name)}-${slugify(petBreed)}-${petId.slice(-6)}`;
+
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("selectedPetData", JSON.stringify({ ...pet, _id: petId }));
+      if (petId) {
+        sessionStorage.setItem("currentPetId", petId);
+      }
+    }
+
+    // IMPORTANT: this must match the checkout page's actual route.
+    // Checkout lives at app/checkout/page.tsx (no dynamic segment) and
+    // reads the slug from the query string — NOT from a /checkout/[slug]
+    // path. Pushing to /checkout/${petSlug} 404s because that route
+    // doesn't exist in the app.
+    router.push(`/checkout/${petSlug}`);
+   
+  };
 
   if (loading) {
     return (
@@ -401,7 +463,7 @@ export default function CatDetailPage({ params }: { params: Promise<{ id: string
               {/* Buy Now Checkout Button */}
               <button
                 type="button"
-                onClick={() => router.push(`/checkout?petId=${pet._id || resolvedParams.id}`)}
+                onClick={handleBuyNow}
                 className="w-full py-4 rounded-xl text-white font-semibold text-center shadow-md hover:opacity-95 transition-all transform active:scale-[0.99]"
                 style={{ background: "var(--gradient-hero)" }}
               >

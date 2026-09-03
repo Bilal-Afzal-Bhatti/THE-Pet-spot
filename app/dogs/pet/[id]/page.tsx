@@ -1,4 +1,5 @@
 "use client";
+// navigation -> dogs -> pet -> [id] -> page.tsx
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -7,11 +8,11 @@ import { FaDog, FaWeight, FaRulerVertical, FaHeartbeat, FaSyringe, FaCertificate
 import { SiWhatsapp } from "react-icons/si";
 import { useAdStore } from "@/Store/AdsStore";
 import { useBuyStore } from "@/Store/buyStore";
+import { api } from "@/utils/api/axiosInstance";
 
 const AUTO_SLIDE_INTERVAL_MS = 4000;
-const Base_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const Base_URL = api.defaults.baseURL || "http://localhost:5000";
 
-// Your custom image helper function
 const getPetImage = (pet: any) => {
   const rawPath =
     (typeof pet?.img === "string" && pet.img.trim() !== "" ? pet.img : null) ||
@@ -75,7 +76,6 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
     setLensPos({ x, y, bgX, bgY });
   };
 
-  // Resolve backend images array safely
   const rawImagesList = Array.isArray(pet?.images) && pet.images.length > 0 
     ? pet.images 
     : [pet?.img, pet?.image, pet?.petImage].filter(Boolean);
@@ -109,6 +109,39 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
 
     return () => clearInterval(timer);
   }, [backendImages.length, isHovering]);
+
+  const slugify = (s?: string) => {
+    if (!s) return "";
+    return encodeURIComponent(
+      s
+        .toString()
+        .trim()
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[\s\_]+/g, "-")
+        .replace(/[^\w\-]+/g, "")
+        .replace(/\-\-+/g, "-")
+    );
+  };
+
+  const handleBuyNow = () => {
+    const petId = (pet._id || pet.id || resolvedParams.id || "").toString();
+    const petBreed = pet.breed || "dog";
+    const petSlug = pet.slug || `${slugify(pet.name)}-${slugify(petBreed)}-${petId.slice(-6)}`;
+console.log("Navigating to checkout with slug:", petSlug, "and petId:", petId);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem(
+        "selectedPetData",
+        JSON.stringify({ ...pet, _id: petId, type: "Dog" })
+      );
+      if (petId) {
+        sessionStorage.setItem("currentPetId", petId);
+      }
+    }
+
+    // Fixed routing sync to pass the slug as a search parameter matching your checkout page setup
+    router.push(`/checkout/${petSlug}`);
+  };
 
   if (loading) {
     return (
@@ -159,8 +192,6 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
             
             {/* Left Column: Image Gallery */}
             <div className="space-y-6">
-              
-              {/* Main Image Container */}
               <div 
                 className="relative overflow-hidden rounded-2xl h-100 cursor-crosshair bg-gray-100 shadow-lg select-none"
                 onMouseEnter={() => {
@@ -221,7 +252,6 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
                 )}
               </div>
 
-              {/* Description Card */}
               {pet.description && (
                 <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                   <h3 className="text-lg font-semibold text-gray-800 mb-3">Description</h3>
@@ -229,7 +259,6 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
                 </div>
               )}
 
-              {/* Seller Info Card */}
               {pet.user && (
                 <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
                   <h3 className="text-lg font-semibold text-gray-800 mb-4">Seller Information</h3>
@@ -368,35 +397,10 @@ export default function DogDetailPage({ params }: { params: Promise<{ id: string
                 </div>
               </div>
 
-              {/* Suitable For Card */}
-              {pet.suitableFor && (
-                Array.isArray(pet.suitableFor) && pet.suitableFor.length > 0 ? (
-                  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Suitable For</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {pet.suitableFor.map((item: string, index: number) => (
-                        <span key={index} className="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-medium border border-orange-100">
-                          {item.trim()}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ) : typeof pet.suitableFor === 'string' && pet.suitableFor.trim() !== '' ? (
-                  <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3">Suitable For</h3>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="px-3 py-1 bg-orange-50 text-orange-700 rounded-full text-xs font-medium border border-orange-100">
-                        {pet.suitableFor}
-                      </span>
-                    </div>
-                  </div>
-                ) : null
-              )}
-
               {/* Buy Now Checkout Button */}
               <button
                 type="button"
-                onClick={() => router.push(`/checkout?petId=${pet._id || resolvedParams.id}`)}
+                onClick={handleBuyNow}
                 className="w-full py-4 rounded-xl text-white font-semibold text-center shadow-md hover:opacity-95 transition-all transform active:scale-[0.99]"
                 style={{ background: "var(--gradient-hero)" }}
               >

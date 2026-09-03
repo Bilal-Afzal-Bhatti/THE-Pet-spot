@@ -145,21 +145,21 @@ export default function PetDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto mt-12">
+   <div className="min-h-screen w-full flex justify-center px-4 sm:px-6 py-5 pb-10" style={{ background: "var(--gradient-hero)" }}>
+      <div className="w-full max-w-6xl mx-auto mt-16 sm:mt-20 lg:mt-22">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 hover:text-black mb-6 font-semibold text-sm cursor-pointer transition-colors"
+          className="flex items-center gap-2 text-gray-600 hover:text-black mb-4 sm:mb-6 font-semibold text-sm cursor-pointer transition-colors"
         >
           <FaArrowLeft /> Back to Listings
         </button>
 
-        <div className="bg-white rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-8 p-6 lg:p-10">
-          
+        <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 p-4 sm:p-6 lg:p-10">
+
           {/* Image Gallery Section */}
-          <div className="space-y-4">
-            <div 
-              className="relative w-full h-80 sm:h-96 bg-gray-100 rounded-2xl overflow-hidden cursor-pointer shadow-md"
+          <div className="space-y-3 sm:space-y-4">
+            <div
+              className="relative w-full h-64 xs:h-72 sm:h-80 md:h-96 bg-gray-100 rounded-xl sm:rounded-2xl overflow-hidden cursor-pointer shadow-md"
               onClick={() => setIsZoomed(true)}
             >
               <Image
@@ -170,20 +170,20 @@ export default function PetDetailPage() {
                 unoptimized={true}
                 className="object-cover transition-transform duration-300 hover:scale-105"
               />
-              <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-3 py-1 rounded-full">
+              <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-3 bg-black/60 text-white text-[10px] sm:text-xs px-2.5 sm:px-3 py-1 rounded-full">
                 Click to expand
               </div>
             </div>
 
             {images.length > 1 && (
-              <div className="flex gap-3 overflow-x-auto pb-2">
+              <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2">
                 {images.map((img: string, idx: number) => {
                   const thumbUrl = getPetImage({ images: [img] });
                   return (
                     <button
                       key={idx}
                       onClick={() => setSelectedImageIndex(idx)}
-                      className={`relative w-20 h-20 rounded-xl overflow-hidden border-2 shrink-0 transition-all ${
+                      className={`relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg sm:rounded-xl overflow-hidden border-2 shrink-0 transition-all ${
                         selectedImageIndex === idx ? "border-black scale-105 shadow-md" : "border-transparent opacity-70 hover:opacity-100"
                       }`}
                     >
@@ -196,58 +196,60 @@ export default function PetDetailPage() {
           </div>
 
           {/* Details Section */}
-          <div className="flex flex-col justify-between space-y-6">
+          <div className="flex flex-col justify-between space-y-5 sm:space-y-6">
             <div>
-              <div className="flex justify-between items-start gap-4 mb-2">
-                <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900">{petName}</h1>
-                <span className="text-2xl font-black text-orange-600">PKR {pet.price || "Contact for Price"}</span>
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-1 sm:gap-4 mb-2">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 wrap-break-word">{petName}</h1>
+                <span className="text-xl sm:text-2xl font-black text-orange-600 whitespace-nowrap">
+                  PKR {pet.price || "Contact for Price"}
+                </span>
               </div>
-              <p className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-6">
+              <p className="text-xs sm:text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4 sm:mb-6">
                 {pet.breed || pet.category || "Available Pet"}
               </p>
 
-              <div className="grid grid-cols-2 gap-4 mb-6 bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                <div className="flex items-center gap-3 text-gray-700 text-sm">
-                  <FaBirthdayCake className="text-orange-500 text-lg" />
-                  <div>
-                    <span className="block text-xs text-gray-400 font-semibold uppercase">Age</span>
-                    <span className="font-bold">{pet.age || "Not Specified"}</span>
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6 bg-gray-50 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100">
+                <div className="flex items-center gap-2 sm:gap-3 text-gray-700 text-xs sm:text-sm">
+                  <FaBirthdayCake className="text-orange-500 text-base sm:text-lg shrink-0" />
+                  <div className="min-w-0">
+                    <span className="block text-[10px] sm:text-xs text-gray-400 font-semibold uppercase">Age</span>
+                    <span className="font-bold truncate block">{pet.age || "Not Specified"}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 text-gray-700 text-sm">
-                  <FaVenusMars className="text-orange-500 text-lg" />
-                  <div>
-                    <span className="block text-xs text-gray-400 font-semibold uppercase">Gender</span>
-                    <span className="font-bold">{pet.gender || "Not Specified"}</span>
+                <div className="flex items-center gap-2 sm:gap-3 text-gray-700 text-xs sm:text-sm">
+                  <FaVenusMars className="text-orange-500 text-base sm:text-lg shrink-0" />
+                  <div className="min-w-0">
+                    <span className="block text-[10px] sm:text-xs text-gray-400 font-semibold uppercase">Gender</span>
+                    <span className="font-bold truncate block">{pet.gender || "Not Specified"}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 text-gray-700 text-sm col-span-2">
-                  <FaMapMarkerAlt className="text-orange-500 text-lg" />
-                  <div>
-                    <span className="block text-xs text-gray-400 font-semibold uppercase">Location</span>
-                    <span className="font-bold">{pet.location || pet.city || "Pakistan"}</span>
+                <div className="flex items-center gap-2 sm:gap-3 text-gray-700 text-xs sm:text-sm col-span-2">
+                  <FaMapMarkerAlt className="text-orange-500 text-base sm:text-lg shrink-0" />
+                  <div className="min-w-0">
+                    <span className="block text-[10px] sm:text-xs text-gray-400 font-semibold uppercase">Location</span>
+                    <span className="font-bold truncate block">{pet.location || pet.city || "Pakistan"}</span>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h3 className="text-sm font-bold text-gray-900 uppercase mb-2">About {petName}</h3>
+                <h3 className="text-xs sm:text-sm font-bold text-gray-900 uppercase mb-2">About {petName}</h3>
                 <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">
                   {pet.description || pet.bio || "No description provided for this pet yet."}
                 </p>
               </div>
             </div>
 
-            <div className="space-y-4 pt-4 border-t">
+            <div className="space-y-3 sm:space-y-4 pt-4 border-t">
               <button
                 onClick={handleBuyNow}
-                className="w-full py-4 bg-black text-white font-extrabold rounded-2xl shadow-lg hover:bg-gray-800 transition-all text-base cursor-pointer"
+                className="w-full py-3.5 sm:py-4 bg-black text-white font-extrabold rounded-xl sm:rounded-2xl shadow-lg hover:bg-gray-800 transition-all text-sm sm:text-base cursor-pointer"
               >
                 Proceed to Checkout
               </button>
-              
-              <div className="flex items-center justify-center gap-2 text-xs text-gray-400">
-                <FaShieldAlt className="text-green-500 text-sm" /> Verified healthy & vaccinated pet listing.
+
+              <div className="flex items-center justify-center gap-2 text-[11px] sm:text-xs text-gray-400 text-center">
+                <FaShieldAlt className="text-green-500 text-sm shrink-0" /> Verified healthy & vaccinated pet listing.
               </div>
             </div>
           </div>
@@ -256,11 +258,11 @@ export default function PetDetailPage() {
 
       {/* Modal Image Zoom */}
       {isZoomed && (
-        <div 
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 cursor-pointer"
+        <div
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-3 sm:p-4 cursor-pointer"
           onClick={() => setIsZoomed(false)}
         >
-          <div className="relative w-full max-w-4xl h-[80vh]">
+          <div className="relative w-full max-w-4xl h-[70vh] sm:h-[80vh]">
             <Image src={currentImageUrl} alt="Zoomed Pet" fill unoptimized={true} className="object-contain" />
           </div>
         </div>
