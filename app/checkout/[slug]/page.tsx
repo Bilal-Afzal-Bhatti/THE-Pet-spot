@@ -26,22 +26,36 @@ function CheckoutContent() {
 
   const [formError, setFormError] = useState("");
   const [isInitializing, setIsInitializing] = useState(true);
-
-  useEffect(() => {
+useEffect(() => {
     const initCheckout = async () => {
-      if (!selectedPet && typeof window !== "undefined") {
-        const storedPet = sessionStorage.getItem("selectedPetData");
+      if (typeof window !== "undefined") {
         const storedPetId = sessionStorage.getItem("currentPetId");
-
-        if (storedPet) {
-          try {
-            const parsedPet = JSON.parse(storedPet);
-            useBuyStore.setState({ selectedPet: parsedPet });
-          } catch (e) {
-            console.error("Failed to parse stored pet data from sessionStorage", e);
+        
+        if (storedPetId) {
+          // Look for the specific namespaced dog data slot first
+          const namespacedPet = sessionStorage.getItem(`selectedPetData_${storedPetId}`);
+          
+          if (namespacedPet) {
+            try {
+              const parsedPet = JSON.parse(namespacedPet);
+              useBuyStore.setState({ selectedPet: parsedPet });
+            } catch (e) {
+              console.error("Failed to parse namespaced dog data from sessionStorage", e);
+            }
+          } else {
+            // Fallbacks for older keys if namespaced version isn't present
+            const storedPet = sessionStorage.getItem("selectedPetData");
+            if (storedPet) {
+              try {
+                const parsedPet = JSON.parse(storedPet);
+                useBuyStore.setState({ selectedPet: parsedPet });
+              } catch (e) {
+                console.error("Failed to parse stored pet data", e);
+              }
+            } else {
+              await setSelectedPet(storedPetId);
+            }
           }
-        } else if (storedPetId) {
-          await setSelectedPet(storedPetId);
         }
       }
 
@@ -59,6 +73,38 @@ function CheckoutContent() {
 
     initCheckout();
   }, []);
+  // useEffect(() => {
+  //   const initCheckout = async () => {
+  //     if (!selectedPet && typeof window !== "undefined") {
+  //       const storedPet = sessionStorage.getItem("selectedPetData");
+  //       const storedPetId = sessionStorage.getItem("currentPetId");
+
+  //       if (storedPet) {
+  //         try {
+  //           const parsedPet = JSON.parse(storedPet);
+  //           useBuyStore.setState({ selectedPet: parsedPet });
+  //         } catch (e) {
+  //           console.error("Failed to parse stored pet data from sessionStorage", e);
+  //         }
+  //       } else if (storedPetId) {
+  //         await setSelectedPet(storedPetId);
+  //       }
+  //     }
+
+  //     setCheckoutDetails({
+  //       fullName: "",
+  //       phone: "",
+  //       address: "",
+  //       city: "",
+  //       postalCode: "",
+  //       email: activeUser?.email || checkoutDetails.email || "",
+  //     });
+
+  //     setIsInitializing(false);
+  //   };
+
+  //   initCheckout();
+  // }, []);
 
   if (isInitializing) {
     return (
