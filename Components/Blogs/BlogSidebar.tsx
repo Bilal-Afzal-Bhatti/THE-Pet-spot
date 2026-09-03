@@ -2,51 +2,27 @@
 import Image from "next/image";
 import { FaRegCalendarAlt } from "react-icons/fa";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useRouter } from "next/navigation";
-
-interface Blog {
-  _id: string;
-  title: string;
-  slug: string;
-  image: string;
-  createdAt: string;
-  category: string;
-}
+import { BlogStore } from "@/Store/BlogStore";
 
 export default function BlogSidebar({ category = "" }: { category?: string }) {
   const router = useRouter();
-  const [blogs, setBlogs] = useState<Blog[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { sidebarBlogs, fetchSidebarBlogs, loading, error } = BlogStore();
+  const [isMounted, setIsMounted] = useState(false);
 
-  const page = 1;
-  const limit = 6;
-  const Base_URL =
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
-
+  // Prevent hydration mismatch for dates
   useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const res = await axios.get(
-          `${Base_URL}/api/admin/blogs/get-all?category=${category}&page=${page}&limit=${limit}`
-        );
-        setBlogs(res.data.blogs);
-      } catch (err: any) {
-        setError(err.message || "Failed to fetch blogs");
-      } finally {
-        setLoading(false);
-      }
-    };
+    setIsMounted(true);
+  }, []);
 
-    fetchBlogs();
-  }, [category]);
+  // Fetch sidebar blogs from store when category changes
+  useEffect(() => {
+    fetchSidebarBlogs(category);
+  }, [category, fetchSidebarBlogs]);
 
   const categories = [
-    { name: "Dog Care", count: 285 },
-    { name: "Cat Care", count: 46 },
+    { name: "Dog Care", slug: "dog-care", count: 285 },
+    { name: "Cat Care", slug: "cat-care", count: 46 },
   ];
 
   return (
@@ -58,23 +34,25 @@ export default function BlogSidebar({ category = "" }: { category?: string }) {
           {categories.map((cat) => (
             <li
               key={cat.name}
-              className="flex gap-2 font-semibold text-sm hover:text-[#018F98] cursor-pointer"
+              onClick={() => router.push(`/blog/${cat.slug}`)}
+              className="flex justify-between items-center font-semibold text-sm hover:text-[#018F98] cursor-pointer transition-colors"
             >
               <span>{cat.name}</span>
-              <span>({cat.count})</span>
+              <span className="text-gray-400 font-normal">({cat.count})</span>
             </li>
           ))}
         </ul>
       </div>
 
       {/* Ads */}
-      <Image
-        src="/walking_ad.jpg"
-        alt="Ads"
-        width={600}
-        height={200}
-        className="mb-6"
-      />
+      <div className="relative w-full h-[200px] mb-6 rounded-md overflow-hidden bg-gray-100">
+        <Image
+          src="/walking_ad.jpg"
+          alt="Ads"
+          fill
+          className="object-cover"
+        />
+      </div>
 
       {/* Other Blogs */}
       <div>
@@ -82,31 +60,40 @@ export default function BlogSidebar({ category = "" }: { category?: string }) {
           Other Blogs
         </h3>
 
-        {loading && <p>Loading blogs...</p>}
-        {error && <p className="text-red-600">{error}</p>}
+        {loading && <p className="text-sm text-gray-500">Loading blogs...</p>}
+        {error && <p className="text-sm text-red-600">{error}</p>}
+        {!loading && sidebarBlogs.length === 0 && (
+          <p className="text-sm text-gray-500">No other blogs found.</p>
+        )}
 
         <div className="space-y-4">
-          {blogs.map((blog) => (
+          {sidebarBlogs.map((blog) => (
             <div
               key={blog._id}
-              className="flex gap-3 items-start cursor-pointer"
+              className="flex gap-3 items-start cursor-pointer group"
               onClick={() => router.push(`/blog/${blog.slug}`)}
             >
-              <div className="w-[80px] h-[60px] relative flex-shrink-0">
+              <div className="w-[80px] h-[60px] relative flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
                 <Image
-                  src={blog.image}
+                  src={
+                    blog.coverImage ||
+                    blog.image ||
+                    "https://images.unsplash.com/photo-1574158622682-e40e69881006"
+                  }
                   alt={blog.title}
                   fill
-                  className="object-cover rounded-md"
+                  className="object-cover group-hover:scale-105 transition-transform duration-200"
                 />
               </div>
               <div>
-                <p className="text-sm font-medium hover:text-[#018F98] leading-tight">
+                <p className="text-sm font-medium group-hover:text-[#018F98] leading-tight line-clamp-2">
                   {blog.title}
                 </p>
                 <div className="flex items-center text-xs text-gray-500 mt-1">
                   <FaRegCalendarAlt className="mr-1" />
-                  {new Date(blog.createdAt).toLocaleDateString()}
+                  {isMounted && blog.createdAt
+                    ? new Date(blog.createdAt).toLocaleDateString()
+                    : "Recent"}
                 </div>
               </div>
             </div>

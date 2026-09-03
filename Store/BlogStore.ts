@@ -5,6 +5,7 @@ interface BlogStoreType {
   blogsAll: any[];
   blogsDogs: any[];
   blogsCats: any[];
+  sidebarBlogs: any[];
 
   page: number;
   totalPages: number;
@@ -15,6 +16,7 @@ interface BlogStoreType {
 
   fetchBlogs: (category?: string, page?: number) => Promise<void>;
   fetchSingleBlog: (slug: string) => Promise<void>;
+  fetchSidebarBlogs: (category?: string) => Promise<void>;
   setPage: (page: number) => void;
 }
 
@@ -22,6 +24,7 @@ export const BlogStore = create<BlogStoreType>((set) => ({
   blogsAll: [],
   blogsDogs: [],
   blogsCats: [],
+  sidebarBlogs: [],
 
   page: 1,
   totalPages: 1,
@@ -99,4 +102,23 @@ export const BlogStore = create<BlogStoreType>((set) => ({
       set({ loading: false });
     }
   },
+
+  // Add this inside your BlogStore interface and implementation
+fetchSidebarBlogs: async (category?: string) => {
+  try {
+    set({ loading: true, error: null });
+    const queryParam = category && category !== "all" ? `?category=${category}&limit=6` : "?limit=6";
+    
+    // Uses your custom axios instance (api)
+    const response = await api.get(`/api/admin/blogs${queryParam}`);
+    const data = response.data;
+
+    set({ sidebarBlogs: data.blogs || [], loading: false });
+  } catch (err: any) {
+    set({ 
+      error: err.response?.data?.message || err.message || "Failed to fetch sidebar blogs", 
+      loading: false 
+    });
+  }
+},
 }));
