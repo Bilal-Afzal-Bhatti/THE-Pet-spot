@@ -7,6 +7,9 @@ export interface OverviewPoint {
 }
 
 export interface Breed {
+  life: string | undefined;
+  lifespan: string | undefined;
+  id: string;
   _id: string;
   name: string;
   slug: string;

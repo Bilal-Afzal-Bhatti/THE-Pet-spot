@@ -144,7 +144,7 @@ export default function DogBreedListing() {
               ) : (
                 breeds.map((breed) => (
                   <div
-                    key={breed._id || breed.id}
+                    key={breed._id }
                     onClick={() => handleBreedClick(breed.name)}
                     className={`px-3 py-2 cursor-pointer rounded ${
                       search === breed.name
@@ -209,7 +209,7 @@ export default function DogBreedListing() {
                               Max-Weight
                             </div>
                             <div className="text-gray-700">
-                              {breed.maxWeight || breed.weight || "N/A"}
+                              {breed.weight || breed.weight || "N/A"}
                             </div>
                           </div>
                         </div>
@@ -224,7 +224,7 @@ export default function DogBreedListing() {
                               Max-Height
                             </div>
                             <div className="text-gray-700">
-                              {breed.maxHeight || breed.height || "N/A"}
+                              {breed.height || "N/A"}
                             </div>
                           </div>
                         </div>
@@ -239,7 +239,7 @@ export default function DogBreedListing() {
                               Max-Life
                             </div>
                             <div className="text-gray-700">
-                              {breed.maxlife || breed.maxLife || breed.lifespan || breed.life || "N/A"}
+                              {breed.maxlife || breed.maxlife || breed.lifespan || breed.life || "N/A"}
                             </div>
                           </div>
                         </div>

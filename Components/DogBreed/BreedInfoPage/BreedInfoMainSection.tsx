@@ -88,7 +88,7 @@ export default function BreedInfoMainSection() {
       <div className="w-full lg:w-2/3">
         {/* Featured slider */}
         <div className="relative mb-8">
-          <div className="relative w-full h-[350px] overflow-hidden rounded-md shadow">
+          <div className="relative w-full h-87.5 overflow-hidden rounded-md shadow">
             <button
               onClick={prevSlide}
               aria-label="Previous"
@@ -124,30 +124,7 @@ export default function BreedInfoMainSection() {
           </div>
         </div>
 
-        {/* === QUICK STATS CARDS === */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-4 bg-white p-5 rounded-xl border shadow-sm mb-8">
-          <div className="flex flex-col items-center justify-center p-3 bg-gray-50 rounded-lg">
-            <FaWeight className="text-teal-600 text-lg mb-1" />
-            <span className="text-xs text-gray-500 font-semibold">Weight</span>
-            <span className="text-sm font-bold text-gray-800">{selectedBreed.weight || "N/A"}</span>
-          </div>
-          <div className="flex flex-col items-center justify-center p-3 bg-gray-50 rounded-lg">
-            <FaRulerVertical className="text-teal-600 text-lg mb-1" />
-            <span className="text-xs text-gray-500 font-semibold">Height</span>
-            <span className="text-sm font-bold text-gray-800">{selectedBreed.height || "N/A"}</span>
-          </div>
-          <div className="flex flex-col items-center justify-center p-3 bg-gray-50 rounded-lg">
-            <FaHeartbeat className="text-teal-600 text-lg mb-1" />
-            <span className="text-xs text-gray-500 font-semibold">Max-Life</span>
-            <span className="text-sm font-bold text-gray-800">{selectedBreed.maxlife || "N/A"}</span>
-          </div>
-          <div className="flex flex-col items-center justify-center p-3 bg-gray-50 rounded-lg col-span-3 sm:col-span-1">
-            <FaHome className="text-teal-600 text-lg mb-1" />
-            <span className="text-xs text-gray-500 font-semibold">Suitable For</span>
-            <span className="text-sm font-bold text-gray-800 uppercase">{selectedBreed.suitableFor || "N/A"}</span>
-          </div>
-        </div>
-
+      
         {/* === MATCHING TARGET DESIGN (Clean Typography) === */}
         <div className="text-gray-800 leading-relaxed space-y-5 text-base">
           {/* Overview Heading matching screenshot style */}
