@@ -16,7 +16,7 @@ import { useBreedStore } from "@/Store/BreedStore";
 
 export default function CatBreedListing() {
   const router = useRouter();
-  
+
   const {
     breeds,
     loading,
@@ -85,14 +85,13 @@ export default function CatBreedListing() {
     }
   };
 
-  // Helper to parse suitableFor whether it's a string or an array in the DB
-  const getSuitableArray = (suitableFor: any) => {
+  // suitableFor is stored as a comma-separated string in the DB
+  const getSuitableArray = (suitableFor?: string) => {
     if (!suitableFor) return [];
-    if (Array.isArray(suitableFor)) return suitableFor;
-    if (typeof suitableFor === "string") {
-      return suitableFor.split(",").map((s) => s.trim()).filter(Boolean);
-    }
-    return [];
+    return suitableFor
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
   };
 
   return (
@@ -193,19 +192,15 @@ export default function CatBreedListing() {
                         {breed.name}
                       </h3>
 
-                      {/* Stats with Fallback Resolvers matching DB fields */}
+                      {/* Stats — exactly Weight / Height / Max-Life, matching the DB schema */}
                       <div className="grid grid-cols-3 gap-3 mb-4">
                         <div className="flex items-start gap-2">
                           <div className="w-6 h-6 bg-cyan-500 rounded flex items-center justify-center shrink-0 mt-0.5">
                             <FaWeight className="text-white text-xs" />
                           </div>
                           <div className="text-xs">
-                            <div className="text-cyan-600 font-medium">
-                              Max-Weight
-                            </div>
-                            <div className="text-gray-700">
-                              {breed.maxWeight || breed.weight || "N/A"}
-                            </div>
+                            <div className="text-cyan-600 font-medium">Weight</div>
+                            <div className="text-gray-700">{breed.weight || "N/A"}</div>
                           </div>
                         </div>
 
@@ -214,12 +209,8 @@ export default function CatBreedListing() {
                             <FaRulerVertical className="text-white text-xs" />
                           </div>
                           <div className="text-xs">
-                            <div className="text-cyan-600 font-medium">
-                              Max-Height
-                            </div>
-                            <div className="text-gray-700">
-                              {breed.maxHeight || breed.height || "N/A"}
-                            </div>
+                            <div className="text-cyan-600 font-medium">Height</div>
+                            <div className="text-gray-700">{breed.height || "N/A"}</div>
                           </div>
                         </div>
 
@@ -228,12 +219,8 @@ export default function CatBreedListing() {
                             <FaClock className="text-white text-xs" />
                           </div>
                           <div className="text-xs">
-                            <div className="text-cyan-600 font-medium">
-                              Max-Life
-                            </div>
-                            <div className="text-gray-700">
-                              {breed.maxlife || breed.maxLife || breed.lifespan || breed.life || "N/A"}
-                            </div>
+                            <div className="text-cyan-600 font-medium">Max-Life</div>
+                            <div className="text-gray-700">{breed.maxlife || "N/A"}</div>
                           </div>
                         </div>
                       </div>
@@ -246,10 +233,7 @@ export default function CatBreedListing() {
                         <div className="flex flex-wrap gap-2">
                           {suitableList.length > 0 ? (
                             suitableList.map((type: string) => (
-                              <div
-                                key={type}
-                                className="flex flex-col items-center gap-1"
-                              >
+                              <div key={type} className="flex flex-col items-center gap-1">
                                 <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
                                   {getSuitableIcon(type)}
                                 </div>

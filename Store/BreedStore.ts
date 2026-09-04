@@ -1,21 +1,34 @@
 import { create } from "zustand";
 import { api } from "@/utils/api/axiosInstance";
 
+export interface OverviewPoint {
+  title: string;
+  description: string;
+}
+
 export interface Breed {
   _id: string;
   name: string;
+  slug: string;
   category: string;
   image?: string;
-  maxWeight?: string | number;
-  weight?: string | number;
-  maxHeight?: string | number;
-  height?: string | number;
-  maxLife?: string | number;
-  life?: string | number;
-  lifeSpan?: string | number;
-  suitableFor?: string[];
+  images?: string[];
+  origin?: string;
+  maxlife?: string;
+  weight?: string;
+  height?: string;
+  temperament?: string[];
+  suitableFor?: string;
+  overviewPoints?: OverviewPoint[];
+  breedInfoPoints?: OverviewPoint[];
+  commonNicknames?: string;
+  trainability?: string;
+  shedding?: string;
+  grooming?: string;
+  breedType?: string;
+  size?: string;
+  isPopular?: boolean;
   createdAt: string;
-  [key: string]: any;
 }
 
 interface BreedState {
@@ -69,7 +82,7 @@ export const useBreedStore = create<BreedState>((set, get) => ({
       const params = new URLSearchParams();
       params.append("page", page.toString());
       params.append("limit", limit.toString());
-      
+
       if (category && category !== "all") {
         params.append("category", category);
       }
