@@ -42,10 +42,17 @@ interface BreedState {
   category: string;
   search: string;
 
+  // Single breed detail (for breed detail page)
+  selectedBreed: Breed | null;
+  detailLoading: boolean;
+  detailError: string | null;
+
   setCategory: (category: string) => void;
   setSearch: (search: string) => void;
   setPage: (page: number) => void;
   fetchBreeds: () => Promise<void>;
+  fetchBreedBySlug: (slug: string) => Promise<void>;
+  clearSelectedBreed: () => void;
 }
 
 export const useBreedStore = create<BreedState>((set, get) => ({
@@ -58,6 +65,10 @@ export const useBreedStore = create<BreedState>((set, get) => ({
   error: null,
   category: "all",
   search: "",
+
+  selectedBreed: null,
+  detailLoading: false,
+  detailError: null,
 
   setCategory: (category: string) => {
     set({ category, page: 1 });
@@ -106,4 +117,31 @@ export const useBreedStore = create<BreedState>((set, get) => ({
       });
     }
   },
+
+  // Public single-breed lookup by slug
+  fetchBreedBySlug: async (slug: string) => {
+    set({ detailLoading: true, detailError: null, selectedBreed: null });
+    try {
+      const response = await api.get(`/api/breeds/${encodeURIComponent(slug)}`);
+      
+      console.log("API Breed Response:", response.data);
+
+      const breedData = response.data?.breed || response.data?.data || response.data;
+
+      if (!breedData || typeof breedData !== "object") {
+        throw new Error("Breed data not found in response");
+      }
+
+      set({ selectedBreed: breedData, detailLoading: false });
+    } catch (err: any) {
+      console.error("Error fetching breed:", err);
+      set({
+        detailError: err.response?.data?.message || err.message || "Breed not found",
+        detailLoading: false,
+      });
+    }
+  },
+
+  // Implementation added here:
+  clearSelectedBreed: () => set({ selectedBreed: null, detailError: null }),
 }));

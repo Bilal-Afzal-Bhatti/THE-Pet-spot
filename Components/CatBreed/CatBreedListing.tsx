@@ -12,7 +12,7 @@ import {
   FaShieldAlt,
 } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-import { useBreedStore } from "@/Store/BreedStore";
+import { useBreedStore, Breed } from "@/Store/BreedStore";
 
 export default function CatBreedListing() {
   const router = useRouter();
@@ -32,11 +32,22 @@ export default function CatBreedListing() {
     fetchBreeds();
   }, []);
 
-  const handleBreedClick = (breedName: string) => {
-    const slug = breedName.toLowerCase().replace(/ /g, "-");
-    router.push(`/cat-breed/${slug}`);
-  };
+  // Routes to the correct breed-detail page based on the breed's own category,
+  // not hardcoded — so this component stays correct even if reused elsewhere.
+ const handleBreedClick = (breed: Breed) => {
+    // Fallback to lowercased name replacement if slug isn't populated yet
+    const slug = breed.slug || breed.name.toLowerCase().replace(/ /g, "-");
 
+    const categoryRouteMap: Record<string, string> = {
+      dog: "dog-breed",
+      cat: "cat-breed",
+      bird: "small-pet-breed",
+      other: "small-pet-breed",
+    };
+
+    const routeBase = categoryRouteMap[breed.category?.toLowerCase()] || "cat-breed";
+    router.push(`/${routeBase}/${slug}`);
+  };
   const getSuitableIcon = (type: string) => {
     switch (type?.trim()) {
       case "Couple":
@@ -142,7 +153,7 @@ export default function CatBreedListing() {
               breeds.map((breed) => (
                 <div
                   key={breed._id}
-                  onClick={() => handleBreedClick(breed.name)}
+                  onClick={() => handleBreedClick(breed)}
                   className={`px-3 py-2 cursor-pointer rounded ${
                     search === breed.name
                       ? "bg-gray-100 font-medium"
@@ -174,7 +185,7 @@ export default function CatBreedListing() {
                 return (
                   <div
                     key={breed._id}
-                    onClick={() => handleBreedClick(breed.name)}
+                    onClick={() => handleBreedClick(breed)}
                     className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow cursor-pointer"
                   >
                     {/* Image */}
