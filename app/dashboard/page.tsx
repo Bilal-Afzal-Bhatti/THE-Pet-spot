@@ -170,29 +170,20 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden">
-{/* Mobile Header Bar with Side Menu Toggle Icon */}
-<span className="lg:hidden flex items-center px-3 sm:px-4 py-2.5 sm:py-3 sticky top-50 z-30">
-  <button
-    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-    className="flex items-center gap-1.5 p-2 rounded-lg text-gray-700 focus:outline-none transition-colors"
-    aria-label="Toggle Menu"
-  >
-    {/* Side Menu Graphic */}
-    <svg className="w-5 h-5 text-gray-800 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h6M4 10h6M4 14h6M4 18h6" />
-      <rect x="2" y="3" width="10" height="18" rx="2" stroke="currentColor" strokeWidth="2" />
-    </svg>
 
-    {/* Dynamic Arrow: Points Right when closed, Points Left when open */}
-    <svg className="w-4 h-4 text-gray-800 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-      {isSidebarOpen ? (
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-      ) : (
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+      {/* Floating Mobile Menu Toggle (FAB) - only visible on mobile/tablet, hidden on lg+ */}
+      {!isSidebarOpen && (
+        <button
+          onClick={() => setIsSidebarOpen(true)}
+          aria-label="Open Menu"
+          className="lg:hidden fixed bottom-6 right-6 z-50 w-13 h-13 rounded-full shadow-lg flex items-center justify-center text-white active:scale-95 transition-transform duration-150"
+          style={{ background: "var(--gradient-hero)" }}
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
       )}
-    </svg>
-  </button>
-</span>
 
       {/* Hero Section */}
       <section
@@ -211,7 +202,7 @@ export default function Dashboard() {
         {/* Mobile Backdrop Overlay */}
         {isSidebarOpen && (
           <div
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity"
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity duration-300 animate-in fade-in"
             onClick={() => setIsSidebarOpen(false)}
           />
         )}
@@ -224,6 +215,19 @@ export default function Dashboard() {
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}>
           <div className="p-4 sm:p-6 h-full flex flex-col overflow-y-auto">
+            {/* Mobile-only Close Button */}
+            <div className="flex justify-end lg:hidden mb-2">
+              <button
+                onClick={() => setIsSidebarOpen(false)}
+                aria-label="Close Menu"
+                className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-800 transition-colors duration-200"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
             <div className="mb-4 sm:mb-6">
               <button
                 onClick={() => {
