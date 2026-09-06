@@ -80,27 +80,27 @@ export default function CatsPage() {
       return s.replace(/-/g, " ");
     }
   };
-const handleViewPet = (pet: any) => {
-  const petName = pet.name || pet.title || "Pet";
-  const petBreed = pet.breed || "cats";
-  const petSlug = `${slugify(petName)}-${slugify(petBreed)}`;
-  
-  // Get the exact ID
-  const petId = pet._id || pet.id;
- console.log("Navigating to pet details for:", petName, "with ID:", petId);
-  // Store both the full pet object AND the explicit ID in sessionStorage
-  if (typeof window !== "undefined") {
-    sessionStorage.setItem("selectedPetData", JSON.stringify(pet));
-    sessionStorage.setItem("currentPetId", petId);
-  }
+  const handleViewPet = (pet: any) => {
+    const petName = pet.name || pet.title || "Pet";
+    const petBreed = pet.breed || "cats";
+    const petSlug = `${slugify(petName)}-${slugify(petBreed)}`;
 
-  // Push to the slug route, while your app logic can grab the ID from storage when making API calls
- router.push(`/cats/pet/${petSlug}`);
-};
+    // Get the exact ID
+    const petId = pet._id || pet.id;
+    console.log("Navigating to pet details for:", petName, "with ID:", petId);
+    // Store both the full pet object AND the explicit ID in sessionStorage
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("selectedPetData", JSON.stringify(pet));
+      sessionStorage.setItem("currentPetId", petId);
+    }
+
+    // Push to the slug route, while your app logic can grab the ID from storage when making API calls
+    router.push(`/cats/pet/${petSlug}`);
+  };
   // This will push the slug to the URL (e.g. /cats/pet/milo-persian)
- 
 
-  
+
+
   // ---------- API Data Fetching ----------
   useEffect(() => {
     const fetchApprovedCatAds = async () => {
@@ -124,8 +124,8 @@ const handleViewPet = (pet: any) => {
   }, [currentPage, getApprovedCatAds]);
 
 
-  
-const findStateForCity = (cityName: string) => {
+
+  const findStateForCity = (cityName: string) => {
     if (!cityName) return "";
     for (const [state, cities] of Object.entries(statesWithCatCities)) {
       if (cities.map((c) => c.toLowerCase()).includes(cityName.toLowerCase()))
@@ -220,17 +220,17 @@ const findStateForCity = (cityName: string) => {
   ]);
 
   const dropdownClass = `absolute z-20 left-0 w-full bg-white border border-gray-300 rounded-md max-h-48 overflow-y-auto shadow-lg`;
-  const dropdownStyle = {background: 'white'};
+  const dropdownStyle = { background: 'white' };
 
   return (
-    <div className="min-h-screen font-raleway p-6 px-44 bg-orange-50">
+    <div className="min-h-screen font-raleway p-4 sm:p-6 px-4 sm:px-8 lg:px-20 xl:px-44 bg-orange-50">
       {/* 🔍 Integrated Search Bar */}
       <div
-              ref={searchRef}
-              className="w-full max-w-6xl mx-auto bg-white border border-gray-200 
-              rounded-xl flex items-center justify-between gap-3 
-              px-4 sm:px-6 lg:px-8 py-4 mb-10"
-            >
+        ref={searchRef}
+        className="w-full max-w-6xl mx-auto bg-white border border-gray-200 
+        rounded-xl flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 
+        px-4 sm:px-6 lg:px-8 py-4 mb-10"
+      >
         {/* 🐶 Breed Input */}
         <div className="relative flex items-center bg-white border border-gray-200 rounded-md px-3 py-2 w-full">
           <FaDog className="text-gray-400 text-lg mr-2" />
@@ -248,9 +248,8 @@ const findStateForCity = (cityName: string) => {
           />
           {showBreeds && (
             <ul
-              className={`${dropdownClass} ${
-                openUp ? "bottom-full mb-1" : "top-full mt-1"
-              }`}
+              className={`${dropdownClass} ${openUp ? "bottom-full mb-1" : "top-full mt-1"
+                }`}
             >
               {catBreeds
                 .filter((b) =>
@@ -289,9 +288,8 @@ const findStateForCity = (cityName: string) => {
           />
           {showStates && (
             <ul
-              className={`${dropdownClass} ${
-                openUp ? "bottom-full mb-1" : "top-full mt-1"
-              }`}
+              className={`${dropdownClass} ${openUp ? "bottom-full mb-1" : "top-full mt-1"
+                }`}
               style={dropdownStyle}
             >
               {Object.keys(statesWithCatCities).map((state) => (
@@ -333,15 +331,13 @@ const findStateForCity = (cityName: string) => {
                 setShowStates(false);
               }
             }}
-            className={`w-full outline-none text-sm placeholder:text-gray-400 cursor-pointer ${
-              selectedState ? 'text-gray-700' : 'text-gray-400'
-            }`}
+            className={`w-full outline-none text-sm placeholder:text-gray-400 cursor-pointer ${selectedState ? 'text-gray-700' : 'text-gray-400'
+              }`}
           />
           {showCities && selectedState && (
             <ul
-              className={`${dropdownClass} ${
-                openUp ? "bottom-full mb-1" : "top-full mt-1"
-              }`}
+              className={`${dropdownClass} ${openUp ? "bottom-full mb-1" : "top-full mt-1"
+                }`}
               style={dropdownStyle}
             >
               {statesWithCatCities[selectedState].map((city) => (
@@ -359,24 +355,24 @@ const findStateForCity = (cityName: string) => {
             </ul>
           )}
         </div>
-
-        {/* 🔍 Search Button */}
         <button
           onClick={() => applyFilters()}
-          className="bg-(--color-primary) hover:bg-(--color-primary-hover) text-white font-medium 
-            rounded-md px-18 py-2 flex items-center justify-center gap-2 
-            transition-all duration-200"
+          className="w-full md:w-auto bg-(--color-primary) hover:bg-(--color-primary-hover) text-white font-medium 
+          rounded-md px-6 md:px-18 py-2.5 flex items-center justify-center gap-2 
+          transition-all duration-200 shrink-0"
         >
           Search
         </button>
       </div>
 
       {/* 🔽 Main Layout (Sidebar + Content) */}
-      <div className="max-w-7xl mx-auto flex gap-4">
+
+// After
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-4">
         {/* 🧭 Sidebar */}
-        <div className="w-60 ">
+        <div className="w-full lg:w-60 shrink-0">
           {/* Clear All Filters */}
-          <div className="px-3 py-2 shadow rounded-lg mb-3" style={{background: 'var(--color-primary)'}}>
+          <div className="px-3 py-2 shadow rounded-lg mb-3" style={{ background: 'var(--color-primary)' }}>
             <button
               onClick={() => {
                 setSelectedBreed("");
@@ -401,8 +397,8 @@ const findStateForCity = (cityName: string) => {
                 {selectedBreed && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 bg-(--color-primary) text-white text-xs rounded-full">
                     {selectedBreed}
-                    <button 
-                      onClick={() => setSelectedBreed("")} 
+                    <button
+                      onClick={() => setSelectedBreed("")}
                       className="ml-1 hover:bg-white hover:text-(--color-primary) rounded-full w-4 h-4 flex items-center justify-center"
                     >
                       ×
@@ -412,8 +408,8 @@ const findStateForCity = (cityName: string) => {
                 {selectedState && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 bg-blue-500 text-white text-xs rounded-full">
                     {selectedState}
-                    <button 
-                      onClick={() => {setSelectedState(""); setSelectedCity("");}} 
+                    <button
+                      onClick={() => { setSelectedState(""); setSelectedCity(""); }}
                       className="ml-1 hover:bg-white hover:text-blue-500 rounded-full w-4 h-4 flex items-center justify-center"
                     >
                       ×
@@ -423,8 +419,8 @@ const findStateForCity = (cityName: string) => {
                 {selectedCity && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-500 text-white text-xs rounded-full">
                     {selectedCity}
-                    <button 
-                      onClick={() => setSelectedCity("")} 
+                    <button
+                      onClick={() => setSelectedCity("")}
                       className="ml-1 hover:bg-white hover:text-green-500 rounded-full w-4 h-4 flex items-center justify-center"
                     >
                       ×
@@ -434,8 +430,8 @@ const findStateForCity = (cityName: string) => {
                 {selectedGender && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 bg-purple-500 text-white text-xs rounded-full">
                     {selectedGender}
-                    <button 
-                      onClick={() => setSelectedGender("")} 
+                    <button
+                      onClick={() => setSelectedGender("")}
                       className="ml-1 hover:bg-white hover:text-purple-500 rounded-full w-4 h-4 flex items-center justify-center"
                     >
                       ×
@@ -445,8 +441,8 @@ const findStateForCity = (cityName: string) => {
                 {selectedFeature && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 bg-indigo-500 text-white text-xs rounded-full">
                     {selectedFeature}
-                    <button 
-                      onClick={() => setSelectedFeature("")} 
+                    <button
+                      onClick={() => setSelectedFeature("")}
                       className="ml-1 hover:bg-white hover:text-indigo-500 rounded-full w-4 h-4 flex items-center justify-center"
                     >
                       ×
@@ -456,8 +452,8 @@ const findStateForCity = (cityName: string) => {
                 {sortBy && (
                   <span className="inline-flex items-center gap-1 px-2 py-1 bg-gray-500 text-white text-xs rounded-full">
                     Sort: {sortBy === 'priceLowHigh' ? 'Price ↑' : sortBy === 'priceHighLow' ? 'Price ↓' : sortBy === 'ageLowHigh' ? 'Age ↑' : sortBy === 'ageHighLow' ? 'Age ↓' : 'Newest'}
-                    <button 
-                      onClick={() => setSortBy("")} 
+                    <button
+                      onClick={() => setSortBy("")}
                       className="ml-1 hover:bg-white hover:text-gray-500 rounded-full w-4 h-4 flex items-center justify-center"
                     >
                       ×
@@ -469,14 +465,14 @@ const findStateForCity = (cityName: string) => {
           )}
 
           {/* Sorted By */}
-          <div className="px-5 py-5 shadow rounded-lg my-3" style={{background: 'var(--gradient-hero)'}}>
+          <div className="px-5 py-5 shadow rounded-lg my-3" style={{ background: 'var(--gradient-hero)' }}>
             <div className="text-(--color-primary) flex items-center justify-between">
               <h3 className="font-semibold text-base flex items-center gap-2 text-white">
                 Sort By
               </h3>
               {sortBy && (
-                <button 
-                  onClick={() => setSortBy("")} 
+                <button
+                  onClick={() => setSortBy("")}
                   className="text-xs text-gray-300 hover:text-white transition-colors"
                 >
                   Clear
@@ -548,14 +544,14 @@ const findStateForCity = (cityName: string) => {
               </label>
             </div>
           </div>
-          <div className="px-5 py-5 shadow rounded-lg my-3" style={{background: 'var(--gradient-hero)'}}>
+          <div className="px-5 py-5 shadow rounded-lg my-3" style={{ background: 'var(--gradient-hero)' }}>
             <div className="text-(--color-primary) flex items-center justify-between">
               <h3 className="font-semibold text-base flex items-center gap-2 text-white">
                 Gender
               </h3>
               {selectedGender && (
-                <button 
-                  onClick={() => setSelectedGender("")} 
+                <button
+                  onClick={() => setSelectedGender("")}
                   className="text-xs text-gray-300 hover:text-white transition-colors"
                 >
                   Clear
@@ -586,14 +582,14 @@ const findStateForCity = (cityName: string) => {
           </div>
 
           {/* Pet Features Section */}
-          <div className="px-5 py-5 shadow rounded-lg my-3" style={{background: 'var(--gradient-hero)'}}>
+          <div className="px-5 py-5 shadow rounded-lg my-3" style={{ background: 'var(--gradient-hero)' }}>
             <div className="text-(--color-primary) flex items-center justify-between">
               <h3 className="font-semibold text-base flex items-center gap-2 text-white">
                 Pet Features
               </h3>
               {selectedFeature && (
-                <button 
-                  onClick={() => setSelectedFeature("")} 
+                <button
+                  onClick={() => setSelectedFeature("")}
                   className="text-xs text-gray-300 hover:text-white transition-colors"
                 >
                   Clear
@@ -623,7 +619,7 @@ const findStateForCity = (cityName: string) => {
             </div>
           </div>
           {/* 💰 Budget Range */}
-          <div className="mb-5 px-5 py-5 shadow rounded-lg" style={{background: 'var(--gradient-hero)'}}>
+          <div className="mb-5 px-5 py-5 shadow rounded-lg" style={{ background: 'var(--gradient-hero)' }}>
             <h3 className="text-white font-semibold flex items-center gap-2 mb-3">
               <FiDollarSign className="text-(--color-primary)" /> Budget
             </h3>
@@ -645,7 +641,7 @@ const findStateForCity = (cityName: string) => {
           </div>
 
           {/* 🔥 Popular Breeds */}
-          <div className="px-5 py-5 shadow rounded-lg my-3" style={{background: 'var(--gradient-hero)'}}>
+          <div className="px-5 py-5 shadow rounded-lg my-3" style={{ background: 'var(--gradient-hero)' }}>
             <h3 className="text-white font-semibold flex items-center gap-2 mb-3">
               <FaFire className="text-(--color-primary)" /> Popular Breeds
             </h3>
@@ -688,7 +684,8 @@ const findStateForCity = (cityName: string) => {
 
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <div>
-                <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent mb-2" style={{color: "var(--gradient-hero)"}}>
+              // After
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent mb-2" style={{ color: "var(--gradient-hero)" }}>
                   {selectedBreed
                     ? `${selectedBreed} For Sale`
                     : "Cats For Sale"}
@@ -707,7 +704,7 @@ const findStateForCity = (cityName: string) => {
             {loading ? (
               // Loading state
               Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="rounded-2xl overflow-hidden shadow-sm animate-pulse" style={{background: 'var(--color-primary-light)'}}>
+                <div key={index} className="rounded-2xl overflow-hidden shadow-sm animate-pulse" style={{ background: 'var(--color-primary-light)' }}>
                   <div className="h-64 bg-gray-600"></div>
                   <div className="p-5">
                     <div className="h-6 bg-gray-600 rounded mb-3"></div>
@@ -738,7 +735,7 @@ const findStateForCity = (cityName: string) => {
                 <p className="text-gray-500">Try adjusting your filters</p>
               </div>
             ) : (
- filteredPetsList.map((pet) => (
+              filteredPetsList.map((pet) => (
                 <div
                   key={pet.id || pet._id}
                   className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
@@ -775,7 +772,8 @@ const findStateForCity = (cityName: string) => {
                           {pet.city}
                         </span>
                       </div>
-                    </div>                    <div className="grid grid-cols-3 gap-2 mb-3">
+                    </div>                 // After
+                    <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-3 text-xs sm:text-sm">
                       <a
                         href={`tel:${pet.contactNumber}`}
                         className="px-3 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1"
@@ -783,15 +781,15 @@ const findStateForCity = (cityName: string) => {
                         <FiPhone className="text-sm" />
                         Call
                       </a>
-                        <a
-                          href={`https://wa.me/${pet.contactNumber}?text=${encodeURIComponent('Hi, I saw your ad, I am interested')}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-3 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1"
-                        >
-                          <SiWhatsapp className="text-sm" />
-                          Chat
-                        </a>
+                      <a
+                        href={`https://wa.me/${pet.contactNumber}?text=${encodeURIComponent('Hi, I saw your ad, I am interested')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1"
+                      >
+                        <SiWhatsapp className="text-sm" />
+                        Chat
+                      </a>
                       {/* <a
                         href={`/cats/pet/${pet._id || pet.id}`}
                         className="px-3 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1"
@@ -806,9 +804,9 @@ const findStateForCity = (cityName: string) => {
                       >
                         <FiInfo className="text-sm" />
                         Info
-                      </button>    
-                    </div>                    
-                    <button className="w-full py-3 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 hover:scale-[1.02]" style={{background: "var(--gradient-hero)"}}>
+                      </button>
+                    </div>
+                    <button className="w-full py-3 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 hover:scale-[1.02]" style={{ background: "var(--gradient-hero)" }}>
                       {pet.price?.toLocaleString() || 'N/A'} PKR
                     </button>
                   </div>
@@ -822,28 +820,27 @@ const findStateForCity = (cityName: string) => {
               <button
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className={`px-6 py-2.5 rounded-full font-medium transition-all duration-200 ${
-                  currentPage === 1
+                className={`px-6 py-2.5 rounded-full font-medium transition-all duration-200 ${currentPage === 1
                     ? "bg-gray-700 text-gray-400 cursor-not-allowed"
                     : "text-white hover:bg-(--color-primary-hover) shadow-sm hover:shadow-md hover:scale-105"
-                }`}
-                style={currentPage !== 1 ? {background: 'var(--bg-dark-accent)'} : {}}
+                  }`}
+                style={currentPage !== 1 ? { background: 'var(--bg-dark-accent)' } : {}}
               >
                 Previous
               </button>
 
-              <div className="flex items-center gap-2">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+            // After
+<div className="flex items-center gap-2 overflow-x-auto max-w-full px-1 py-1">
+  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                   (page) => (
                     <button
                       key={page}
                       onClick={() => setCurrentPage(page)}
-                      className={`w-10 h-10 rounded-full font-semibold transition-all duration-200 ${
-                        currentPage === page
+                      className={`w-10 h-10 rounded-full font-semibold transition-all duration-200 ${currentPage === page
                           ? "bg-(--color-primary) text-white shadow-lg scale-110"
                           : "text-white hover:bg-(--color-primary-hover) hover:text-white"
-                      }`}
-                      style={currentPage !== page ? {background: 'var(--bg-dark-accent)'} : {}}
+                        }`}
+                      style={currentPage !== page ? { background: 'var(--bg-dark-accent)' } : {}}
                     >
                       {page}
                     </button>
@@ -856,12 +853,11 @@ const findStateForCity = (cityName: string) => {
                   setCurrentPage((p) => Math.min(totalPages, p + 1))
                 }
                 disabled={currentPage >= totalPages}
-                className={`px-6 py-2.5 rounded-full font-medium transition-all duration-200 ${
-                  currentPage >= totalPages
+                className={`px-6 py-2.5 rounded-full font-medium transition-all duration-200 ${currentPage >= totalPages
                     ? "bg-gray-700 text-gray-400 cursor-not-allowed"
                     : "text-white hover:bg-(--color-primary-hover) shadow-sm hover:shadow-md hover:scale-105"
-                }`}
-                style={currentPage < totalPages ? {background: 'var(--bg-dark-accent)'} : {}}
+                  }`}
+                style={currentPage < totalPages ? { background: 'var(--bg-dark-accent)' } : {}}
               >
                 Next
               </button>
