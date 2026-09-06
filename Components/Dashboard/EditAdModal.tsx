@@ -713,7 +713,7 @@ export default function EditAdModal({ isOpen, onClose, onSubmit, isSubmitting, a
                   ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
                   : isSubmitting
                   ? 'bg-gray-400 text-white cursor-not-allowed'
-                  : 'bg-gradient-to-r from-[#028d8f] to-[#008080] hover:from-[#00595F] hover:to-[#004d4f] text-white hover:shadow-xl transform hover:scale-105 cursor-pointer'
+                  : 'bg-linear-to-r from-[#028d8f] to-[#008080] hover:from-[#00595F] hover:to-[#004d4f] text-white hover:shadow-xl transform hover:scale-105 cursor-pointer'
               }`}
             >
               {isSubmitting ? (

@@ -289,7 +289,7 @@ export default function Navbar() {
 
         {/* Mobile / Tablet Accordion Menu Layer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden fixed inset-x-0 top-[88px] bg-[#1a1a1a]/95 backdrop-blur-md border-b border-white/10 shadow-2xl px-6 py-6 transition-all duration-300 ease-in-out text-white">
+          <div className="lg:hidden fixed inset-x-0 top-22 bg-[#1a1a1a]/95 backdrop-blur-md border-b border-white/10 shadow-2xl px-6 py-6 transition-all duration-300 ease-in-out text-white">
             <div className="flex flex-col gap-4 font-semibold text-base max-h-[75vh] overflow-y-auto">
               {/* Pets Accordion */}
               <div>

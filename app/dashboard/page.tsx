@@ -4,7 +4,7 @@ import { authStore } from "@/Store/authStore";
 import { useAdStore } from "@/Store/AdsStore";
 import { useRouter } from 'next/navigation';
 import { toast } from '@/utils/toast';
-import LoadingSpinner from '@/Components/Dashboard/LoadingSpinner';
+
 import DashboardHeader from '@/Components/Dashboard/DashboardHeader';
 import StatsCards from '@/Components/Dashboard/StatsCards';
 import AdsGrid from '@/Components/Dashboard/AdsGrid';
@@ -88,6 +88,9 @@ export default function Dashboard() {
   const [editModalOrigin, setEditModalOrigin] = useState<{ x: number; y: number } | null>(null);
   const [activeMenu, setActiveMenu] = useState<'overview' | 'ads' | 'create-ad' | 'profile' | 'change-password'>('overview');
 
+  // Mobile drawer state
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   // Check authentication on mount
   useEffect(() => {
     const verifyAuth = async () => {
@@ -142,7 +145,6 @@ export default function Dashboard() {
     const success = await deleteAd(adId);
     if (success) {
       setAds(prevAds => prevAds.filter(ad => ad._id !== adId));
-      // Optionally refresh the ads list to ensure sync with backend
       fetchUserAds();
     }
   };
@@ -166,126 +168,182 @@ export default function Dashboard() {
     setShowEditModal(true);
   };
 
-  if (isCheckingAuth || loading) {
-    return <LoadingSpinner />;
-  }
-
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col overflow-x-hidden">
+{/* Mobile Header Bar with Side Menu Toggle Icon */}
+<span className="lg:hidden flex items-center px-3 sm:px-4 py-2.5 sm:py-3 sticky top-50 z-30">
+  <button
+    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+    className="flex items-center gap-1.5 p-2 rounded-lg text-gray-700 focus:outline-none transition-colors"
+    aria-label="Toggle Menu"
+  >
+    {/* Side Menu Graphic */}
+    <svg className="w-5 h-5 text-gray-800 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h6M4 10h6M4 14h6M4 18h6" />
+      <rect x="2" y="3" width="10" height="18" rx="2" stroke="currentColor" strokeWidth="2" />
+    </svg>
+
+    {/* Dynamic Arrow: Points Right when closed, Points Left when open */}
+    <svg className="w-4 h-4 text-gray-800 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+      {isSidebarOpen ? (
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+      ) : (
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+      )}
+    </svg>
+  </button>
+</span>
+
       {/* Hero Section */}
-      <section className="relative h-22.5 w-full flex items-center justify-center shrink-0" style={{background: "var(--gradient-hero)"}}>
+      <section
+        className="relative h-16 sm:h-20 lg:h-22.5 w-full flex items-center justify-center shrink-0"
+        style={{ background: "var(--gradient-hero)" }}
+      >
         <div className="text-center text-white">
-          {/* <h1 className="text-3xl md:text-4xl font-bold mb-2">Dashboard</h1> */}
-          {/* <p className="text-lg opacity-90">Manage your pet advertisements</p> */}
+          {/* <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Dashboard</h1> */}
+          {/* <p className="text-base sm:text-lg opacity-90">Manage your pet advertisements</p> */}
         </div>
       </section>
-{/* Main Layout Container */}
-<div className="flex flex-1">
-  {/* Fixed Sidebar */}
-  <aside className="w-64 bg-white shrink-0">
-    <div className="p-6 h-full">
-      <div className="mb-6">
-        <button
-          onClick={() => router.push("/")}
-          className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 group"
-          title="Back to Home"
-        >
-          <svg
-            className="w-4 h-4 text-gray-600 transition-colors duration-200 group-hover:text-indigo-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M10 19l-7-7m0 0l7-7m-7 7h18"
-            />
-          </svg>
-          <span className="text-sm font-medium text-gray-600 transition-colors duration-200 group-hover:text-indigo-600">
-            Back to home
-          </span>
-        </button>
-      </div>
 
-      <nav className="space-y-2">
-        <button
-          onClick={() => setActiveMenu('overview')}
-          className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
-            activeMenu === 'overview'
-              ? 'text-white shadow-md'
-              : 'text-gray-700 hover:bg-gray-100'
-          }`}
-          style={activeMenu === 'overview' ? { background: 'var(--gradient-hero)' } : {}}
-        >
-          📊 Overview
-        </button>
-        <button
-          onClick={() => setActiveMenu('create-ad')}
-          className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
-            activeMenu === 'create-ad'
-              ? 'text-white shadow-md'
-              : 'text-gray-700 hover:bg-gray-100'
-          }`}
-          style={activeMenu === 'create-ad' ? { background: 'var(--gradient-hero)' } : {}}
-        >
-          ➕ Create Ad
-        </button>
-        <button
-          onClick={() => setActiveMenu('ads')}
-          className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
-            activeMenu === 'ads'
-              ? 'text-white shadow-md'
-              : 'text-gray-700 hover:bg-gray-100'
-          }`}
-          style={activeMenu === 'ads' ? { background: 'var(--gradient-hero)' } : {}}
-        >
-          🐾 My Ads
-        </button>
-        <button
-          onClick={() => setActiveMenu('profile')}
-          className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
-            activeMenu === 'profile'
-              ? 'text-white shadow-md'
-              : 'text-gray-700 hover:bg-gray-100'
-          }`}
-          style={activeMenu === 'profile' ? { background: 'var(--gradient-hero)' } : {}}
-        >
-          👤 Profile
-        </button>
-        <button
-          onClick={() => setActiveMenu('change-password')}
-          className={`w-full text-left px-4 py-3 rounded-xl font-medium transition-all duration-200 ${
-            activeMenu === 'change-password'
-              ? 'text-white shadow-md'
-              : 'text-gray-700 hover:bg-gray-100'
-          }`}
-          style={activeMenu === 'change-password' ? { background: 'var(--gradient-hero)' } : {}}
-        >
-          🔒 Change Password
-        </button>
-      </nav>
-    </div>
-  </aside>
+      {/* Main Layout Container */}
+      <div className="flex flex-1 relative overflow-hidden">
+
+        {/* Mobile Backdrop Overlay */}
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden transition-opacity"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        {/* Sidebar / Drawer */}
+        <aside className={`
+          fixed lg:static inset-y-0 left-0 z-50
+          w-72 sm:w-64 max-w-[85vw] bg-white shrink-0 border-r border-gray-200
+          transform transition-transform duration-300 ease-in-out
+          ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}>
+          <div className="p-4 sm:p-6 h-full flex flex-col overflow-y-auto">
+            <div className="mb-4 sm:mb-6">
+              <button
+                onClick={() => {
+                  router.push("/");
+                  setIsSidebarOpen(false);
+                }}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 group w-full"
+                title="Back to Home"
+              >
+                <svg
+                  className="w-4 h-4 text-gray-600 transition-colors duration-200 group-hover:text-indigo-600 shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                  />
+                </svg>
+                <span className="text-sm font-medium text-gray-600 transition-colors duration-200 group-hover:text-indigo-600 truncate">
+                  Back to home
+                </span>
+              </button>
+            </div>
+
+            <nav className="space-y-1.5 sm:space-y-2">
+              <button
+                onClick={() => {
+                  setActiveMenu('overview');
+                  setIsSidebarOpen(false);
+                }}
+                className={`w-full text-left px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 ${
+                  activeMenu === 'overview'
+                    ? 'text-white shadow-md'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                style={activeMenu === 'overview' ? { background: 'var(--gradient-hero)' } : {}}
+              >
+                📊 Overview
+              </button>
+              <button
+                onClick={() => {
+                  setActiveMenu('create-ad');
+                  setIsSidebarOpen(false);
+                }}
+                className={`w-full text-left px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 ${
+                  activeMenu === 'create-ad'
+                    ? 'text-white shadow-md'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                style={activeMenu === 'create-ad' ? { background: 'var(--gradient-hero)' } : {}}
+              >
+                ➕ Create Ad
+              </button>
+              <button
+                onClick={() => {
+                  setActiveMenu('ads');
+                  setIsSidebarOpen(false);
+                }}
+                className={`w-full text-left px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 ${
+                  activeMenu === 'ads'
+                    ? 'text-white shadow-md'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                style={activeMenu === 'ads' ? { background: 'var(--gradient-hero)' } : {}}
+              >
+                🐾 My Ads
+              </button>
+              <button
+                onClick={() => {
+                  setActiveMenu('profile');
+                  setIsSidebarOpen(false);
+                }}
+                className={`w-full text-left px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 ${
+                  activeMenu === 'profile'
+                    ? 'text-white shadow-md'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                style={activeMenu === 'profile' ? { background: 'var(--gradient-hero)' } : {}}
+              >
+                👤 Profile
+              </button>
+              <button
+                onClick={() => {
+                  setActiveMenu('change-password');
+                  setIsSidebarOpen(false);
+                }}
+                className={`w-full text-left px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl font-medium text-sm sm:text-base transition-all duration-200 ${
+                  activeMenu === 'change-password'
+                    ? 'text-white shadow-md'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+                style={activeMenu === 'change-password' ? { background: 'var(--gradient-hero)' } : {}}
+              >
+                🔒 Change Password
+              </button>
+            </nav>
+          </div>
+        </aside>
 
         {/* Scrollable Main Content */}
-        <main className="flex-1 bg-linear-to-br from-teal-50 to-cyan-50 overflow-y-auto">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="flex-1 bg-linear-to-br from-teal-50 to-cyan-50 overflow-y-auto min-w-0">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
             {(activeMenu === 'overview' || activeMenu === 'ads') && (
-              <div className="mb-6">
+              <div className="mb-4 sm:mb-6">
                 <DashboardHeader onCreateAd={handleCreateAd} />
               </div>
             )}
 
             {activeMenu === 'overview' && (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 <StatsCards totalAds={ads.length} ads={ads} />
               </div>
             )}
 
             {activeMenu === 'ads' && (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {ads.length > 0 ? (
                   <AdsGrid
                     ads={ads.map(ad => ({
@@ -318,24 +376,24 @@ export default function Dashboard() {
             )}
 
             {activeMenu === 'create-ad' && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 border border-gray-100">
                   <CreateAdForm onSubmit={handleAdSubmit} isSubmitting={isPosting} />
                 </div>
               </div>
             )}
 
             {activeMenu === 'profile' && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 border border-gray-100">
                   <ProfileInfoForm />
                 </div>
               </div>
             )}
 
             {activeMenu === 'change-password' && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8 border border-gray-100">
                   <ChangePasswordForm />
                 </div>
               </div>

@@ -77,149 +77,261 @@ export default function AdsGrid({ ads, onDeleteAd, onEditAd }: AdsGridProps) {
   };
 
   return (
-    <div className="mb-8">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Advertisements</h2>
+      <div className="mb-8">
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4 sm:mb-6">
+        Your Advertisements
+      </h2>
 
-      <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Pet Details
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Price (PKR)
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Location
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Health
-                </th>
-                <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 bg-white">
-              {ads.map((ad) => {
-                const titleText = ad.name || ad.title || 'Untitled Pet';
-                const locationText = ad.city || ad.location || 'Location not specified';
+      {ads.length === 0 ? (
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 text-center py-12">
+          <p className="text-gray-500 text-lg">No advertisements found.</p>
+        </div>
+      ) : (
+        <>
+          {/* MOBILE / TABLET CARD VIEW */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:hidden">
+            {ads.map((ad) => {
+              const titleText = ad.name || ad.title || 'Untitled Pet';
+              const locationText = ad.city || ad.location || 'Location not specified';
 
-                return (
-                  <tr key={ad._id} className="hover:bg-gray-50/80 transition-colors duration-200">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center space-x-4">
-                        <div className="shrink-0">
-                          <img
-                            src={getFirstValidImage(ad.images)}
-                            alt={titleText}
-                            className="h-14 w-14 rounded-xl object-cover border border-gray-200 shadow-sm"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = "https://via.placeholder.com/150?text=No+Image";
-                            }}
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 truncate">
-                            {titleText}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            {ad.breed || 'Breed N/A'} • {ad.gender || 'N/A'} • {ad.age ? `${ad.age} months` : 'Age N/A'}
-                          </p>
-                          <div className="mt-1">
-                            <p className="text-xs text-gray-500">
-                              {expandedDescription === ad._id
-                                ? ad.description
-                                : truncateDescription(ad.description || '')
-                              }
-                              {ad.description && ad.description.length > 50 && (
-                                <button
-                                  onClick={() => toggleDescription(ad._id)}
-                                  className="ml-2 font-semibold text-[#028d8f] hover:underline"
-                                >
-                                  {expandedDescription === ad._id ? 'Less' : 'More'}
-                                </button>
-                              )}
-                            </p>
-                          </div>
-                        </div>
+              return (
+                <div
+                  key={ad._id}
+                  className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4 flex flex-col gap-3"
+                >
+                  {/* Top: image + title/status */}
+                  <div className="flex items-start gap-3">
+                    <img
+                      src={getFirstValidImage(ad.images)}
+                      alt={titleText}
+                      className="h-16 w-16 rounded-xl object-cover border border-gray-200 shadow-sm shrink-0"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "https://via.placeholder.com/150?text=No+Image";
+                      }}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-gray-900 truncate">
+                        {titleText}
+                      </p>
+                      <p className="text-xs text-gray-600 mt-0.5">
+                        {ad.breed || 'Breed N/A'} • {ad.gender || 'N/A'} • {ad.age ? `${ad.age} months` : 'Age N/A'}
+                      </p>
+                      <div className="mt-1.5">
+                        {getStatusBadge(ad.isApproved)}
                       </div>
-                    </td>
+                    </div>
+                  </div>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
+                  {/* Description */}
+                  {ad.description && (
+                    <p className="text-xs text-gray-500">
+                      {expandedDescription === ad._id
+                        ? ad.description
+                        : truncateDescription(ad.description)}
+                      {ad.description.length > 50 && (
+                        <button
+                          onClick={() => toggleDescription(ad._id)}
+                          className="ml-2 font-semibold text-[#028d8f] hover:underline"
+                        >
+                          {expandedDescription === ad._id ? 'Less' : 'More'}
+                        </button>
+                      )}
+                    </p>
+                  )}
+
+                  {/* Price + Location row */}
+                  <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+                    <div>
                       <div className="text-sm font-bold text-gray-900">
                         ₨ {Number(ad.price || 0).toLocaleString()}
                       </div>
                       <div className="text-xs text-gray-500 capitalize">
                         {ad.category || 'Pet'}
                       </div>
-                    </td>
-
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    </div>
+                    <div className="text-right">
                       <div className="text-sm text-gray-900 font-medium">
                         {locationText}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {ad.contactNumber || 'No contact provided'}
+                        {ad.contactNumber || 'No contact'}
                       </div>
-                    </td>
+                    </div>
+                  </div>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      {getStatusBadge(ad.isApproved)}
-                    </td>
+                  {/* Health badges */}
+                  {(ad.vaccinated || ad.kcpRegistered) && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {ad.vaccinated && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          ✓ Vaccinated
+                        </span>
+                      )}
+                      {ad.kcpRegistered && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          ✓ KCP Registered
+                        </span>
+                      )}
+                    </div>
+                  )}
 
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex flex-col space-y-1">
-                        {ad.vaccinated && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 w-fit">
-                            ✓ Vaccinated
-                          </span>
-                        )}
-                        {ad.kcpRegistered && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 w-fit">
-                            ✓ KCP Registered
-                          </span>
-                        )}
-                        {!ad.vaccinated && !ad.kcpRegistered && (
-                          <span className="text-xs text-gray-400">None</span>
-                        )}
-                      </div>
-                    </td>
-
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="flex items-center justify-center space-x-3">
-                        <button
-                          onClick={(e) => onEditAd(ad, e)}
-                          className="font-semibold text-sm text-[#028d8f] hover:text-[#00595F] transition-colors duration-200"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteClick(ad._id, titleText)}
-                          className="text-red-600 hover:text-red-800 font-semibold text-sm transition-colors duration-200"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-
-        {ads.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No advertisements found.</p>
+                  {/* Actions */}
+                  <div className="flex items-center justify-end gap-4 border-t border-gray-100 pt-3">
+                    <button
+                      onClick={(e) => onEditAd(ad, e)}
+                      className="font-semibold text-sm text-[#028d8f] hover:text-[#00595F] transition-colors duration-200"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteClick(ad._id, titleText)}
+                      className="text-red-600 hover:text-red-800 font-semibold text-sm transition-colors duration-200"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-        )}
-      </div>
+
+          {/* DESKTOP TABLE VIEW */}
+          <div className="hidden lg:block bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Pet Details
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Price (PKR)
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Location
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Health
+                    </th>
+                    <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200 bg-white">
+                  {ads.map((ad) => {
+                    const titleText = ad.name || ad.title || 'Untitled Pet';
+                    const locationText = ad.city || ad.location || 'Location not specified';
+
+                    return (
+                      <tr key={ad._id} className="hover:bg-gray-50/80 transition-colors duration-200">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center space-x-4">
+                            <div className="shrink-0">
+                              <img
+                                src={getFirstValidImage(ad.images)}
+                                alt={titleText}
+                                className="h-14 w-14 rounded-xl object-cover border border-gray-200 shadow-sm"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = "https://via.placeholder.com/150?text=No+Image";
+                                }}
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-semibold text-gray-900 truncate">
+                                {titleText}
+                              </p>
+                              <p className="text-sm text-gray-600">
+                                {ad.breed || 'Breed N/A'} • {ad.gender || 'N/A'} • {ad.age ? `${ad.age} months` : 'Age N/A'}
+                              </p>
+                              <div className="mt-1">
+                                <p className="text-xs text-gray-500">
+                                  {expandedDescription === ad._id
+                                    ? ad.description
+                                    : truncateDescription(ad.description || '')
+                                  }
+                                  {ad.description && ad.description.length > 50 && (
+                                    <button
+                                      onClick={() => toggleDescription(ad._id)}
+                                      className="ml-2 font-semibold text-[#028d8f] hover:underline"
+                                    >
+                                      {expandedDescription === ad._id ? 'Less' : 'More'}
+                                    </button>
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-bold text-gray-900">
+                            ₨ {Number(ad.price || 0).toLocaleString()}
+                          </div>
+                          <div className="text-xs text-gray-500 capitalize">
+                            {ad.category || 'Pet'}
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 font-medium">
+                            {locationText}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {ad.contactNumber || 'No contact provided'}
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {getStatusBadge(ad.isApproved)}
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex flex-col space-y-1">
+                            {ad.vaccinated && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 w-fit">
+                                ✓ Vaccinated
+                              </span>
+                            )}
+                            {ad.kcpRegistered && (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 w-fit">
+                                ✓ KCP Registered
+                              </span>
+                            )}
+                            {!ad.vaccinated && !ad.kcpRegistered && (
+                              <span className="text-xs text-gray-400">None</span>
+                            )}
+                          </div>
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <div className="flex items-center justify-center space-x-3">
+                            <button
+                              onClick={(e) => onEditAd(ad, e)}
+                              className="font-semibold text-sm text-[#028d8f] hover:text-[#00595F] transition-colors duration-200"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteClick(ad._id, titleText)}
+                              className="text-red-600 hover:text-red-800 font-semibold text-sm transition-colors duration-200"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
