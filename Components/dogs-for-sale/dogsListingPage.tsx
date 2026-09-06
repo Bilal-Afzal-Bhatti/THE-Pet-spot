@@ -458,6 +458,212 @@ export default function DogsPage() {
         </button>
       </div>
 
+      
+        {/* 🐶 Pets Grid */}
+        {/* 🐶 Pets Grid */}
+        <div className="flex-1">
+          <div className="mb-8">
+            <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
+              <span className="hover:text-(--color-primary) cursor-pointer transition-colors">
+                Home
+              </span>
+              <span>→</span>
+              <span className="hover:text-(--color-primary) cursor-pointer transition-colors">
+                Dogs
+              </span>
+              <span>→</span>
+              <span className="text-(--color-primary) font-medium">
+                {selectedBreed
+                  ? `${selectedBreed} for Sale`
+                  : "All Dogs for Sale"}
+              </span>
+            </div>
+
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+              <div>
+               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent mb-2" style={{ color: "var(--gradient-hero)" }}>
+                  {selectedBreed
+                    ? `${selectedBreed} For Sale`
+                    : "Dogs For Sale"}
+                </h1>
+                {/* <p className="text-gray-600 flex items-center gap-2">
+                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-600 font-semibold text-sm">
+                    {loading ? '...' : totalAds}
+                  </span>
+                  Premium pets available near you
+                </p> */}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {loading ? (
+              // Loading state
+              Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="rounded-2xl overflow-hidden shadow-sm animate-pulse" style={{ background: 'var(--gradient-hero)' }}>
+                  <div className="h-64 bg-gray-600"></div>
+                  <div className="p-5">
+                    <div className="h-6 bg-gray-600 rounded mb-3"></div>
+                    <div className="space-y-2.5 mb-4">
+                      <div className="flex justify-between">
+                        <div className="h-4 bg-gray-600 rounded w-16"></div>
+                        <div className="h-4 bg-gray-600 rounded w-20"></div>
+                      </div>
+                      <div className="flex justify-between">
+                        <div className="h-4 bg-gray-600 rounded w-20"></div>
+                        <div className="h-4 bg-gray-600 rounded w-24"></div>
+                      </div>
+                      <div className="flex justify-between">
+                        <div className="h-4 bg-gray-600 rounded w-16"></div>
+                        <div className="h-4 bg-gray-600 rounded w-18"></div>
+                      </div>
+                    </div>
+                    <div className="h-10 bg-gray-600 rounded-lg"></div>
+                  </div>
+                </div>
+              ))
+            ) : filteredPetsList.length === 0 ? (
+              <div className="col-span-3 text-center py-20">
+                <div className="text-6xl mb-4">🐕</div>
+                <h3 className="text-2xl font-semibold text-gray-800 mb-2">
+                  No pets found
+                </h3>
+                <p className="text-gray-500">Try adjusting your filters</p>
+              </div>
+            ) : (
+              filteredPetsList.map((pet) => (
+                <div
+                  key={pet.id || pet._id}
+                  className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                >
+                  <div className="relative overflow-hidden">
+                    <img
+                      src={pet.img || pet.images?.[0] || '/default-pet.jpg'}
+                      alt={pet.name}
+                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                    />                    <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />                    {/* <div className="absolute top-3 left-3">
+                      <span className="px-3 py-1.5 bg-white/95 backdrop-blur-sm text-purple-600 text-xs font-semibold rounded-full shadow-lg">
+                        :star: Premium
+                      </span>
+                    </div> */}
+                  </div>
+
+
+                  <div className="p-5">
+                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-purple-600 transition-colors">
+                      {pet.name}
+                    </h3>                    <div className="space-y-2.5 mb-4">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Breed</span>
+                        <span className="font-semibold text-gray-800">
+                          {pet.breed}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Gender & Age</span>
+                        <span className="font-semibold text-gray-800">
+                          {pet.gender}, {pet.age} {pet.age === 1 ? 'month' : 'months'}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Location</span>
+                        <span className="font-semibold text-purple-600">
+                          {pet.city}
+                        </span>
+                      </div>
+                    </div>                   
+                    <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-3 text-xs sm:text-sm">
+                      <a
+                        href={`tel:${pet.contactNumber}`}
+                        className="px-3 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1"
+                      >
+                        <FiPhone className="text-sm" />
+                        Call
+                      </a>
+                      <a
+                        href={`https://wa.me/${pet.contactNumber}?text=${encodeURIComponent('Hi, I saw your ad, I am interested')}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1"
+                      >
+                        <SiWhatsapp className="text-sm" />
+                        Chat
+                      </a>
+                      {/* <a
+                        href={`/dogs/pet/${pet._id || pet.id}`}
+                        className="px-3 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1"
+                      >
+                        <FiInfo className="text-sm" />
+                        Info
+                      </a> */}
+
+                      <button
+                        type="button"
+                        onClick={() => handleViewPet(pet)}
+                        className="px-3 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        <FiInfo className="text-sm" />
+                        Info
+                      </button>         </div>
+                    <button className="w-full py-3 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 hover:scale-[1.02]" style={{ background: "var(--gradient-hero" }}>
+                      {pet.price?.toLocaleString() || 'N/A'} PKR
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Pagination */}
+          {!loading && totalPages > 1 && (
+            <div className="mt-12 flex items-center justify-center gap-4">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className={`px-6 py-2.5 rounded-full font-medium transition-all duration-200 ${currentPage === 1
+                  ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                  : "text-white hover:bg-(--color-primary-hover) shadow-sm hover:shadow-md hover:scale-105"
+                  }`}
+                style={currentPage !== 1 ? { background: 'var(--bg-dark-accent)' } : {}}
+              >
+                Previous
+              </button>
+
+            <div className="flex items-center gap-2 overflow-x-auto max-w-full px-1 py-1">
+  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-10 h-10 rounded-full font-semibold transition-all duration-200 ${currentPage === page
+                        ? "bg-(--color-primary) text-white shadow-lg scale-110"
+                        : "text-white hover:bg-(--color-primary-hover) hover:text-white"
+                        }`}
+                      style={currentPage !== page ? { background: 'var(--bg-dark-accent)' } : {}}
+                    >
+                      {page}
+                    </button>
+                  )
+                )}
+              </div>
+
+              <button
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
+                disabled={currentPage >= totalPages}
+                className={`px-6 py-2.5 rounded-full font-medium transition-all duration-200 ${currentPage >= totalPages
+                  ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                  : "text-white hover:bg-(--color-primary-hover) shadow-sm hover:shadow-md hover:scale-105"
+                  }`}
+                style={currentPage < totalPages ? { background: 'var(--bg-dark-accent)' } : {}}
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </div>
+
       {/* 🔽 Main Layout (Sidebar + Content) */}
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-4">
         {/* 🧭 Sidebar */}
@@ -754,210 +960,6 @@ export default function DogsPage() {
           </div>
         </div>
 
-        {/* 🐶 Pets Grid */}
-        {/* 🐶 Pets Grid */}
-        <div className="flex-1">
-          <div className="mb-8">
-            <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-              <span className="hover:text-(--color-primary) cursor-pointer transition-colors">
-                Home
-              </span>
-              <span>→</span>
-              <span className="hover:text-(--color-primary) cursor-pointer transition-colors">
-                Dogs
-              </span>
-              <span>→</span>
-              <span className="text-(--color-primary) font-medium">
-                {selectedBreed
-                  ? `${selectedBreed} for Sale`
-                  : "All Dogs for Sale"}
-              </span>
-            </div>
-
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-              <div>
-               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold bg-clip-text text-transparent mb-2" style={{ color: "var(--gradient-hero)" }}>
-                  {selectedBreed
-                    ? `${selectedBreed} For Sale`
-                    : "Dogs For Sale"}
-                </h1>
-                {/* <p className="text-gray-600 flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-600 font-semibold text-sm">
-                    {loading ? '...' : totalAds}
-                  </span>
-                  Premium pets available near you
-                </p> */}
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {loading ? (
-              // Loading state
-              Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="rounded-2xl overflow-hidden shadow-sm animate-pulse" style={{ background: 'var(--gradient-hero)' }}>
-                  <div className="h-64 bg-gray-600"></div>
-                  <div className="p-5">
-                    <div className="h-6 bg-gray-600 rounded mb-3"></div>
-                    <div className="space-y-2.5 mb-4">
-                      <div className="flex justify-between">
-                        <div className="h-4 bg-gray-600 rounded w-16"></div>
-                        <div className="h-4 bg-gray-600 rounded w-20"></div>
-                      </div>
-                      <div className="flex justify-between">
-                        <div className="h-4 bg-gray-600 rounded w-20"></div>
-                        <div className="h-4 bg-gray-600 rounded w-24"></div>
-                      </div>
-                      <div className="flex justify-between">
-                        <div className="h-4 bg-gray-600 rounded w-16"></div>
-                        <div className="h-4 bg-gray-600 rounded w-18"></div>
-                      </div>
-                    </div>
-                    <div className="h-10 bg-gray-600 rounded-lg"></div>
-                  </div>
-                </div>
-              ))
-            ) : filteredPetsList.length === 0 ? (
-              <div className="col-span-3 text-center py-20">
-                <div className="text-6xl mb-4">🐕</div>
-                <h3 className="text-2xl font-semibold text-gray-800 mb-2">
-                  No pets found
-                </h3>
-                <p className="text-gray-500">Try adjusting your filters</p>
-              </div>
-            ) : (
-              filteredPetsList.map((pet) => (
-                <div
-                  key={pet.id || pet._id}
-                  className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-                >
-                  <div className="relative overflow-hidden">
-                    <img
-                      src={pet.img || pet.images?.[0] || '/default-pet.jpg'}
-                      alt={pet.name}
-                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                    />                    <div className="absolute inset-0 bg-linear-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />                    {/* <div className="absolute top-3 left-3">
-                      <span className="px-3 py-1.5 bg-white/95 backdrop-blur-sm text-purple-600 text-xs font-semibold rounded-full shadow-lg">
-                        :star: Premium
-                      </span>
-                    </div> */}
-                  </div>
-
-
-                  <div className="p-5">
-                    <h3 className="text-xl font-bold text-gray-800 mb-3 group-hover:text-purple-600 transition-colors">
-                      {pet.name}
-                    </h3>                    <div className="space-y-2.5 mb-4">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500">Breed</span>
-                        <span className="font-semibold text-gray-800">
-                          {pet.breed}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500">Gender & Age</span>
-                        <span className="font-semibold text-gray-800">
-                          {pet.gender}, {pet.age} {pet.age === 1 ? 'month' : 'months'}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-500">Location</span>
-                        <span className="font-semibold text-purple-600">
-                          {pet.city}
-                        </span>
-                      </div>
-                    </div>                   
-                    <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-3 text-xs sm:text-sm">
-                      <a
-                        href={`tel:${pet.contactNumber}`}
-                        className="px-3 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1"
-                      >
-                        <FiPhone className="text-sm" />
-                        Call
-                      </a>
-                      <a
-                        href={`https://wa.me/${pet.contactNumber}?text=${encodeURIComponent('Hi, I saw your ad, I am interested')}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="px-3 py-2 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1"
-                      >
-                        <SiWhatsapp className="text-sm" />
-                        Chat
-                      </a>
-                      {/* <a
-                        href={`/dogs/pet/${pet._id || pet.id}`}
-                        className="px-3 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1"
-                      >
-                        <FiInfo className="text-sm" />
-                        Info
-                      </a> */}
-
-                      <button
-                        type="button"
-                        onClick={() => handleViewPet(pet)}
-                        className="px-3 py-2 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors text-sm font-medium text-center flex items-center justify-center gap-1 cursor-pointer"
-                      >
-                        <FiInfo className="text-sm" />
-                        Info
-                      </button>         </div>
-                    <button className="w-full py-3 text-white font-semibold rounded-lg hover:shadow-lg transition-all duration-200 hover:scale-[1.02]" style={{ background: "var(--gradient-hero" }}>
-                      {pet.price?.toLocaleString() || 'N/A'} PKR
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-          {/* Pagination */}
-          {!loading && totalPages > 1 && (
-            <div className="mt-12 flex items-center justify-center gap-4">
-              <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-                className={`px-6 py-2.5 rounded-full font-medium transition-all duration-200 ${currentPage === 1
-                  ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                  : "text-white hover:bg-(--color-primary-hover) shadow-sm hover:shadow-md hover:scale-105"
-                  }`}
-                style={currentPage !== 1 ? { background: 'var(--bg-dark-accent)' } : {}}
-              >
-                Previous
-              </button>
-
-            <div className="flex items-center gap-2 overflow-x-auto max-w-full px-1 py-1">
-  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (page) => (
-                    <button
-                      key={page}
-                      onClick={() => setCurrentPage(page)}
-                      className={`w-10 h-10 rounded-full font-semibold transition-all duration-200 ${currentPage === page
-                        ? "bg-(--color-primary) text-white shadow-lg scale-110"
-                        : "text-white hover:bg-(--color-primary-hover) hover:text-white"
-                        }`}
-                      style={currentPage !== page ? { background: 'var(--bg-dark-accent)' } : {}}
-                    >
-                      {page}
-                    </button>
-                  )
-                )}
-              </div>
-
-              <button
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalPages, p + 1))
-                }
-                disabled={currentPage >= totalPages}
-                className={`px-6 py-2.5 rounded-full font-medium transition-all duration-200 ${currentPage >= totalPages
-                  ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                  : "text-white hover:bg-(--color-primary-hover) shadow-sm hover:shadow-md hover:scale-105"
-                  }`}
-                style={currentPage < totalPages ? { background: 'var(--bg-dark-accent)' } : {}}
-              >
-                Next
-              </button>
-            </div>
-          )}
-        </div>
       </div>
     </div>
   );
