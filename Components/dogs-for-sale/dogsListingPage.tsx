@@ -665,7 +665,7 @@ export default function DogsPage() {
         </div>
 
       {/* 🔽 Main Layout (Sidebar + Content) */}
-      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-4">
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-4 mt-6">
         {/* 🧭 Sidebar */}
         <div className="w-full lg:w-60 shrink-0">
           {/* Clear All Filters */}

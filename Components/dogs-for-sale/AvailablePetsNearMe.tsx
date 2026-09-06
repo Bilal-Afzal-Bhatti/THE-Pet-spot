@@ -10,36 +10,41 @@ export default function AvailablePets() {
   ];
 
   return (
-    <section className=" py-12 text-center text-black mt-0 px-44 bg-white">
-      <div className=" mx-auto px-6">
-        <h2 className="text-3xl font-semibold mb-2">
+    <section className="py-12 text-center text-black bg-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Section Heading & Subtitle */}
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-2">
           Available Dogs & Puppies Near You
         </h2>
-        <p className="text-sm mb-8">
-          Discover more about your favourite dog breed and determine if it suits
-          your lifestyle.
+        <p className="text-sm text-gray-600 mb-8 max-w-2xl mx-auto">
+          Discover more about your favourite dog breed and determine if it suits your lifestyle.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+        {/* Responsive Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6">
           {images.map((img, i) => (
             <div
               key={i}
-              className="bg-white overflow-hidden shadow-md transform hover:scale-105 transition"
+              className="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transform hover:scale-105 transition duration-200"
             >
               <img
                 src={img.src}
                 alt={img.name}
-                className="w-full h-44 object-cover"
+                className="w-full h-36 sm:h-44 object-cover"
               />
-              <h2 className="text-center text-sm font-semibold text-white bg-[#8957E9] py-1.5">
+              <h3 className="text-center text-xs sm:text-sm font-semibold text-white bg-[#8957E9] py-1.5 px-2 truncate">
                 {img.name}
-              </h2>
+              </h3>
             </div>
           ))}
         </div>
-        {/* <div className="px-3 py-1 bg-[#028d8f] hover:bg-[#00595F] hover:cursor-pointer border-2 inline mt-40">
+
+        {/* Optional View More Button */}
+        {/* <div className="px-3 py-1 bg-[#028d8f] hover:bg-[#00595F] hover:cursor-pointer border-2 inline-block mt-10 text-white rounded">
           View More Puppies
         </div> */}
+
       </div>
     </section>
   );

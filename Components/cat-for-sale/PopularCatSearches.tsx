@@ -58,7 +58,7 @@ export default function PopularCatSearches() {
             <ul className="space-y-4">
               {searches.map((item, index) => (
                 <li key={index} className="flex items-start gap-3">
-                  <FaBone className="text-[#FBB885] mt-1 flex-shrink-0" />
+                  <FaBone className="text-[#FBB885] mt-1 shrink-0" />
                   <span className="text-black">{item}</span>
                 </li>
               ))}

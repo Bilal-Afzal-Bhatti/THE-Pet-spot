@@ -6,7 +6,7 @@ export default function NotFoundPets() {
     <section className="w-full min-h-screen px-44 bg-white flex flex-col md:flex-row items-center justify-center  py-16 md:py-24">
       {/* Left Side Image */}
       <div className="md:w-4/12 w-full flex justify-center mb-10 md:mb-0">
-        <div className="relative w-[320px] md:w-[340px]">
+        <div className="relative w-[320px] md:w-85">
           <Image
             src="/listing-form.webp" // replace with your actual image path
             alt="Man holding dog"
