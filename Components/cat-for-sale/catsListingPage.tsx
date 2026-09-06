@@ -648,207 +648,211 @@ export default function CatsPage() {
             
           )}
 
-          {/* Sorted By */}
-          <div className="px-5 py-5 shadow rounded-lg my-3" style={{ background: 'var(--gradient-hero)' }}>
-            <div className="text-(--color-primary) flex items-center justify-between">
-              <h3 className="font-semibold text-base flex items-center gap-2 text-white">
-                Sort By
-              </h3>
-              {sortBy && (
-                <button
-                  onClick={() => setSortBy("")}
-                  className="text-xs text-gray-300 hover:text-white transition-colors"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
+ <div className="w-full flex flex-col gap-6 mb-8">
 
-            <hr className="my-2 border-gray-400 mb-4" />
-
-            <div className="space-y-3 text-white text-sm">
-              <label className="flex items-center gap-2 font-semibold cursor-pointer">
-                <input
-                  type="radio"
-                  name="sortBy"
-                  value="priceLowHigh"
-                  className="accent-(--color-primary) w-4 h-4"
-                  checked={sortBy === "priceLowHigh"}
-                  onChange={() => setSortBy("priceLowHigh")}
-                />
-                Price Low to High
-              </label>
-              <hr className="border-gray-400" />
-              <label className="flex items-center gap-2 font-semibold cursor-pointer">
-                <input
-                  type="radio"
-                  name="sortBy"
-                  value="priceHighLow"
-                  className="accent-(--color-primary) w-4 h-4"
-                  checked={sortBy === "priceHighLow"}
-                  onChange={() => setSortBy("priceHighLow")}
-                />
-                Price High to Low
-              </label>
-              <hr className="border-gray-400" />
-              <label className="flex items-center gap-2 font-semibold cursor-pointer">
-                <input
-                  type="radio"
-                  name="sortBy"
-                  value="ageLowHigh"
-                  className="accent-(--color-primary) w-4 h-4"
-                  checked={sortBy === "ageLowHigh"}
-                  onChange={() => setSortBy("ageLowHigh")}
-                />
-                Age Low to High
-              </label>
-              <hr className="border-gray-400" />
-              <label className="flex items-center gap-2 font-semibold cursor-pointer">
-                <input
-                  type="radio"
-                  name="sortBy"
-                  value="ageHighLow"
-                  className="accent-(--color-primary) w-4 h-4"
-                  checked={sortBy === "ageHighLow"}
-                  onChange={() => setSortBy("ageHighLow")}
-                />
-                Age High to Low
-              </label>
-              <hr className="border-gray-400" />
-              <label className="flex items-center gap-2 font-semibold cursor-pointer">
-                <input
-                  type="radio"
-                  name="sortBy"
-                  value="newest"
-                  className="accent-(--color-primary) w-4 h-4"
-                  checked={sortBy === "newest"}
-                  onChange={() => setSortBy("newest")}
-                />
-                Whats New
-              </label>
-            </div>
-          </div>
-          <div className="px-5 py-5 shadow rounded-lg my-3" style={{ background: 'var(--gradient-hero)' }}>
-            <div className="text-(--color-primary) flex items-center justify-between">
-              <h3 className="font-semibold text-base flex items-center gap-2 text-white">
-                Gender
-              </h3>
-              {selectedGender && (
-                <button
-                  onClick={() => setSelectedGender("")}
-                  className="text-xs text-gray-300 hover:text-white transition-colors"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-            <hr className="my-2 border-gray-400 mb-4" />
-            <div className="space-y-3 text-white text-sm">
-              {genderOptions.map((opt, idx) => (
-                <div key={opt}>
-                  <label className="flex items-center gap-2 font-semibold cursor-pointer active:text-(--color-primary)">
-                    <input
-                      type="radio"
-                      name="gender"
-                      value={opt}
-                      className="accent-(--color-primary) w-4 h-4 mb-2 "
-                      checked={selectedGender === opt}
-                      onChange={() => setSelectedGender(opt)}
-                    />
-                    {opt}
-                  </label>
-                  {idx < genderOptions.length - 1 && (
-                    <hr className="border-gray-400 my-1.5" />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Pet Features Section */}
-          <div className="px-5 py-5 shadow rounded-lg my-3" style={{ background: 'var(--gradient-hero)' }}>
-            <div className="text-(--color-primary) flex items-center justify-between">
-              <h3 className="font-semibold text-base flex items-center gap-2 text-white">
-                Pet Features
-              </h3>
-              {selectedFeature && (
-                <button
-                  onClick={() => setSelectedFeature("")}
-                  className="text-xs text-gray-300 hover:text-white transition-colors"
-                >
-                  Clear
-                </button>
-              )}
-            </div>
-            <hr className="my-2 border-gray-400 mb-4" />
-            <div className="space-y-3 text-white text-sm">
-              {featureOptions.map((opt, idx) => (
-                <div key={opt}>
-                  <label className="flex items-center gap-2 font-semibold cursor-pointer mb-2">
-                    <input
-                      type="radio"
-                      name="feature"
-                      value={opt}
-                      className="accent-(--color-primary) w-4 h-4"
-                      checked={selectedFeature === opt}
-                      onChange={() => setSelectedFeature(opt)}
-                    />
-                    {opt}
-                  </label>
-                  {idx < featureOptions.length - 1 && (
-                    <hr className="border-gray-400 my-1.5" />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* 💰 Budget Range */}
-          <div className="mb-5 px-5 py-5 shadow rounded-lg" style={{ background: 'var(--gradient-hero)' }}>
-            <h3 className="text-white font-semibold flex items-center gap-2 mb-3">
-              <FiDollarSign className="text-(--color-primary)" /> Budget
-            </h3>
-            <input
-              type="range"
-              min="0"
-              max="1000000"
-              value={budget}
-              onChange={(e) => setBudget(Number(e.target.value))}
-              className="w-full appearance-none h-2 bg-gray-600 rounded-lg accent-(--color-primary) cursor-pointer outline-none"
-            />
-            <div className="flex justify-between font-semibold text-white mt-2">
-              <p>0</p>
-              <p>10L</p>
-            </div>
-            <p className="text-sm text-gray-300 mt-2">
-              Your Budget: <span className="font-semibold text-white">{budget} PKR</span>
-            </p>
-          </div>
-
-          {/* 🔥 Popular Breeds */}
-          <div className="px-5 py-5 shadow rounded-lg my-3" style={{ background: 'var(--gradient-hero)' }}>
-            <h3 className="text-white font-semibold flex items-center gap-2 mb-3">
-              <FaFire className="text-(--color-primary)" /> Popular Breeds
-            </h3>
-            <div className="space-y-2">
-              {popularCatBreeds.map((breed, i) => {
-                const breedCount = apiData.filter((p) => p.breed === breed).length;
-                return (
-                  <div
-                    key={i}
-                    onClick={() => setSelectedBreed(breed)}
-                    className="hover:text-(--color-primary) cursor-pointer text-sm flex gap-2 text-white transition-colors"
-                  >
-                    <span>{breed}</span>
-                    <span className="text-gray-300">({breedCount})</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+      {/* Sort By */}
+      <div className="w-full px-5 py-5 shadow rounded-lg" style={{ background: 'var(--gradient-hero)' }}>
+        <div className="text-(--color-primary) flex items-center justify-between">
+          <h3 className="font-semibold text-base flex items-center gap-2 text-white">
+            Sort By
+          </h3>
+          {sortBy && (
+            <button
+              onClick={() => setSortBy("")}
+              className="text-xs text-gray-300 hover:text-white transition-colors"
+            >
+              Clear
+            </button>
+          )}
         </div>
 
-       
+        <hr className="my-2 border-gray-400 mb-4" />
+
+        <div className="space-y-3 text-white text-sm">
+          <label className="flex items-center gap-2 font-semibold cursor-pointer">
+            <input
+              type="radio"
+              name="sortBy"
+              value="priceLowHigh"
+              className="accent-(--color-primary) w-4 h-4"
+              checked={sortBy === "priceLowHigh"}
+              onChange={() => setSortBy("priceLowHigh")}
+            />
+            Price Low to High
+          </label>
+          <hr className="border-gray-400" />
+          <label className="flex items-center gap-2 font-semibold cursor-pointer">
+            <input
+              type="radio"
+              name="sortBy"
+              value="priceHighLow"
+              className="accent-(--color-primary) w-4 h-4"
+              checked={sortBy === "priceHighLow"}
+              onChange={() => setSortBy("priceHighLow")}
+            />
+            Price High to Low
+          </label>
+          <hr className="border-gray-400" />
+          <label className="flex items-center gap-2 font-semibold cursor-pointer">
+            <input
+              type="radio"
+              name="sortBy"
+              value="ageLowHigh"
+              className="accent-(--color-primary) w-4 h-4"
+              checked={sortBy === "ageLowHigh"}
+              onChange={() => setSortBy("ageLowHigh")}
+            />
+            Age Low to High
+          </label>
+          <hr className="border-gray-400" />
+          <label className="flex items-center gap-2 font-semibold cursor-pointer">
+            <input
+              type="radio"
+              name="sortBy"
+              value="ageHighLow"
+              className="accent-(--color-primary) w-4 h-4"
+              checked={sortBy === "ageHighLow"}
+              onChange={() => setSortBy("ageHighLow")}
+            />
+            Age High to Low
+          </label>
+          <hr className="border-gray-400" />
+          <label className="flex items-center gap-2 font-semibold cursor-pointer">
+            <input
+              type="radio"
+              name="sortBy"
+              value="newest"
+              className="accent-(--color-primary) w-4 h-4"
+              checked={sortBy === "newest"}
+              onChange={() => setSortBy("newest")}
+            />
+            Whats New
+          </label>
+        </div>
       </div>
+
+      {/* Gender */}
+      <div className="w-full px-5 py-5 shadow rounded-lg" style={{ background: 'var(--gradient-hero)' }}>
+        <div className="text-(--color-primary) flex items-center justify-between">
+          <h3 className="font-semibold text-base flex items-center gap-2 text-white">
+            Gender
+          </h3>
+          {selectedGender && (
+            <button
+              onClick={() => setSelectedGender("")}
+              className="text-xs text-gray-300 hover:text-white transition-colors"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+        <hr className="my-2 border-gray-400 mb-4" />
+        <div className="space-y-3 text-white text-sm">
+          {genderOptions.map((opt, idx) => (
+            <div key={opt}>
+              <label className="flex items-center gap-2 font-semibold cursor-pointer active:text-(--color-primary)">
+                <input
+                  type="radio"
+                  name="gender"
+                  value={opt}
+                  className="accent-(--color-primary) w-4 h-4 mb-2"
+                  checked={selectedGender === opt}
+                  onChange={() => setSelectedGender(opt)}
+                />
+                {opt}
+              </label>
+              {idx < genderOptions.length - 1 && (
+                <hr className="border-gray-400 my-1.5" />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Pet Features Section */}
+      <div className="w-full px-5 py-5 shadow rounded-lg" style={{ background: 'var(--gradient-hero)' }}>
+        <div className="text-(--color-primary) flex items-center justify-between">
+          <h3 className="font-semibold text-base flex items-center gap-2 text-white">
+            Pet Features
+          </h3>
+          {selectedFeature && (
+            <button
+              onClick={() => setSelectedFeature("")}
+              className="text-xs text-gray-300 hover:text-white transition-colors"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+        <hr className="my-2 border-gray-400 mb-4" />
+        <div className="space-y-3 text-white text-sm">
+          {featureOptions.map((opt, idx) => (
+            <div key={opt}>
+              <label className="flex items-center gap-2 font-semibold cursor-pointer mb-2">
+                <input
+                  type="radio"
+                  name="feature"
+                  value={opt}
+                  className="accent-(--color-primary) w-4 h-4"
+                  checked={selectedFeature === opt}
+                  onChange={() => setSelectedFeature(opt)}
+                />
+                {opt}
+              </label>
+              {idx < featureOptions.length - 1 && (
+                <hr className="border-gray-400 my-1.5" />
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* 💰 Budget Range */}
+      <div className="w-full px-5 py-5 shadow rounded-lg" style={{ background: 'var(--gradient-hero)' }}>
+        <h3 className="text-white font-semibold flex items-center gap-2 mb-3">
+          Budget
+        </h3>
+        <input
+          type="range"
+          min="0"
+          max="1000000"
+          value={budget}
+          onChange={(e) => setBudget(Number(e.target.value))}
+          className="w-full appearance-none h-2 bg-gray-600 rounded-lg accent-(--color-primary) cursor-pointer outline-none"
+        />
+        <div className="flex justify-between font-semibold text-white mt-2">
+          <p>0</p>
+          <p>10L</p>
+        </div>
+        <p className="text-sm text-gray-300 mt-2">
+          Your Budget: <span className="font-semibold text-white">{budget} PKR</span>
+        </p>
+      </div>
+
+      {/* 🔥 Popular Breeds */}
+      <div className="w-full px-5 py-5 shadow rounded-lg" style={{ background: 'var(--gradient-hero)' }}>
+        <h3 className="text-white font-semibold flex items-center gap-2 mb-3">
+          Popular Breeds
+        </h3>
+        <div className="space-y-2">
+          {popularCatBreeds.map((breed, i) => {
+            const breedCount = apiData.filter((p) => p.breed === breed).length;
+            return (
+              <div
+                key={i}
+                onClick={() => setSelectedBreed(breed)}
+                className="hover:text-(--color-primary) cursor-pointer text-sm flex gap-2 text-white transition-colors"
+              >
+                <span>{breed}</span>
+                <span className="text-gray-300">({breedCount})</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+       </div>
+      </div>
+    </div>
     </div>
   );
 }
