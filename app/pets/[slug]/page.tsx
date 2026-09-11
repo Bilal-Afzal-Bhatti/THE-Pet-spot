@@ -23,6 +23,7 @@ const getPetImage = (pet: any) => {
 export default function PetDetailPage() {
   const router = useRouter();
   const params = useParams();
+  console.log("params",params);
   const slug = params?.slug as string;
 
   const { setSelectedPet } = useBuyStore();

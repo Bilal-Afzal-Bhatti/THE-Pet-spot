@@ -30,14 +30,34 @@ interface AdsGridProps {
   onEditAd: (ad: Ad, event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
-// Picks the first real, loadable image (Vercel Blob or any other full URL).
-// Old local "/uploads/..." paths from pre-Blob test data never resolve on
-// the deployed site, so they're skipped here instead of showing a broken image.
+// Local placeholder — lives in /public, so it never depends on any
+// external service being up.
+const NO_IMAGE_PLACEHOLDER = '/no-image-placeholder.png';
+
+// Resolves the first usable image path, handling both:
+// - Vercel Blob (or any other full URL): already absolute, used as-is
+// - Local Multer uploads (e.g. "/uploads/foo.jpg"): relative to the
+//   backend, so Base_URL is prepended to make them loadable from the
+//   frontend's origin
 const getFirstValidImage = (images?: string[]): string => {
-  const valid = (images || []).find(
-    (img) => img?.startsWith('http://') || img?.startsWith('https://') || img?.startsWith('blob:')
-  );
-  return valid || 'https://via.placeholder.com/150?text=No+Image';
+  const first = (images || []).find((img) => !!img);
+
+  if (!first) {
+    return NO_IMAGE_PLACEHOLDER;
+  }
+
+  // Already a full URL (Vercel Blob, S3, blob: preview, etc.) — use as-is
+  if (
+    first.startsWith('http://') ||
+    first.startsWith('https://') ||
+    first.startsWith('blob:')
+  ) {
+    return first;
+  }
+
+  // Otherwise treat it as a backend-relative Multer path and prefix it
+  const normalizedPath = first.startsWith('/') ? first : `/${first}`;
+  return `${Base_URL}${normalizedPath}`;
 };
 
 export default function AdsGrid({ ads, onDeleteAd, onEditAd }: AdsGridProps) {
@@ -106,7 +126,7 @@ export default function AdsGrid({ ads, onDeleteAd, onEditAd }: AdsGridProps) {
                       alt={titleText}
                       className="h-16 w-16 rounded-xl object-cover border border-gray-200 shadow-sm shrink-0"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = "https://via.placeholder.com/150?text=No+Image";
+                        (e.target as HTMLImageElement).src = NO_IMAGE_PLACEHOLDER;
                       }}
                     />
                     <div className="flex-1 min-w-0">
@@ -236,7 +256,7 @@ export default function AdsGrid({ ads, onDeleteAd, onEditAd }: AdsGridProps) {
                                 alt={titleText}
                                 className="h-14 w-14 rounded-xl object-cover border border-gray-200 shadow-sm"
                                 onError={(e) => {
-                                  (e.target as HTMLImageElement).src = "https://via.placeholder.com/150?text=No+Image";
+                                  (e.target as HTMLImageElement).src = NO_IMAGE_PLACEHOLDER;
                                 }}
                               />
                             </div>

@@ -645,7 +645,7 @@ export default function CreateAdModal({ isOpen, onClose, onSubmit, isSubmitting,
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-[#028d8f] to-[#008080] hover:from-[#00595F] hover:to-[#004d4f] disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 disabled:scale-100 transition-all duration-200 flex items-center justify-center"
+              className="flex-1 px-6 py-3 bg-linear-to-r from-[#028d8f] to-[#008080] hover:from-[#00595F] hover:to-[#004d4f] disabled:from-gray-400 disabled:to-gray-500 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 disabled:scale-100 transition-all duration-200 flex items-center justify-center"
             >
               {isSubmitting ? (
                 <>

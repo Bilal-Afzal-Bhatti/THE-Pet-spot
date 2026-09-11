@@ -35,23 +35,23 @@ export default function AdCard({ ad, index, onDelete, onEdit }: AdCardProps) {
   const { deleteAd } = useAdStore();
   const [isDeletingThis, setIsDeletingThis] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-const getImageUrl = (imagePath?: string) => {
-  if (!imagePath) return "https://via.placeholder.com/400x300?text=No+Image";
+  const getImageUrl = (imagePath?: string) => {
+    if (!imagePath) return "https://via.placeholder.com/400x300?text=No+Image";
 
-  // If already a complete web URL or blob preview, return as-is
-  if (imagePath.startsWith("http://") || imagePath.startsWith("https://") || imagePath.startsWith("blob:")) {
-    return imagePath;
-  }
+    // If already a complete web URL or blob preview, return as-is
+    if (imagePath.startsWith("http://") || imagePath.startsWith("https://") || imagePath.startsWith("blob:")) {
+      return imagePath;
+    }
 
-  // Force backend URL (Port 5000)
-  const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+    // Force backend URL (Port 5000)
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-  // Format clean path: /uploads/filename.webp
-  const cleanPath = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
-  const fullPath = cleanPath.startsWith("/uploads/") ? cleanPath : `/uploads${cleanPath}`;
+    // Format clean path: /uploads/filename.webp
+    const cleanPath = imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
+    const fullPath = cleanPath.startsWith("/uploads/") ? cleanPath : `/uploads${cleanPath}`;
 
-  return `${API_BASE}${fullPath}`;
-};
+    return `${API_BASE}${fullPath}`;
+  };
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this advertisement?')) {
       setIsDeletingThis(true);
@@ -84,7 +84,7 @@ const getImageUrl = (imagePath?: string) => {
               alt={ad.name || ad.title || 'Pet advertisement'}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
               onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/400x300?text=Image+Not+Found';
+                (e.target as HTMLImageElement).src = '/public/no-image-placeholder.png';
               }}
             />
             <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -99,9 +99,8 @@ const getImageUrl = (imagePath?: string) => {
                       e.stopPropagation();
                       setActiveImageIndex(imgIdx);
                     }}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      activeImageIndex === imgIdx ? 'w-6 bg-white' : 'w-2 bg-white/60 hover:bg-white'
-                    }`}
+                    className={`h-2 rounded-full transition-all duration-300 ${activeImageIndex === imgIdx ? 'w-6 bg-white' : 'w-2 bg-white/60 hover:bg-white'
+                      }`}
                   />
                 ))}
               </div>
@@ -117,13 +116,12 @@ const getImageUrl = (imagePath?: string) => {
             {/* Status & Health Badges */}
             <div className="absolute top-4 right-4 flex flex-col gap-1.5 items-end">
               <div
-                className={`text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-lg ${
-                  ad.isApproved === 'approved'
-                    ? 'bg-green-500'
-                    : ad.isApproved === 'rejected'
-                      ? 'bg-red-500'
-                      : 'bg-yellow-500'
-                }`}
+                className={`text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-lg ${ad.isApproved === 'approved'
+                  ? 'bg-green-500'
+                  : ad.isApproved === 'rejected'
+                    ? 'bg-red-500'
+                    : 'bg-yellow-500'
+                  }`}
               >
                 {ad.isApproved === 'approved'
                   ? '✓ Approved'
