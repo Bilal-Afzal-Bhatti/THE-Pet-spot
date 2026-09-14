@@ -244,9 +244,9 @@ export default function PetDetailPage() {
             <div className="space-y-3 sm:space-y-4 pt-4 border-t">
               <button
                 onClick={handleBuyNow}
-                className="w-full py-3.5 sm:py-4 bg-black text-white font-extrabold rounded-xl sm:rounded-2xl shadow-lg hover:bg-gray-800 transition-all text-sm sm:text-base cursor-pointer"
+                className="w-full py-3.5 sm:py-4 bg-[#FFAC0D] text-white font-extrabold rounded-xl sm:rounded-2xl shadow-lg hover:bg-gray-800 transition-all text-sm sm:text-base cursor-pointer"
               >
-                Proceed to Checkout
+              Buy Now
               </button>
 
               <div className="flex items-center justify-center gap-2 text-[11px] sm:text-xs text-gray-400 text-center">
