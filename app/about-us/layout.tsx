@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "About Us | Pets Corner",
     description:
-      "Discover Pets Corner's mission, services, and commitment to quality pet care across India.",
+      "Discover Pets Corner's mission, services, and commitment to quality pet care across Pakistan",
     url: "https://www.mrnmrspet.com/about-us",
     siteName: "Pets Corner",
     images: [
