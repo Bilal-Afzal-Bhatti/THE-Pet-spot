@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "About Us | Pets Corner",
     description:
-      "Learn about Pets Corner, our mission, services, and trusted pet care solutions across India.",
+      "Learn about Pets Corner, our mission, services, and trusted pet care solutions across Pakistan.",
     images: ["/aboutBg.webp"],
     creator: "@mrnmrspet",
   },
@@ -69,7 +69,7 @@ export default function AboutUsLayout({
       "https://twitter.com/mrnmrspet",
     ],
     description:
-      "Pets Corner provides trusted pet care services including grooming, training, boarding, and a variety of pet products across India.",
+      "Pets Corner provides trusted pet care services including grooming, training, boarding, and a variety of pet products across Pakistan.",
     contactPoint: [
       {
         "@type": "ContactPoint",
