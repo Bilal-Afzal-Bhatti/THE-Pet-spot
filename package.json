@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^7.3.1",
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@fortawesome/react-fontawesome": "^3.1.0",
     "axios": "^1.13.2",
@@ -29,6 +30,7 @@
     "@types/react-dom": "^19",
     "baseline-browser-mapping": "^2.11.20",
     "caniuse-lite": "^1.0.30001810",
+    "cypress": "^16.1.0",
     "eslint": "^10.9.1",
     "eslint-config-next": "16.0.1",
     "tailwindcss": "^4",
