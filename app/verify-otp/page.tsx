@@ -10,7 +10,7 @@ import Link from "next/link";
 export default function VerifyOtpPage() {
   const router = useRouter();
   const [otp, setOtp] = useState("");
-  
+
   const { verifyOtp, isVerifyingOtp, pendingEmail, authUser, isCheckingAuth, checkAuth } = authStore();
 
   useEffect(() => {
@@ -49,11 +49,11 @@ export default function VerifyOtpPage() {
   }
 
   return (
-    <div className="min-h-screen flex justify-center py-5 pb-10" style={{ background: "var(--gradient-hero)" }}>
+    <div className="min-h-screen flex justify-center items-center p-5" style={{ background: "var(--gradient-hero)" }}>
       <div className="w-full max-w-5xl bg-white shadow-[0_4px_25px_rgba(0,0,0,0.08)] grid grid-cols-1 md:grid-cols-2 overflow-hidden rounded-4xl">
-        
+
         {/* Left Section */}
-        <div className="flex flex-col px-10 py-10">
+        <div className="flex flex-col px-10 py-4">
           <div className="text-left mb-4">
             <Link href="/sign-up" className="text-(--color-secondary) font-medium hover:underline">
               ← Back to Sign Up
@@ -107,7 +107,7 @@ export default function VerifyOtpPage() {
         </div>
 
         {/* Right Section */}
-        <div className="relative flex flex-col justify-center items-center text-white px-10 py-16">
+        <div className="relative flex flex-col justify-center items-center text-white px-10 py-6">
           <Image
             src="/signup-bg.webp"
             alt="bg"
